@@ -6,6 +6,7 @@
 <title>Coastal Strength</title>
 <meta name="description" content="A strength and body-composition log. Local-first, no invented numbers.">
 <meta name="theme-color" content="#0A1922">
+<meta name="build" content="2026-09-11 · 3c2e57fd">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2677,6 +2678,8 @@ textarea.input { min-height: 80px; resize: vertical; }
     stor.appendChild(h('p.small', { text: app.store.backend.label + '.' }));
     stor.appendChild(h('p.small.muted', { text: app.storageNote() }));
     stor.appendChild(h('p.small.muted', { text: 'Export and import (JSON and CSV) arrive with the export slice. Until then there is no backup — treat this as a working copy.' }));
+    const buildMeta = document.querySelector('meta[name="build"]');
+    stor.appendChild(h('p.tiny.muted', { text: 'Build ' + (buildMeta ? buildMeta.getAttribute('content') : 'unknown') + '. Updates never touch logged data.' }));
     stack.appendChild(stor);
 
     /* Data */
