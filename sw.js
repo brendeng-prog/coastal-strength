@@ -1,7 +1,7 @@
 /* Coastal Strength service worker — hosted builds only.
    Cache-first for the app shell so it opens with no signal; the cache is refreshed in the
    background and the new version is used on the next launch. */
-const VERSION = 'cs-3c2e57fd';
+const VERSION = 'cs-f1373823';
 const ASSETS = ['./', './index.html', './manifest.json', './favicon.svg', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {

@@ -6,7 +6,7 @@
 <title>Coastal Strength</title>
 <meta name="description" content="A strength and body-composition log. Local-first, no invented numbers.">
 <meta name="theme-color" content="#0A1922">
-<meta name="build" content="2026-09-11 · 3c2e57fd">
+<meta name="build" content="2026-09-11 · f1373823">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,7 +19,7 @@
   --surface: #F7F4EE; --card: #FFFFFF; --ink: #0E2231; --muted: #5A6B78;
   --accent: #1F8C84; --accent-ink: #FFFFFF; --sand: #C8A96E; --danger: #C9614F;
   --line: #E4DFD5; --line-strong: #CDC6B9; --field: #FBFAF7; --tint: rgba(31,140,132,.10); --sand-tint: rgba(200,169,110,.16);
-  --tab-h: 62px;
+  --tab-h: 60px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -39,214 +39,178 @@ html, body { margin: 0; padding: 0; background: var(--surface); color: var(--ink
 html { -webkit-text-size-adjust: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px; line-height: 1.4;
-  font-variant-numeric: tabular-nums lining-nums;
-  min-height: 100dvh; overflow-x: hidden;
+  font-size: 17px; line-height: 1.35; font-variant-numeric: tabular-nums lining-nums;
+  min-height: 100dvh; overflow-x: hidden; -webkit-tap-highlight-color: transparent;
 }
 button, input, select, textarea { font: inherit; color: inherit; font-variant-numeric: tabular-nums lining-nums; }
-button { cursor: pointer; }
-a { color: var(--accent); }
+button { cursor: pointer; touch-action: manipulation; }
 h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
-h1 { font-size: 24px; } h2 { font-size: 18px; } h3 { font-size: 16px; }
+h1 { font-size: 28px; } h2 { font-size: 22px; } h3 { font-size: 17px; }
 p { margin: 0; }
 .muted { color: var(--muted); }
-.small { font-size: 14px; }
-.tiny { font-size: 12px; }
-.num { font-variant-numeric: tabular-nums lining-nums; }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.sand { color: var(--sand); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 #app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
-.screen {
-  flex: 1; padding: calc(12px + env(safe-area-inset-top)) 16px calc(var(--tab-h) + 24px + env(safe-area-inset-bottom));
-  width: 100%; overflow-x: hidden;
-}
+.screen { flex: 1; padding: calc(8px + env(safe-area-inset-top)) 16px calc(var(--tab-h) + 24px + env(safe-area-inset-bottom)); width: 100%; overflow-x: hidden; }
 .screen.no-tabs { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
-.screen.has-timer { padding-bottom: calc(var(--tab-h) + 96px + env(safe-area-inset-bottom)); }
+.screen.has-timer { padding-bottom: calc(var(--tab-h) + 110px + env(safe-area-inset-bottom)); }
 
-.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; min-height: 36px; }
-.topbar .brand { display: flex; align-items: center; gap: 10px; }
-.topbar .brand svg { width: 26px; height: 26px; flex: none; }
-.status { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
-.status.saved::before { background: var(--accent); }
-.status.saving::before, .status.dirty::before { background: var(--sand); }
-.status.error::before, .status.unavailable::before { background: var(--danger); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; margin-bottom: 8px; }
+.topbar .brand { display: flex; align-items: center; gap: 8px; }
+.topbar .brand svg { width: 24px; height: 24px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); border: 0; padding: 0; }
+.dot.saved { background: var(--accent); } .dot.saving, .dot.dirty { background: var(--sand); } .dot.error, .dot.unavailable { background: var(--danger); }
 
 .stack > * + * { margin-top: 12px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
-.card.flat { background: transparent; border-style: dashed; }
 .row { display: flex; align-items: center; gap: 10px; }
 .row.between { justify-content: space-between; }
 .row.wrap { flex-wrap: wrap; }
 .grow { flex: 1; min-width: 0; }
 
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line-strong);
-  background: var(--card); color: var(--ink); font-weight: 600; font-size: 16px; text-decoration: none;
-}
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font-weight: 600; font-size: 17px; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .btn.block { width: 100%; }
-.btn.quiet { background: transparent; border-color: transparent; color: var(--accent); padding: 0 10px; }
+.btn.quiet { background: transparent; border-color: transparent; color: var(--accent); padding: 0 8px; }
 .btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
 .btn.danger.solid { background: var(--danger); color: #fff; }
-.btn.sm { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
-.btn.xs { min-height: 34px; padding: 0 10px; font-size: 13px; border-radius: 9px; font-weight: 500; }
-.btn:disabled { opacity: .45; cursor: default; }
+.btn.sm { min-height: 40px; padding: 0 12px; font-size: 15px; border-radius: 10px; }
+.btn.xs { min-height: 34px; padding: 0 10px; font-size: 14px; border-radius: 9px; font-weight: 500; }
 .btn.icon { width: 44px; min-width: 44px; padding: 0; }
+.btn:disabled { opacity: .4; cursor: default; }
 .link { background: none; border: 0; color: var(--accent); padding: 4px 0; font-weight: 500; }
+.ibtn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-strong); background: none; color: var(--muted); font-size: 13px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field label { font-size: 14px; color: var(--muted); }
-.input, select.input, textarea.input {
-  width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong);
-  background: var(--field); color: var(--ink); font-size: 17px; outline: none;
-}
+.field label { font-size: 15px; color: var(--muted); }
+.input, select.input, textarea.input { width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--field); color: var(--ink); font-size: 17px; outline: none; }
 textarea.input { min-height: 80px; resize: vertical; }
-.input:focus, select.input:focus, textarea.input:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus-visible, .setcheck:focus-visible {
-  outline: 3px solid var(--accent); outline-offset: 2px;
-}
-.input.invalid { border-color: var(--danger); }
-.help { font-size: 13px; color: var(--muted); }
-.error { font-size: 13px; color: var(--danger); }
+.input:focus, select.input:focus, textarea.input:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus-visible, .setcheck:focus-visible, .step:focus-visible, .setinput:focus, .ibtn:focus-visible, .lrow:focus-visible, .setlabel:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.input.invalid, .setinput.invalid { border-color: var(--danger); color: var(--danger); }
+.error { font-size: 14px; color: var(--danger); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--card);
-  font-size: 15px; display: inline-flex; align-items: center; gap: 6px;
-}
-.chip[aria-pressed="true"], .chip.on { background: var(--tint); border-color: var(--accent); color: var(--ink); }
+.chip { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--card); font-size: 15px; display: inline-flex; align-items: center; gap: 6px; }
+.chip[aria-pressed="true"] { background: var(--tint); border-color: var(--accent); }
 .chip.sm { min-height: 34px; padding: 0 11px; font-size: 14px; }
 
 /* Tabs */
-.tabs {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  background: var(--card); border-top: 1px solid var(--line);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.tabs .inner { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); height: var(--tab-h); }
-.tab { background: none; border: 0; color: var(--muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.tabs .inner { max-width: 480px; margin: 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; height: var(--tab-h); }
+.tab { background: none; border: 0; color: var(--muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
 .tab svg { width: 24px; height: 24px; }
 .tab[aria-current="page"] { color: var(--ink); }
 .tab[aria-current="page"] svg { color: var(--accent); }
 
-/* Rest timer bar */
-.timerbar {
-  position: fixed; left: 0; right: 0; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); z-index: 19;
-  background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-}
-.timerbar .inner { max-width: 480px; margin: 0 auto; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
-.timerbar .clock { font-size: 26px; font-weight: 600; min-width: 74px; }
+/* Lists (edge to edge, hairline dividers) */
+.list { margin: 0 -16px; }
+.lrow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 0; border-top: 1px solid var(--line); background: none; color: var(--ink); text-align: left; font-size: 17px; }
+.list > .lrow:first-child { border-top: 0; }
+.lrow .grow { flex: 1; min-width: 0; }
+.lrow .val { color: var(--muted); }
+.lrow .val.on { color: var(--accent); }
+.section { font-size: 13px; color: var(--muted); padding: 22px 0 6px; }
+
+/* Rest timer sheet */
+.timerbar { position: fixed; left: 0; right: 0; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); z-index: 19; background: var(--card); border-top: 1px solid var(--line); }
+.timerbar .inner { max-width: 480px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.timerbar .clock { font-size: 34px; font-weight: 600; min-width: 96px; line-height: 1; }
 .timerbar.done .clock { color: var(--accent); }
-.timerbar .bar { position: absolute; left: 0; top: 0; height: 3px; background: var(--accent); }
+.timerbar .bar { position: absolute; left: 0; top: -1px; height: 3px; background: var(--accent); }
 
 /* Today */
-.session-card .name { font-size: 24px; font-weight: 600; }
-.ring { display: flex; align-items: center; gap: 16px; }
-.ring svg { width: 72px; height: 72px; flex: none; }
-.ring .big { font-size: 24px; font-weight: 600; }
-.daydots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+.hero { padding: 6px 0 10px; }
+.hero .name { font-size: 34px; font-weight: 600; line-height: 1.1; }
+.hero .meta { font-size: 15px; color: var(--muted); margin-top: 4px; }
+.hero .btn { margin-top: 14px; }
+.ring { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+.ring svg { width: 64px; height: 64px; flex: none; }
+.ring .big { font-size: 22px; font-weight: 600; }
+.daydots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
 .daydot { text-align: center; font-size: 11px; color: var(--muted); }
-.daydot i { display: block; width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 4px; border: 1.5px solid var(--line-strong); background: transparent; }
+.daydot i { display: block; width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 4px; border: 1.5px solid var(--line-strong); }
 .daydot.lift i { border-color: var(--ink); }
 .daydot.done i { background: var(--accent); border-color: var(--accent); }
 .daydot.today span { color: var(--ink); font-weight: 600; }
-.daydot.other i { border-style: dotted; }
-.weightline { font-size: 24px; font-weight: 600; }
+.weight { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 14px 0; border-top: 1px solid var(--line); }
+.weight .big { font-size: 22px; font-weight: 600; }
+.obs { padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 15px; color: var(--muted); }
 
-/* Train list */
-.weekrow { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
-.weekrow:first-child { border-top: 0; }
-.weekrow .day { font-weight: 600; }
-.weekrow.today .day { color: var(--accent); }
-.pill { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--tint); color: var(--ink); }
-.pill.done { background: var(--accent); color: var(--accent-ink); }
-.pill.muted { background: transparent; border: 1px solid var(--line-strong); color: var(--muted); }
-
-/* Logger */
-.logger-head { position: sticky; top: 0; z-index: 5; background: var(--surface); padding: 6px 0 8px; margin: -6px 0 6px; }
-.elapsed { font-size: 20px; font-weight: 600; }
-.excard { padding: 12px 12px 10px; }
-.excard .exhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.excard .exname { font-size: 17px; font-weight: 600; }
-.excard .exmeta { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.excard.skipped { opacity: .6; }
-.lastline { font-size: 13px; color: var(--muted); margin-top: 8px; }
-.sugg { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--sand-tint); font-size: 14px; }
-.sets { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.sethead { display: grid; grid-template-columns: 38px 1fr 1fr 44px 52px; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 2px; }
-.setrow { display: grid; grid-template-columns: 38px 1fr 1fr 44px 52px; gap: 6px; align-items: center; border-radius: 12px; padding: 4px 2px; border-left: 3px solid transparent; }
+/* Logger — focus mode */
+.focus-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0 6px; }
+.focus-head .elapsed { font-size: 17px; color: var(--muted); }
+.dots { display: flex; gap: 6px; justify-content: center; padding: 6px 0 12px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+.dots i.done { background: var(--accent); border-color: var(--accent); }
+.dots i.cur { border-color: var(--ink); transform: scale(1.3); }
+.dots i.skip { border-style: dotted; }
+.exname { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.exmeta { font-size: 15px; color: var(--muted); margin-top: 4px; }
+.lastline { font-size: 15px; color: var(--muted); margin-top: 10px; }
+.target { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--sand-tint); font-size: 15px; }
+.sets { margin: 14px -16px 0; }
+.setrow { display: grid; grid-template-columns: 30px 1fr 1fr 48px; gap: 8px; align-items: center; padding: 6px 16px; border-left: 3px solid transparent; }
 .setrow.done { border-left-color: var(--accent); background: var(--tint); }
-.setrow.warm .setlabel { color: var(--muted); }
-.setlabel { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.1; }
-.setlabel b { display: block; font-size: 15px; color: var(--ink); font-weight: 600; }
-.setinput {
-  width: 100%; min-height: 50px; padding: 0 6px; text-align: center; font-size: 22px; font-weight: 600; border-radius: 10px;
-  border: 1px solid var(--line-strong); background: var(--field); color: var(--ink);
-}
-.setinput.rir { font-size: 16px; font-weight: 500; }
+.setrow.cur { background: var(--field); }
+.setrow.warm { opacity: .7; }
+.setlabel { background: none; border: 0; padding: 0; text-align: center; font-size: 15px; color: var(--muted); font-weight: 600; line-height: 1.1; }
+.setlabel small { display: block; font-size: 10px; font-weight: 500; }
+.stepper { display: grid; grid-template-columns: 34px 1fr 34px; align-items: stretch; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--field); overflow: hidden; height: 54px; }
+.step { border: 0; background: none; color: var(--muted); font-size: 22px; padding: 0; }
+.setinput { border: 0; background: none; text-align: center; font-size: 28px; font-weight: 600; width: 100%; min-width: 0; padding: 0; color: var(--ink); }
 .setinput.prefilled { color: var(--muted); font-weight: 500; }
-.setinput.invalid { border-color: var(--danger); }
-.setinput::placeholder { color: var(--line-strong); font-weight: 400; }
-.setcheck {
-  width: 52px; height: 50px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--card);
-  display: inline-flex; align-items: center; justify-content: center; color: var(--muted);
-}
+.setinput::placeholder { color: var(--line-strong); font-weight: 400; font-size: 20px; }
+.setcheck { width: 48px; height: 54px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--card); color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
 .setcheck svg { width: 26px; height: 26px; }
 .setcheck.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.setactions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.convention { font-size: 11px; color: var(--muted); text-align: center; margin-top: -2px; }
-.rangebar { position: relative; height: 6px; border-radius: 3px; background: var(--line); margin: 8px 0 2px; }
-.rangebar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--accent); }
-.rangebar .tick { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--muted); }
+.actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 18px; }
+.undo { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 999px; font-size: 15px; z-index: 30; display: flex; gap: 12px; align-items: center; }
+.undo button { background: none; border: 0; color: var(--sand); font-weight: 600; padding: 0; }
+.convention { font-size: 12px; color: var(--muted); text-align: center; }
 
 /* Sheets */
 .sheet-back { position: fixed; inset: 0; background: rgba(6, 20, 28, .45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
 .sheet { width: 100%; max-width: 480px; background: var(--card); border-radius: 18px 18px 0 0; padding: 14px 16px calc(20px + env(safe-area-inset-bottom)); max-height: 88dvh; overflow-y: auto; }
 .sheet h2 { margin-bottom: 8px; }
-.sheet .list > * { display: flex; width: 100%; text-align: left; padding: 14px 4px; background: none; border: 0; border-top: 1px solid var(--line); font-size: 16px; color: var(--ink); align-items: center; justify-content: space-between; gap: 8px; }
+.sheet .list { margin: 0; }
+.sheet .list > * { display: flex; width: 100%; text-align: left; padding: 14px 4px; background: none; border: 0; border-top: 1px solid var(--line); font-size: 17px; color: var(--ink); align-items: center; justify-content: space-between; gap: 8px; }
 .sheet .list > *:first-child { border-top: 0; }
 .sheet .list .danger { color: var(--danger); }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--surface); padding: 10px 14px; border-radius: 10px; font-size: 14px; z-index: 50; max-width: 90vw; }
+.sheet .list .ovrow { justify-content: flex-start; }
+.sheet .list .ovrow .ovname { font: inherit; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--surface); padding: 10px 14px; border-radius: 10px; font-size: 15px; z-index: 50; max-width: 90vw; }
 
 /* Summary */
-.summ .stat { font-size: 26px; font-weight: 600; }
-.summ .cmp { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; font-size: 14px; align-items: baseline; }
-.summ .cmp .h { color: var(--muted); font-size: 12px; }
-.reasons { margin: 8px 0 0; padding-left: 18px; font-size: 14px; color: var(--muted); }
+.summ .stat { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.prline { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.prline .v { color: var(--sand); font-weight: 600; }
+.nextline { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.nextline .t { font-size: 15px; color: var(--muted); }
+.reasons { margin: 8px 0 0; padding-left: 18px; font-size: 15px; color: var(--muted); }
 .reasons li + li { margin-top: 4px; }
-.pr { color: var(--sand); font-weight: 600; }
 .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .scale .chip { justify-content: center; padding: 0; min-height: 44px; }
+.cmp { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; font-size: 15px; align-items: baseline; }
+.cmp .h { color: var(--muted); font-size: 12px; }
 
 /* Onboarding */
-.ob .step { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-.ob h1 { margin-bottom: 4px; }
-.ob .lead { color: var(--muted); margin-bottom: 18px; }
+.ob .stepn { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.ob h1 { margin-bottom: 14px; }
 .ob .actions { position: sticky; bottom: 0; padding: 12px 0 calc(8px + env(safe-area-inset-bottom)); background: var(--surface); margin-top: 20px; display: flex; gap: 10px; }
 .ob .actions .btn.primary { flex: 1; }
-.leverage { padding-left: 18px; margin: 10px 0 0; }
-.leverage li + li { margin-top: 8px; }
-
-/* Placeholder screens */
-.later { padding: 28px 16px; text-align: left; }
-
-/* Empty state */
-.empty { color: var(--muted); padding: 8px 0; }
-
-/* Progress list */
-.exlist button { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: 0; border-top: 1px solid var(--line); padding: 13px 2px; text-align: left; color: var(--ink); font-size: 16px; }
-.exlist button:first-child { border-top: 0; }
+.leverage { padding-left: 20px; margin: 0; font-size: 17px; }
+.leverage li + li { margin-top: 10px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .setcheck, .chip, .btn { transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
-  .sheet { animation: rise .18s ease-out; }
+  .setcheck.on { animation: pop .18s ease-out; }
+  @keyframes pop { 0% { transform: scale(.92); } 60% { transform: scale(1.06); } 100% { transform: none; } }
+  .sheet { animation: rise .16s ease-out; }
   @keyframes rise { from { transform: translateY(12px); opacity: .6; } to { transform: none; opacity: 1; } }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
-}
-@media (min-width: 481px) { .screen { padding-left: 20px; padding-right: 20px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
 </style>
 </head>
@@ -574,7 +538,15 @@ textarea.input { min-height: 80px; resize: vertical; }
   const U = CS.util, P = CS.plan;
   const D = {};
 
-  D.SCHEMA_VERSION = 1;
+  D.SCHEMA_VERSION = 2;
+
+  D.defaultSettings = function () {
+    return {
+      restDefaults: Object.assign({}, P.REST_DEFAULTS),
+      autoStartRest: true, restSound: true, restVibrate: true, haptics: true,
+      showRir: false, theme: 'auto'
+    };
+  };
 
   /* ---------- creation ---------- */
 
@@ -610,14 +582,9 @@ textarea.input { min-height: 80px; resize: vertical; }
       recoveryLogs: {},
       nutrition: { days: {}, savedFoods: [] },
       suggestions: {},
+      prs: [],
       timer: null,
-      settings: {
-        restDefaults: Object.assign({}, P.REST_DEFAULTS),
-        autoStartRest: true,
-        restSound: true,
-        restVibrate: true,
-        theme: 'auto'
-      }
+      settings: D.defaultSettings()
     };
     // Default picks: first option of every OR slot unless the user chose.
     P.OR_SLOTS.forEach((s) => { if (!db.profile.picks[s.slotId]) db.profile.picks[s.slotId] = s.options[0]; });
@@ -830,6 +797,11 @@ textarea.input { min-height: 80px; resize: vertical; }
     s.status = 'completed';
     s.finishedAt = nowIso;
     if (db.timer && db.timer.sessionId === sid) db.timer = null;
+    // PRs: detected once at completion against everything logged before this session.
+    if (CS.stats && CS.stats.detectPRs) {
+      db.prs = db.prs || [];
+      CS.stats.detectPRs(db, s).forEach((pr) => db.prs.push(pr));
+    }
     // Progression suggestions are built once, at completion, from what was actually logged.
     if (CS.progression) {
       s.exercises.forEach((inst) => {
@@ -1086,8 +1058,46 @@ textarea.input { min-height: 80px; resize: vertical; }
   D.migrate = function (db) {
     if (!db || typeof db !== 'object') return null;
     if (!db.schemaVersion) db.schemaVersion = 1;
-    // Future schema bumps go here, one step at a time.
+    if (db.schemaVersion < 2) {
+      db.settings = Object.assign(D.defaultSettings(), db.settings || {});
+      db.prs = db.prs || [];
+      db.schemaVersion = 2;
+    }
     return db;
+  };
+
+  /* "Same as last": complete every not-yet-completed working set that has prefilled values.
+     Returns the ids of the sets it completed so the action can be undone as one unit. */
+  D.completePrefilled = function (db, sid, iid, nowIso) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return [];
+    const done = [];
+    inst.sets.forEach((s) => {
+      if (s.kind !== 'working' || s.completed) return;
+      const hasValue = s.load != null || s.reps != null || s.durationSec != null;
+      if (!hasValue) return;
+      s.completed = true; s.completedAt = nowIso; s.prefilled = false;
+      done.push(s.id);
+    });
+    return done;
+  };
+
+  D.uncompleteSets = function (db, sid, iid, setIds) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    inst.sets.forEach((s) => { if (setIds.indexOf(s.id) >= 0) { s.completed = false; s.completedAt = null; } });
+  };
+
+  /* Stepper helper: adjust a numeric set field by a delta, clamped at 0. */
+  D.stepField = function (db, sid, iid, setId, field, delta) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return null;
+    const set = inst.sets.find((x) => x.id === setId);
+    if (!set) return null;
+    const cur = set[field] == null ? 0 : set[field];
+    const next = Math.max(0, Math.round((cur + delta) * 100) / 100);
+    set[field] = next; set.prefilled = false;
+    return next;
   };
 
   CS.db = D;
@@ -1317,7 +1327,7 @@ textarea.input { min-height: 80px; resize: vertical; }
         const top = sets.slice(0, p.sets).every((x) => x.reps != null && x.reps >= p.repMax);
         if (top) {
           const ex = D.exercise(db, inst.exerciseId);
-          out.push({ text: 'You hit the top of the range on all ' + p.sets + ' ' + ex.name.toLowerCase() + ' sets on ' + U.fmtLocalDate(last.localDate) + '.', source: { sessionId: last.id, instanceId: inst.instanceId } });
+          out.push({ text: ex.name + ': ' + p.sets + '/' + p.sets + ' at ' + p.repMax + ' · ' + U.fmtLocalDate(last.localDate), source: { sessionId: last.id, instanceId: inst.instanceId } });
           break;
         }
       }
@@ -1325,9 +1335,65 @@ textarea.input { min-height: 80px; resize: vertical; }
     const weights = db.measurements.filter((m) => m.type === 'weight');
     const distinctDays = {};
     weights.forEach((m) => { distinctDays[m.localDate] = true; });
-    if (Object.keys(distinctDays).length < 3) out.push({ text: 'Not enough weight history for a trend yet (' + Object.keys(distinctDays).length + ' of the 3 days needed).', source: null });
+    if (Object.keys(distinctDays).length < 3) out.push({ text: 'Weight trend: ' + Object.keys(distinctDays).length + ' / 3 weigh-ins', source: null });
     return out.slice(0, 2);
   };
+
+  /* Typed PRs for a just-completed session, judged against completed sessions before it.
+     A first-ever session of an exercise sets the baseline and produces no PR. */
+  S.detectPRs = function (db, session) {
+    const out = [];
+    const earlier = D.sessionList(db).filter((s) => s.id !== session.id && s.status === 'completed' && (s.finishedAt || '') < (session.finishedAt || '9'));
+    session.exercises.forEach((inst) => {
+      if (inst.skipped) return;
+      const ex = D.exercise(db, inst.exerciseId);
+      const now = D.logicalSets(inst, { completedOnly: true, kind: 'working' });
+      if (!now.length) return;
+      const prev = [];
+      earlier.forEach((s) => s.exercises.forEach((pi) => { if (pi.exerciseId === inst.exerciseId && !pi.skipped) prev.push.apply(prev, D.logicalSets(pi, { completedOnly: true, kind: 'working' })); }));
+      if (!prev.length) return;
+      const unit = db.profile.units;
+      const L = (x) => (x.load == null ? null : U.toUnit(x.load, x.unit || unit, unit));
+      const add = (type, value, label, extra) => out.push(Object.assign({ id: U.uid('pr'), exerciseId: ex.id, type, value, label, sessionId: session.id, localDate: session.localDate }, extra || {}));
+      if (ex.type === 'timed') {
+        const best = Math.max.apply(null, now.map((x) => x.durationSec || 0));
+        const was = Math.max.apply(null, prev.map((x) => x.durationSec || 0));
+        if (best > was) add('longest_hold', best, best + ' s');
+        return;
+      }
+      if (ex.loadConvention === 'none') {
+        const best = Math.max.apply(null, now.map((x) => x.reps || 0));
+        const was = Math.max.apply(null, prev.map((x) => x.reps || 0));
+        if (best > was) add('best_reps', best, best + ' reps');
+        return;
+      }
+      if (ex.type === 'assisted') {
+        // lowest assistance at a rep count
+        let best = null;
+        now.forEach((x) => { if (x.load == null || x.reps == null) return; const was = prev.filter((y) => y.load != null && y.reps != null && y.reps >= x.reps).map(L); const floor = was.length ? Math.min.apply(null, was) : null; if (floor != null && L(x) < floor && (!best || L(x) < best.load)) best = { load: L(x), reps: x.reps }; });
+        if (best) add('lowest_assistance', best.load, U.fmtLoad(best.load) + ' ' + unit + ' assist × ' + best.reps, { reps: best.reps });
+        return;
+      }
+      // best load at reps
+      let bl = null;
+      now.forEach((x) => { if (x.load == null || x.reps == null) return; const was = prev.filter((y) => y.load != null && y.reps != null && y.reps >= x.reps).map(L); const top = was.length ? Math.max.apply(null, was) : 0; if (top > 0 && L(x) > top && (!bl || L(x) > bl.load || (L(x) === bl.load && x.reps > bl.reps))) bl = { load: L(x), reps: x.reps }; });
+      if (bl) add('best_load_at_reps', bl.load, U.fmtLoad(bl.load) + ' × ' + bl.reps, { reps: bl.reps });
+      // best reps at load (only if not already the same set as above)
+      let br = null;
+      now.forEach((x) => { if (x.load == null || x.reps == null) return; const was = prev.filter((y) => y.load != null && y.reps != null && L(y) >= L(x)).map((y) => y.reps); const top = was.length ? Math.max.apply(null, was) : 0; if (top > 0 && x.reps > top && (!br || x.reps > br.reps)) br = { load: L(x), reps: x.reps }; });
+      if (br && !(bl && bl.load === br.load && bl.reps === br.reps)) add('best_reps_at_load', br.reps, br.reps + ' × ' + U.fmtLoad(br.load), { load: br.load });
+      // most working sets at top of range
+      const p = inst.prescription;
+      if (p.repMax) {
+        const cnt = now.filter((x) => x.reps != null && x.reps >= p.repMax).length;
+        const was = Math.max.apply(null, [0].concat(earlier.map((s) => { const pi = s.exercises.find((e) => e.exerciseId === inst.exerciseId && !e.skipped); return pi ? D.logicalSets(pi, { completedOnly: true, kind: 'working' }).filter((x) => x.reps != null && x.reps >= (pi.prescription.repMax || p.repMax)).length : 0; })));
+        if (cnt > was && cnt >= 2) add('most_top_sets', cnt, cnt + ' sets at ' + p.repMax);
+      }
+    });
+    return out;
+  };
+
+  S.prsForSession = function (db, sessionId) { return (db.prs || []).filter((p) => p.sessionId === sessionId); };
 
   CS.stats = S;
 })();
@@ -1716,6 +1782,76 @@ textarea.input { min-height: 80px; resize: vertical; }
 })();
 
 
+/* ===== ui/copy.js ===== */
+/* Coastal Strength — ui/copy.js
+   Every string the user can see. Screens use CS.copy.* only; nothing is hard-coded elsewhere.
+   Budgets (spec §1): Today 30 · logger card 12 · timer 4 · summary 60 · onboarding step 40 · empty state 8 · settings row 6. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  CS.copy = {
+    app: 'Coastal Strength',
+    tabs: { today: 'Today', train: 'Train', settings: 'Settings' },
+
+    today: {
+      start: 'Start', resume: 'Resume', rest: 'Rest', week: 'this week', logWeight: 'Log', done: 'Done',
+      exercises: 'exercises', sets: 'sets', avg: 'avg', summary: 'Summary', optional: 'optional', cardio: 'cardio'
+    },
+
+    week: { title: 'This week', start: 'Start', startToday: 'Start today', resume: 'Resume', view: 'View', done: 'Done', skipped: 'Skipped', rest: 'Rest', optional: 'Optional' },
+
+    logger: {
+      last: 'Last', target: 'Target', use: 'Use', hold: 'Hold', why: 'Why', sameAsLast: 'Same as last', undo: 'Undo',
+      addSet: 'Set', warmup: 'Warm-up', notes: 'Notes', plates: 'Plates', finish: 'Finish', pause: 'Pause', overview: 'Exercises',
+      rest: 'rest', skip: 'Skip', skipped: 'Skipped', unskip: 'Restore', substitute: 'Swap', sides: 'Sides', linked: 'Linked', separate: 'Separate',
+      restTimer: 'Rest timer', cues: 'Cues', remove: 'Remove', working: 'Working', warm: 'Warm-up', delete: 'Delete', rir: 'RIR',
+      finishQ: 'Finish?', noSets: 'Nothing logged', cancel: 'Cancel', save: 'Save', close: 'Close', up: 'Up', down: 'Down',
+      restLabel: 'Rest', restDone: 'Ready', bw: 'BW', assist: 'assist', added: 'added', perDb: 'per DB', bar: 'bar', stack: 'stack',
+      noHistory: 'No history', setSheet: 'Set', reason: 'Reason', thisSession: 'This session only', minus: '−', plus: '+'
+    },
+
+    summary: { sets: 'sets', pr: 'PR', next: 'Next', why: 'Why', use: 'Use', hold: 'Hold', edit: 'Edit', energy: 'Energy', effort: 'Effort', soreness: 'Soreness', notes: 'Notes', done: 'Done', compare: 'vs', first: 'First' },
+
+    settings: {
+      title: 'Settings', name: 'Name', height: 'Height', units: 'Units', timezone: 'Time zone', week: 'Week', choices: 'Plan choices',
+      restTimer: 'Rest timer', autoStart: 'Auto-start', compound: 'Compounds', isolation: 'Isolation', sound: 'Sound', vibrate: 'Vibrate', haptics: 'Haptics',
+      rir: 'Show RIR', theme: 'Theme', system: 'System', light: 'Light', dark: 'Dark', about: 'About', data: 'Data', deleteAll: 'Delete all data',
+      notScheduled: 'Off', nutrition: 'Nutrition', limitations: 'Limitations', on: 'On', off: 'Off',
+      modes: { maintenance: 'Maintain', gain: 'Gain', loss: 'Lose', undecided: 'Undecided' }
+    },
+
+    about: {
+      title: 'About',
+      storage: 'Storage',
+      storagePreview: 'Saved to your claude.ai account for this preview. Not synced to a phone. Deleted with the preview.',
+      storageDevice: 'Saved on this device in this browser. Clearing site data, another browser, or a private window means a different or empty copy. Not cloud sync. No export yet, so no backup.',
+      storageMemory: 'Storage unavailable. Nothing survives a reload.',
+      platform: 'Platform',
+      platformText: 'Home-screen web app. No HealthKit, Apple Watch, or background push. Rest-timer alerts may not fire in the background; the timer itself stays accurate because it runs on timestamps.',
+      effort: 'Effort',
+      frame: 'Frame',
+      frameText: 'Skeletal frame and proportions are not trainable. Everything else is.',
+      numbers: 'Numbers',
+      numbersText: 'Every number is computed from sets you logged. Nothing is estimated: no muscle gained, no body fat, no readiness score.',
+      build: 'Build'
+    },
+
+    onboarding: {
+      step: 'Step', continue: 'Continue', back: 'Back', confirm: 'Confirm', start: 'Start',
+      name: 'Name', units: 'Units', weight: 'Weight', weighedOn: 'Weighed on', height: 'Height', timezone: 'Time zone',
+      week: 'Week', choices: 'Choices', goal: 'Goal', mode: 'Nutrition mode',
+      leverage: ['Body fat low enough for abs — nutrition and time.', 'Shoulder-to-waist — side and rear delts.', 'Upper chest and upper back.', 'Arms.'],
+      frame: 'Frame and proportions are not trainable.'
+    },
+
+    confirm: { deleteTitle: 'Delete all data?', deleteBody: 'Every session, set, measurement and setting on this device. No undo, no backup.', deleteLabel: 'Delete', typed: 'DELETE', cancel: 'Cancel' },
+
+    errors: { number: 'Enter a number.', negative: 'Can’t be negative.', open: 'is still open' },
+
+    status: { saved: 'Saved', saving: 'Saving', unsaved: 'Unsaved', error: 'Save failed, retrying', off: 'Not saving' }
+  };
+})();
+
+
 /* ===== ui/brand.js ===== */
 /* Coastal Strength — ui/brand.js */
 (function () {
@@ -1757,189 +1893,114 @@ textarea.input { min-height: 80px; resize: vertical; }
 
 
 /* ===== ui/onboarding.js ===== */
-/* Coastal Strength — ui/onboarding.js */
+/* Coastal Strength — ui/onboarding.js (v2: three steps) */
 (function () {
   const CS = (window.CS = window.CS || {});
-  const X = CS.dom, U = CS.util, P = CS.plan, B = CS.brand;
+  const X = CS.dom, U = CS.util, P = CS.plan, B = CS.brand, C = CS.copy;
   const h = X.h;
   const O = {};
-
-  const LAST_REPORTED_WEIGHT = 172; // lb — confirm or correct; never assumed
+  const LAST_REPORTED_WEIGHT = 172; // lb — offered, never assumed
 
   O.render = function (root, onDone) {
     const tz = U.defaultTz();
     const st = {
-      step: 0,
-      name: 'Brenden', units: 'lb', timezone: tz,
-      weight: LAST_REPORTED_WEIGHT, weightTouched: false, weightDate: U.localDate(Date.now(), tz),
+      step: 0, name: 'Brenden', units: 'lb', timezone: tz,
+      weight: LAST_REPORTED_WEIGHT, touched: false, weightDate: U.localDate(Date.now(), tz),
       heightFt: 6, heightIn: 1, heightCm: 185,
-      schedule: Object.assign({}, P.DEFAULT_SCHEDULE),
-      equipment: { barbell: true, dumbbells: true, cables: true, machines: true, pullup_bar: true },
-      picks: {},
-      nutritionMode: 'undecided', calorieTarget: null,
-      experience: '', limitations: '',
-      errors: {}
+      schedule: Object.assign({}, P.DEFAULT_SCHEDULE), picks: {}, nutritionMode: 'undecided', error: null
     };
     P.OR_SLOTS.forEach((s) => { st.picks[s.slotId] = s.options[0]; });
-
-    const steps = [stepYou, stepSchedule, stepGear, stepNutrition, stepGoal];
+    const steps = [stepYou, stepWeek, stepGoal];
 
     function draw() {
       X.clear(root);
       const scr = h('div.screen.no-tabs.ob');
-      scr.appendChild(h('div.topbar', h('div.brand', B.mark(26), h('span', { text: 'Coastal Strength' }))));
-      scr.appendChild(h('div.step', { text: 'Step ' + (st.step + 1) + ' of ' + steps.length }));
+      scr.appendChild(h('div.topbar', h('div.brand', B.mark(24), h('span', { text: C.app }))));
+      scr.appendChild(h('div.stepn', { text: (st.step + 1) + ' / ' + steps.length }));
       steps[st.step](scr);
       root.appendChild(scr);
       window.scrollTo(0, 0);
     }
-
-    function actions(scr, opts) {
-      opts = opts || {};
+    function actions(scr, label) {
       const bar = h('div.actions');
-      if (st.step > 0) bar.appendChild(h('button.btn', { onClick: () => { st.step--; draw(); }, text: 'Back' }));
-      if (opts.skippable) bar.appendChild(h('button.btn', { onClick: () => next(true), text: 'Skip' }));
-      bar.appendChild(h('button.btn.primary', { onClick: () => next(false), text: opts.label || 'Continue' }));
+      if (st.step > 0) bar.appendChild(h('button.btn', { onClick: () => { st.step--; draw(); }, text: C.onboarding.back }));
+      bar.appendChild(h('button.btn.primary', { id: 'ob-next', onClick: next, text: label }));
       scr.appendChild(bar);
     }
-
-    function next(skipped) {
-      if (!skipped && steps[st.step].validate && !steps[st.step].validate()) { draw(); return; }
-      if (st.step === steps.length - 1) { finish(); return; }
+    function next() {
+      st.error = null;
+      if (steps[st.step].validate && !steps[st.step].validate()) { draw(); return; }
+      if (st.step === steps.length - 1) return finish();
       st.step++; draw();
     }
-
     function finish() {
       const heightIn = st.units === 'lb' ? st.heightFt * 12 + st.heightIn : st.heightCm / 2.54;
-      onDone({
-        name: st.name.trim(), units: st.units, timezone: st.timezone,
-        weight: st.weight, weightUnit: st.units, weightDate: st.weightDate,
-        heightIn: heightIn ? Math.round(heightIn * 10) / 10 : null,
-        schedule: st.schedule, equipment: st.equipment, picks: st.picks,
-        nutritionMode: st.nutritionMode, calorieTarget: st.calorieTarget,
-        experience: st.experience, limitations: st.limitations,
-        frameNoteShown: true
-      });
+      onDone({ name: st.name.trim(), units: st.units, timezone: st.timezone, weight: st.weight, weightUnit: st.units, weightDate: st.weightDate,
+        heightIn: heightIn ? Math.round(heightIn * 10) / 10 : null, schedule: st.schedule, picks: st.picks, nutritionMode: st.nutritionMode, frameNoteShown: true });
     }
+    const lastW = () => (st.units === 'lb' ? LAST_REPORTED_WEIGHT : Math.round(U.toUnit(LAST_REPORTED_WEIGHT, 'lb', 'kg') * 10) / 10);
 
-    /* Step 1: you */
     function stepYou(scr) {
-      scr.appendChild(h('h1', { text: 'Start with the basics' }));
-      scr.appendChild(h('p.lead', { text: 'Everything here is editable later in Profile.' }));
+      scr.appendChild(h('h1', { text: st.name || C.onboarding.name }));
       const stack = h('div.stack');
-      stack.appendChild(field('Name', h('input.input', { type: 'text', value: st.name, autocomplete: 'given-name', 'aria-label': 'Name', onInput: (e) => { st.name = e.target.value; } })));
-      stack.appendChild(field('Units', chips([['lb', 'lb / ft-in'], ['kg', 'kg / cm']], st.units, (v) => { st.units = v; if (st.weight != null) { st.weight = v === 'kg' ? Math.round(U.toUnit(st.weight, 'lb', 'kg') * 10) / 10 : Math.round(U.toUnit(st.weight, 'kg', 'lb') * 10) / 10; } draw(); })));
-
-      const lastW = st.units === 'lb' ? LAST_REPORTED_WEIGHT : Math.round(U.toUnit(LAST_REPORTED_WEIGHT, 'lb', 'kg') * 10) / 10;
-      const wInput = X.numInput({ value: st.weight, placeholder: String(lastW), label: 'Current weight in ' + st.units, onValue: (v) => { st.weight = v; st.weightTouched = true; const b = root.querySelector('.ob .actions .btn.primary'); if (b) b.textContent = 'Continue'; } });
-      const wField = field('Current weight (' + st.units + ')', h('div.row', wInput, h('span.muted', { text: st.units })), st.errors.weight);
-      wField.appendChild(h('p.help', { text: 'Last reported: ' + lastW + ' ' + st.units + '. Confirm it below or type the correct number.' }));
-      stack.appendChild(wField);
-      stack.appendChild(field('Weighed on', h('input.input', { type: 'date', value: st.weightDate, 'aria-label': 'Weight measurement date', max: U.localDate(Date.now(), st.timezone), onInput: (e) => { st.weightDate = e.target.value; } })));
-
+      stack.appendChild(field(C.onboarding.name, h('input.input', { type: 'text', value: st.name, autocomplete: 'given-name', 'aria-label': C.onboarding.name, onInput: (e) => { st.name = e.target.value; } })));
+      stack.appendChild(field(C.onboarding.units, chips([['lb', 'lb'], ['kg', 'kg']], st.units, (v) => { const from = st.units; st.units = v; if (st.weight != null && from !== v) st.weight = Math.round(U.toUnit(st.weight, from, v) * 10) / 10; draw(); })));
+      const w = X.numInput({ value: st.weight, placeholder: String(lastW()), cls: 'input', label: C.onboarding.weight, onValue: (v) => { st.weight = v; st.touched = true; const b = root.querySelector('#ob-next'); if (b) b.textContent = C.onboarding.continue; } });
+      stack.appendChild(field(C.onboarding.weight + ' (' + st.units + ')', w, st.error));
+      stack.appendChild(field(C.onboarding.weighedOn, h('input.input', { type: 'date', value: st.weightDate, max: U.localDate(Date.now(), st.timezone), 'aria-label': C.onboarding.weighedOn, onInput: (e) => { st.weightDate = e.target.value; } })));
       if (st.units === 'lb') {
-        stack.appendChild(field('Height', h('div.row',
-          X.numInput({ value: st.heightFt, integer: true, max: 8, label: 'Height feet', onValue: (v) => { st.heightFt = v || 0; } }), h('span.muted', { text: 'ft' }),
-          X.numInput({ value: st.heightIn, integer: true, max: 11, label: 'Height inches', onValue: (v) => { st.heightIn = v || 0; } }), h('span.muted', { text: 'in' }))));
-      } else {
-        stack.appendChild(field('Height (cm)', X.numInput({ value: st.heightCm, max: 260, label: 'Height in centimetres', onValue: (v) => { st.heightCm = v || 0; } })));
-      }
-
-      const tzSel = h('select.input', { 'aria-label': 'Time zone', onChange: (e) => { st.timezone = e.target.value; } });
-      let zones = [];
-      try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [st.timezone]; }
+        stack.appendChild(field(C.onboarding.height, h('div.row',
+          X.numInput({ value: st.heightFt, integer: true, max: 8, cls: 'input', label: 'ft', onValue: (v) => { st.heightFt = v || 0; } }), h('span.muted', { text: 'ft' }),
+          X.numInput({ value: st.heightIn, integer: true, max: 11, cls: 'input', label: 'in', onValue: (v) => { st.heightIn = v || 0; } }), h('span.muted', { text: 'in' }))));
+      } else stack.appendChild(field(C.onboarding.height + ' (cm)', X.numInput({ value: st.heightCm, max: 260, cls: 'input', label: 'cm', onValue: (v) => { st.heightCm = v || 0; } })));
+      const tzSel = h('select.input', { 'aria-label': C.onboarding.timezone, onChange: (e) => { st.timezone = e.target.value; } });
+      let zones = []; try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [st.timezone]; }
       if (zones.indexOf(st.timezone) < 0) zones.unshift(st.timezone);
       zones.forEach((z) => tzSel.appendChild(h('option', { value: z, selected: z === st.timezone, text: z })));
-      stack.appendChild(field('Time zone', tzSel, null, 'Used for the day boundary on schedules and daily logs.'));
+      stack.appendChild(field(C.onboarding.timezone, tzSel));
       scr.appendChild(stack);
-      actions(scr, { label: st.weightTouched || st.weight !== lastW ? 'Continue' : 'Confirm ' + lastW + ' ' + st.units });
+      actions(scr, st.touched || st.weight !== lastW() ? C.onboarding.continue : C.onboarding.confirm + ' ' + lastW() + ' ' + st.units);
     }
     stepYou.validate = function () {
-      st.errors = {};
-      if (st.weight == null || st.weight <= 0) st.errors.weight = 'Enter your current weight.';
-      if (!U.isLocalDate(st.weightDate)) st.errors.weight = 'Enter the date you weighed in.';
-      return !Object.keys(st.errors).length;
-    };
-
-    /* Step 2: schedule */
-    function stepSchedule(scr) {
-      scr.appendChild(h('h1', { text: 'Training days' }));
-      scr.appendChild(h('p.lead', { text: 'The default week from your plan. Move a session to another weekday if it fits better; unassigned days are rest.' }));
-      const stack = h('div.stack');
-      const plan = P.DEFAULT_TEMPLATES;
-      ['push', 'pull', 'legs', 'upper', 'zone2', 'conditioning'].forEach((tid) => {
-        const sel = h('select.input', { 'aria-label': plan[tid].name + ' day', onChange: (e) => { st.schedule[tid] = e.target.value || null; draw(); } });
-        sel.appendChild(h('option', { value: '', selected: !st.schedule[tid], text: 'Not scheduled' }));
-        U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: st.schedule[tid] === wd, text: U.WEEKDAY_LABEL[wd] })));
-        stack.appendChild(field(plan[tid].name + (plan[tid].kind === 'lift' ? '' : ' (' + (plan[tid].kind === 'cardio_optional' ? 'optional cardio' : 'cardio + abs') + ')'), sel));
-      });
-      if (st.errors.schedule) stack.appendChild(h('p.error', { text: st.errors.schedule }));
-      scr.appendChild(stack);
-      actions(scr);
-    }
-    stepSchedule.validate = function () {
-      st.errors = {};
-      const used = {};
-      for (const t in st.schedule) {
-        const wd = st.schedule[t];
-        if (!wd) continue;
-        if (used[wd]) { st.errors.schedule = 'Two sessions are on ' + U.WEEKDAY_LABEL[wd] + '. One session per day.'; return false; }
-        used[wd] = true;
-      }
+      if (st.weight == null || st.weight <= 0) { st.error = C.errors.number; return false; }
+      if (!U.isLocalDate(st.weightDate)) { st.error = C.errors.number; return false; }
       return true;
     };
 
-    /* Step 3: gear + picks */
-    function stepGear(scr) {
-      scr.appendChild(h('h1', { text: 'Your gym' }));
-      scr.appendChild(h('p.lead', { text: 'Pick the option you\'ll use for each "or" in the plan. Skip if you\'d rather decide on the day.' }));
-      const stack = h('div.stack');
-      const eq = h('div.chips');
-      P.EQUIPMENT.forEach((e) => eq.appendChild(h('button.chip', { type: 'button', 'aria-pressed': st.equipment[e.id] ? 'true' : 'false', onClick: () => { st.equipment[e.id] = !st.equipment[e.id]; draw(); }, text: e.label })));
-      stack.appendChild(field('Equipment available', eq));
-      P.OR_SLOTS.forEach((s) => {
-        stack.appendChild(field(s.label, chips(s.options.map((id) => [id, P.EXERCISE_MAP[id].name]), st.picks[s.slotId], (v) => { st.picks[s.slotId] = v; draw(); })));
+    function stepWeek(scr) {
+      scr.appendChild(h('h1', { text: C.onboarding.week }));
+      const list = h('div.list');
+      ['push', 'pull', 'legs', 'upper', 'zone2', 'conditioning'].forEach((tid) => {
+        const sel = h('select.input', { style: { width: 'auto', minHeight: '40px', padding: '6px 10px' }, 'aria-label': P.DEFAULT_TEMPLATES[tid].name, onChange: (e) => { st.schedule[tid] = e.target.value || null; } });
+        sel.appendChild(h('option', { value: '', selected: !st.schedule[tid], text: C.settings.notScheduled }));
+        U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: st.schedule[tid] === wd, text: U.WEEKDAY_SHORT[wd] })));
+        list.appendChild(h('div.lrow', h('span.grow', { text: P.DEFAULT_TEMPLATES[tid].name }), sel));
       });
-      scr.appendChild(stack);
-      actions(scr, { skippable: true });
+      scr.appendChild(list);
+      if (st.error) scr.appendChild(h('p.error', { role: 'alert', text: st.error }));
+      scr.appendChild(h('div.section', { text: C.onboarding.choices }));
+      const picks = h('div.stack');
+      P.OR_SLOTS.forEach((s) => picks.appendChild(chips(s.options.map((id) => [id, P.EXERCISE_MAP[id].name]), st.picks[s.slotId], (v) => { st.picks[s.slotId] = v; draw(); })));
+      scr.appendChild(picks);
+      actions(scr, C.onboarding.continue);
     }
+    stepWeek.validate = function () {
+      const used = {};
+      for (const t in st.schedule) { const wd = st.schedule[t]; if (!wd) continue; if (used[wd]) { st.error = U.WEEKDAY_LABEL[wd] + ' ×2'; return false; } used[wd] = true; }
+      return true;
+    };
 
-    /* Step 4: nutrition mode + experience */
-    function stepNutrition(scr) {
-      scr.appendChild(h('h1', { text: 'Nutrition mode' }));
-      scr.appendChild(h('p.lead', { text: 'A preference for how the app frames your targets, not a prescription. Nothing here calculates a deficit for you.' }));
-      const stack = h('div.stack');
-      stack.appendChild(field('Mode', chips([['maintenance', 'Maintenance / recomp'], ['gain', 'Gradual gain'], ['loss', 'Gradual fat loss'], ['undecided', 'Undecided']], st.nutritionMode, (v) => { st.nutritionMode = v; draw(); })));
-      stack.appendChild(field('Calorie target (optional)', h('div.row', X.numInput({ value: st.calorieTarget, integer: true, max: 10000, placeholder: 'Leave blank to skip', label: 'Daily calorie target', onValue: (v) => { st.calorieTarget = v; } }), h('span.muted', { text: 'kcal' })), null, 'Only if you already have one. The app never sets or changes this on its own.'));
-      stack.appendChild(field('Experience (optional)', chips([['', 'Skip'], ['beginner', 'Under 1 year'], ['intermediate', '1–3 years'], ['advanced', '3+ years']], st.experience, (v) => { st.experience = v; draw(); })));
-      stack.appendChild(field('Limitations or injuries (optional)', h('textarea.input', { placeholder: 'e.g. left shoulder — avoid deep dips', 'aria-label': 'Limitations', onInput: (e) => { st.limitations = e.target.value; } }, st.limitations)));
-      scr.appendChild(stack);
-      actions(scr, { skippable: true });
-    }
-
-    /* Step 5: goal framing, stated once */
     function stepGoal(scr) {
-      scr.appendChild(h('h1', { text: 'What moves the needle' }));
-      scr.appendChild(h('p.lead', { text: 'You\'re training toward a lean, athletic build: broad-reading shoulders, upper chest and upper back, defined arms, visible abs, no bulk. This is a direction, not a promise. In order of leverage, it comes from:' }));
-      scr.appendChild(h('ol.leverage',
-        h('li', h('b', { text: 'Body fat low enough for abs to show' }), ' — driven by nutrition and time, not by exercise selection.'),
-        h('li', h('b', { text: 'Shoulder-to-waist ratio' }), ' — built mainly by side and rear delts.'),
-        h('li', h('b', { text: 'Upper chest and upper back thickness.' })),
-        h('li', h('b', { text: 'Arm development.' }))));
-      scr.appendChild(h('p', { style: { marginTop: '14px' }, text: 'One thing to say once: skeletal frame and proportions are not trainable. Everything above is.' }));
-      scr.appendChild(h('div.card', { style: { marginTop: '18px' } },
-        h('h3', { text: 'Effort' }),
-        h('p.small', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.short }),
-        h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.rir }),
-        h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.warmup })));
-      scr.appendChild(h('p.small.muted', { style: { marginTop: '14px' }, text: 'Your plan is seeded exactly as written: Push, Pull, Legs & Abs, optional Zone 2, Upper, Conditioning & Abs, Rest. Leg day stays — it\'s for proportion and joint durability.' }));
-      actions(scr, { label: 'Go to Today' });
+      scr.appendChild(h('h1', { text: C.onboarding.goal }));
+      scr.appendChild(h('ol.leverage', C.onboarding.leverage.map((t) => h('li', { text: t }))));
+      scr.appendChild(h('p.muted', { style: { marginTop: '14px' }, text: C.onboarding.frame }));
+      scr.appendChild(h('div.section', { text: C.onboarding.mode }));
+      scr.appendChild(chips(Object.keys(C.settings.modes).map((k) => [k, C.settings.modes[k]]), st.nutritionMode, (v) => { st.nutritionMode = v; draw(); }));
+      actions(scr, C.onboarding.start);
     }
 
-    /* helpers */
-    function field(label, control, error, help) {
+    function field(label, control, error) {
       const f = h('div.field', h('label', { text: label }), control);
-      if (help) f.appendChild(h('p.help', { text: help }));
       if (error) f.appendChild(h('p.error', { role: 'alert', text: error }));
       return f;
     }
@@ -1948,19 +2009,17 @@ textarea.input { min-height: 80px; resize: vertical; }
       options.forEach(([v, label]) => wrap.appendChild(h('button.chip', { type: 'button', 'aria-pressed': current === v ? 'true' : 'false', onClick: () => onPick(v), text: label })));
       return wrap;
     }
-
     draw();
   };
-
   CS.onboarding = O;
 })();
 
 
 /* ===== ui/today.js ===== */
-/* Coastal Strength — ui/today.js */
+/* Coastal Strength — ui/today.js (v2) */
 (function () {
   const CS = (window.CS = window.CS || {});
-  const X = CS.dom, U = CS.util, D = CS.db, S = CS.stats, B = CS.brand;
+  const X = CS.dom, U = CS.util, D = CS.db, S = CS.stats, B = CS.brand, C = CS.copy;
   const h = X.h;
   const T = {};
 
@@ -1969,109 +2028,72 @@ textarea.input { min-height: 80px; resize: vertical; }
     const today = app.today();
     const plan = S.todayPlan(db, today);
     const active = D.findActiveSession(db);
-    const stack = h('div.stack');
+    const t = plan.template, session = plan.session;
 
-    /* Card 1 — today's session (the one primary action) */
-    const t = plan.template;
-    const session = plan.session;
-    const card = h('div.card.session-card');
-    card.appendChild(h('p.small.muted', { text: U.fmtLocalDate(today, { weekday: 'long', month: 'short', day: 'numeric' }) }));
+    const hero = h('div.hero');
+    hero.appendChild(h('p.small.muted', { text: U.fmtLocalDate(today, { weekday: 'long', month: 'short', day: 'numeric' }) }));
     if (active) {
-      const at = active.templateName;
       const c = D.counts(active);
-      card.appendChild(h('p.name', { text: at + (active.localDate === today ? '' : ' is still open') }));
-      card.appendChild(h('p.small.muted', { text: (active.localDate === today ? '' : 'Started ' + U.fmtLocalDate(active.localDate) + '. ') + c.workingDone + ' of ' + c.workingPrescribed + ' working sets logged' + (active.status === 'paused' ? ' · paused' : '') + '.' + (active.templateId !== t.id && t.kind === 'lift' ? ' Today\'s scheduled session is ' + t.name + '; finish this one first.' : '') }));
-      card.appendChild(h('button.btn.primary.block', { style: { marginTop: '14px' }, onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume workout' }));
+      hero.appendChild(h('p.name', { text: active.templateName }));
+      hero.appendChild(h('p.meta', { text: c.workingDone + ' / ' + c.workingPrescribed + (active.localDate === today ? '' : ' · ' + U.fmtLocalDate(active.localDate)) }));
+      hero.appendChild(h('button.btn.primary.block', { onClick: () => app.navigate('train', { view: 'logger' }), text: C.today.resume }));
     } else if (t.kind === 'rest') {
-      card.appendChild(h('p.name', { text: 'Rest day' }));
-      card.appendChild(h('p.small.muted', { text: 'Rest is a valid completion. Optional: a walk, mobility work, or a note.' }));
-      card.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: () => app.navigate('train'), text: 'See the week' }));
+      hero.appendChild(h('p.name', { text: C.today.rest }));
     } else if (t.kind === 'cardio_optional') {
-      card.appendChild(h('p.name', { text: t.name }));
-      card.appendChild(h('p.small.muted', { text: 'Optional ' + t.cardio.minutesMin + '–' + t.cardio.minutesMax + ' min at conversational intensity. "Rest" is a valid completion, not a failure.' }));
-      card.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'Cardio logging is not built yet — it arrives with the recovery & cardio slice.' }));
+      hero.appendChild(h('p.name', { text: t.name }));
+      hero.appendChild(h('p.meta', { text: t.cardio.minutesMin + '–' + t.cardio.minutesMax + ' min · ' + C.today.optional }));
     } else {
-      const n = t.slots ? t.slots.length : 0;
-      card.appendChild(h('p.name', { text: t.name }));
-      const lines = (t.slots || []).map((sl) => {
-        const exId = db.profile.picks[sl.slotId] && sl.options.indexOf(db.profile.picks[sl.slotId]) >= 0 ? db.profile.picks[sl.slotId] : sl.options[0];
-        return D.exercise(db, exId).name + ' ' + sl.sets + '×' + (sl.timed ? sl.timed.secMin + '–' + sl.timed.secMax + ' s' : sl.repMin + '–' + sl.repMax);
-      });
-      card.appendChild(h('p.small.muted', { text: n + ' exercises · ' + lines.join(' · ') }));
+      const sets = (t.slots || []).reduce((a, s) => a + s.sets, 0);
+      hero.appendChild(h('p.name', { text: t.name }));
       if (session && session.status === 'completed') {
         const c = D.counts(session);
-        card.appendChild(h('p.small', { style: { marginTop: '10px' }, text: 'Done: ' + c.workingDone + ' working sets in ' + U.fmtDuration(D.activeMs(session, Date.now())) + '.' }));
-        card.appendChild(h('button.btn.block', { style: { marginTop: '12px' }, onClick: () => app.navigate('train', { view: 'summary', sessionId: session.id }), text: 'View summary' }));
-      } else if (session && (session.status === 'in_progress' || session.status === 'paused')) {
-        const c = D.counts(session);
-        card.appendChild(h('p.small', { style: { marginTop: '10px' }, text: c.workingDone + ' of ' + c.workingPrescribed + ' working sets logged' + (session.status === 'paused' ? ' · paused' : '') + '.' }));
-        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => app.navigate('train'), text: 'Resume workout' }));
-      } else if (t.kind === 'conditioning') {
-        card.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'The abs circuit logs now; the interval timer and Zone 2 logging arrive with the cardio slice.' }));
-        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => app.startSession(t.id), text: 'Start workout' }));
+        hero.appendChild(h('p.meta', { text: c.workingDone + ' ' + C.today.sets + ' · ' + U.fmtDuration(D.activeMs(session, Date.now())) }));
+        hero.appendChild(h('button.btn.block', { onClick: () => app.navigate('train', { view: 'summary', sessionId: session.id }), text: C.today.summary }));
       } else {
-        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '14px' }, onClick: () => app.startSession(t.id), text: 'Start workout' }));
+        hero.appendChild(h('p.meta', { text: (t.slots || []).length + ' ' + C.today.exercises + ' · ' + sets + ' ' + C.today.sets }));
+        hero.appendChild(h('button.btn.primary.block', { onClick: () => app.startSession(t.id), text: C.today.start }));
       }
     }
-    stack.appendChild(card);
+    root.appendChild(hero);
 
-    /* Card 2 — week ring */
     const ring = S.weekRing(db, today);
-    const rc = h('div.card');
-    const rr = h('div.ring', B.ring(ring.completed, ring.scheduled),
-      h('div', h('div.big', { text: ring.completed + ' of ' + ring.scheduled + ' sessions this week' }), h('div.small.muted', { text: 'Scheduled lifting sessions only. Cardio and rest days are not counted.' })));
-    rc.appendChild(rr);
+    const rc = h('div.ring', B.ring(ring.completed, ring.scheduled, 64), h('div', h('div.big', { text: ring.completed + ' / ' + ring.scheduled }), h('div.small.muted', { text: C.today.week })));
+    root.appendChild(rc);
     const dots = h('div.daydots');
     ring.days.forEach((d) => {
-      const cls = ['daydot', d.kind === 'lift' ? 'lift' : '', d.status === 'completed' ? 'done' : '', d.isToday ? 'today' : '', d.status === 'other' ? 'other' : ''].filter(Boolean).join(' ');
+      const cls = ['daydot', d.kind === 'lift' ? 'lift' : '', d.status === 'completed' ? 'done' : '', d.isToday ? 'today' : ''].filter(Boolean).join(' ');
       dots.appendChild(h('div', { class: cls, title: d.templateName }, h('i'), h('span', { text: U.WEEKDAY_SHORT[d.key][0] })));
     });
-    rc.appendChild(dots);
-    stack.appendChild(rc);
+    root.appendChild(dots);
 
-    /* Card 3 — weight */
     const w = S.weightSummary(db, today);
-    const wc = h('div.card');
-    if (w) {
-      wc.appendChild(h('div.row.between', h('div', h('div.weightline', { text: U.fmtNum(w.latest.value, 1) + ' ' + w.latest.unit }), h('div.small.muted', { text: 'Weighed ' + U.fmtLocalDate(w.latest.localDate) + (w.avg7 != null ? ' · 7-day average ' + U.fmtNum(w.avg7, 1) + ' ' + w.latest.unit : ' · 7-day average needs 3 weigh-ins in a week (' + w.avg7Count + ' so far)') })),
-        h('button.btn.sm', { onClick: () => logWeight(app), text: 'Log weight' })));
-    } else {
-      wc.appendChild(h('div.row.between', h('div.muted', { text: 'No weight logged yet.' }), h('button.btn.sm', { onClick: () => logWeight(app), text: 'Log weight' })));
-    }
-    stack.appendChild(wc);
+    const wc = h('div.weight');
+    if (w) wc.appendChild(h('div', h('span.big', { text: U.fmtNum(w.latest.value, 1) + ' ' + w.latest.unit }), h('span.small.muted', { text: '  ' + U.fmtLocalDate(w.latest.localDate) + (w.avg7 != null ? ' · ' + C.today.avg + ' ' + U.fmtNum(w.avg7, 1) : '') })));
+    else wc.appendChild(h('span.muted', { text: '—' }));
+    wc.appendChild(h('button.btn.sm', { onClick: () => logWeight(app), text: C.today.logWeight }));
+    root.appendChild(wc);
 
-    /* Protein and check-in cards are not built yet — nothing is shown rather than a placeholder with fake numbers. */
-
-    /* Observations (max 2), each from a specific log */
     const obs = S.observations(db, today);
     if (obs.length) {
-      const oc = h('div.card.flat');
-      obs.forEach((o, i) => {
-        const line = h('p.small', { style: i ? { marginTop: '8px' } : null, text: o.text });
-        if (o.source) line.appendChild(h('button.link.small', { style: { marginLeft: '6px' }, onClick: () => app.navigate('train', { view: 'summary', sessionId: o.source.sessionId }), text: 'See session' }));
-        oc.appendChild(line);
-      });
-      stack.appendChild(oc);
+      const o = obs[0];
+      const line = h('p.obs', { text: o.text });
+      if (o.source) { line.style.cursor = 'pointer'; line.addEventListener('click', () => app.navigate('train', { view: 'summary', sessionId: o.source.sessionId })); }
+      root.appendChild(line);
     }
-
-    root.appendChild(stack);
   };
 
   function logWeight(app) {
     const db = app.store.db;
-    X.sheet('Log weight', (sh, api) => {
+    X.sheet(C.today.logWeight, (sh, api) => {
       let value = null, date = app.today(), err = null;
-      const inp = X.numInput({ placeholder: 'e.g. 172', max: 1000, label: 'Weight in ' + db.profile.units, onValue: (v) => { value = v; }, onError: (e) => { err = e; } });
-      inp.classList.add('setinput');
-      const dateInp = h('input.input', { type: 'date', value: date, max: app.today(), 'aria-label': 'Date', onInput: (e) => { date = e.target.value; } });
-      sh.appendChild(h('div.stack', h('div.field', h('label', { text: 'Weight (' + db.profile.units + ')' }), inp), h('div.field', h('label', { text: 'Date' }), dateInp)));
+      const inp = X.numInput({ placeholder: '—', max: 1000, cls: 'input', label: db.profile.units, onValue: (v) => { value = v; }, onError: (e) => { err = e; } });
+      inp.style.fontSize = '28px'; inp.style.textAlign = 'center';
+      sh.appendChild(h('div.stack', h('div.row', inp, h('span.muted', { text: db.profile.units })), h('input.input', { type: 'date', value: date, max: app.today(), 'aria-label': 'Date', onInput: (e) => { date = e.target.value; } })));
       sh.appendChild(h('button.btn.block.primary', { style: { marginTop: '14px' }, onClick: () => {
-        if (err || value == null || value <= 0) { X.toast('Enter a weight above 0.'); return; }
-        if (!U.isLocalDate(date)) { X.toast('Pick a date.'); return; }
+        if (err || value == null || value <= 0 || !U.isLocalDate(date)) { X.toast(C.errors.number); return; }
         app.store.commit((d) => D.addMeasurement(d, { type: 'weight', value, unit: d.profile.units, localDate: date }, new Date().toISOString()));
-        api.close(); X.toast('Weight logged');
-      }, text: 'Save' }));
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '8px' }, onClick: api.close, text: 'Cancel' }));
+        api.close();
+      }, text: C.logger.save }));
     });
   }
 
@@ -2080,14 +2102,14 @@ textarea.input { min-height: 80px; resize: vertical; }
 
 
 /* ===== ui/train.js ===== */
-/* Coastal Strength — ui/train.js */
+/* Coastal Strength — ui/train.js (v2: focus mode) */
 (function () {
   const CS = (window.CS = window.CS || {});
-  const X = CS.dom, U = CS.util, D = CS.db, P = CS.plan, B = CS.brand, PR = CS.progression;
+  const X = CS.dom, U = CS.util, D = CS.db, B = CS.brand, S = CS.stats, C = CS.copy;
   const h = X.h;
   const TR = {};
-
-  function nowIso() { return new Date().toISOString(); }
+  const nowIso = () => new Date().toISOString();
+  const focusIdx = {}; // sessionId -> exercise index (in-memory UI state)
 
   TR.render = function (root, app, params) {
     params = params || {};
@@ -2099,228 +2121,225 @@ textarea.input { min-height: 80px; resize: vertical; }
     return renderWeek(root, app);
   };
 
-  /* ---------- week list ---------- */
+  /* ---------- week ---------- */
   function renderWeek(root, app) {
     const db = app.store.db;
-    const today = app.today();
-    const ring = CS.stats.weekRing(db, today);
+    const ring = S.weekRing(db, app.today());
     const active = D.findActiveSession(db);
-    const stack = h('div.stack');
-    stack.appendChild(h('h1', { text: 'This week' }));
-    if (active) {
-      stack.appendChild(h('div.card', h('div.row.between', h('div', h('b', { text: active.templateName + ' in progress' }), h('div.small.muted', { text: U.fmtLocalDate(active.localDate) })), h('button.btn.sm.primary', { onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume' }))));
-    }
-    const list = h('div.card');
+    root.appendChild(h('h1', { text: C.week.title }));
+    const list = h('div.list', { style: { marginTop: '10px' } });
     ring.days.forEach((d) => {
-      const row = h('div.weekrow', { class: d.isToday ? 'today' : '' });
-      row.appendChild(h('div', h('div.day', { text: U.WEEKDAY_SHORT[d.key] }), h('div.tiny.muted', { text: U.fmtLocalDate(d.date) })));
-      const mid = h('div.grow', h('div', { text: d.templateName }));
       const s = d.sessions.find((x) => x.templateId === d.templateId) || d.sessions[0];
-      if (s && s.templateId !== d.templateId) mid.appendChild(h('div.tiny.muted', { text: 'Also: ' + s.templateName + ' (' + s.status.replace('_', ' ') + ')' }));
-      row.appendChild(mid);
-      const right = h('div.row');
-      if (d.kind === 'rest') right.appendChild(h('span.pill.muted', { text: 'Rest' }));
-      else if (d.kind === 'cardio_optional') right.appendChild(h('span.pill.muted', { text: 'Optional' }));
-      else if (s && s.status === 'completed') {
-        right.appendChild(h('span.pill.done', { text: 'Done' }));
-        right.appendChild(h('button.btn.xs', { onClick: () => app.navigate('train', { view: 'summary', sessionId: s.id }), text: 'View' }));
-      } else if (s && (s.status === 'in_progress' || s.status === 'paused')) {
-        right.appendChild(h('button.btn.xs.primary', { onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume' }));
-      } else if (s && s.status === 'skipped') {
-        right.appendChild(h('span.pill.muted', { text: 'Skipped' }));
-        if (!active) right.appendChild(h('button.btn.xs', { onClick: () => app.startSession(d.templateId), text: 'Start today' }));
-      } else if (!active && d.kind === 'lift' || (!active && d.kind === 'conditioning')) {
-        const done = ring.days.some((o) => o.sessions.some((x) => x.templateId === d.templateId && x.status === 'completed'));
-        if (done) right.appendChild(h('span.pill.done', { text: 'Done' }));
-        else right.appendChild(h('button.btn.xs', { class: d.isToday ? 'primary' : '', onClick: () => app.startSession(d.templateId), text: d.isToday ? 'Start' : 'Start today' }));
-      }
-      row.appendChild(right);
+      const doneElsewhere = d.kind !== 'rest' && ring.days.some((o) => o.sessions.some((x) => x.templateId === d.templateId && x.status === 'completed'));
+      const row = h('div.lrow');
+      row.appendChild(h('span', { style: { width: '44px', fontWeight: d.isToday ? '600' : '400', color: d.isToday ? 'var(--accent)' : 'inherit' }, text: U.WEEKDAY_SHORT[d.key] }));
+      row.appendChild(h('span.grow', { text: d.templateName }));
+      if (d.kind === 'rest') row.appendChild(h('span.val', { text: '—' }));
+      else if (d.kind === 'cardio_optional') row.appendChild(h('span.val', { text: C.week.optional }));
+      else if (s && s.status === 'completed') row.appendChild(h('button.btn.xs', { onClick: () => app.navigate('train', { view: 'summary', sessionId: s.id }), text: C.week.view }));
+      else if (s && (s.status === 'in_progress' || s.status === 'paused')) row.appendChild(h('button.btn.xs.primary', { onClick: () => app.navigate('train', { view: 'logger' }), text: C.week.resume }));
+      else if (doneElsewhere) row.appendChild(h('span.val.on', { text: C.week.done }));
+      else if (!active) row.appendChild(h('button.btn.xs', { class: d.isToday ? 'primary' : '', onClick: () => app.startSession(d.templateId), text: d.isToday ? C.week.start : C.week.startToday }));
       list.appendChild(row);
     });
-    stack.appendChild(list);
-    stack.appendChild(h('p.small.muted', { text: '"Start today" logs that session on today\'s date. Moving sessions to other dates, skipping with a reason, and editing the plan going forward arrive with the scheduling slice.' }));
-    root.appendChild(stack);
+    root.appendChild(list);
   }
 
   /* ---------- logger ---------- */
+  function currentIdx(session) {
+    if (focusIdx[session.id] != null) return Math.min(focusIdx[session.id], session.exercises.length - 1);
+    const i = session.exercises.findIndex((inst) => !inst.skipped && D.logicalSets(inst, { completedOnly: true, kind: 'working' }).length < inst.prescription.sets);
+    return i < 0 ? 0 : i;
+  }
+  TR.setFocus = function (sid, i) { focusIdx[sid] = i; };
+
   function renderLogger(root, app, session) {
     const db = app.store.db;
     const sid = session.id;
-    const wrap = h('div');
+    const idx = currentIdx(session);
+    const inst = session.exercises[idx];
+    const wrap = h('div', { 'data-logger': sid });
 
-    const head = h('div.logger-head');
-    const c = D.counts(session);
-    head.appendChild(h('div.row.between',
-      h('div', h('h1', { text: session.templateName }), h('div.small.muted', { text: U.fmtLocalDate(session.localDate, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + c.workingDone + ' of ' + c.workingPrescribed + ' working sets' })),
-      h('div.row',
-        h('span.elapsed', { id: 'elapsed', text: U.fmtDuration(D.activeMs(session, Date.now())) }),
-        h('button.btn.icon', { 'aria-label': session.status === 'paused' ? 'Resume workout' : 'Pause workout', onClick: () => {
-          app.store.commit((d) => session.status === 'paused' ? D.resumeSession(d, sid, nowIso()) : D.pauseSession(d, sid, nowIso()));
-          app.render();
-        } }, X.svg(session.status === 'paused' ? X.ICON.play : X.ICON.pause)))));
-    if (session.status === 'paused') head.appendChild(h('p.small', { style: { marginTop: '4px', color: 'var(--sand)' }, text: 'Paused — the clock is stopped.' }));
+    const head = h('div.focus-head');
+    head.appendChild(h('div', h('h2', { text: session.templateName }), h('div.elapsed', { id: 'elapsed', text: U.fmtDuration(D.activeMs(session, Date.now())) + (session.status === 'paused' ? ' ⏸' : '') })));
+    head.appendChild(h('div.row',
+      h('button.btn.icon.sm', { 'aria-label': session.status === 'paused' ? C.today.resume : C.logger.pause, onClick: () => { app.store.commit((d) => session.status === 'paused' ? D.resumeSession(d, sid, nowIso()) : D.pauseSession(d, sid, nowIso())); app.render(); } }, X.svg(session.status === 'paused' ? X.ICON.play : X.ICON.pause)),
+      h('button.btn.icon.sm', { 'aria-label': C.logger.overview, onClick: () => overviewSheet(app, session) }, X.svg(X.ICON.more)),
+      h('button.btn.sm.primary', { onClick: () => finishFlow(app, session), text: C.logger.finish })));
     wrap.appendChild(head);
 
-    const list = h('div.stack');
-    session.exercises.forEach((inst) => list.appendChild(exerciseCard(app, session, inst)));
-    wrap.appendChild(list);
+    const dots = h('div.dots', { role: 'tablist' });
+    session.exercises.forEach((e, i) => {
+      const done = !e.skipped && D.logicalSets(e, { completedOnly: true, kind: 'working' }).length >= e.prescription.sets;
+      dots.appendChild(h('i', { class: (i === idx ? 'cur ' : '') + (done ? 'done ' : '') + (e.skipped ? 'skip' : ''), role: 'tab', 'aria-selected': i === idx ? 'true' : 'false', 'aria-label': D.exercise(db, e.exerciseId).name, onClick: () => { TR.setFocus(sid, i); app.render(); } }));
+    });
+    wrap.appendChild(dots);
 
-    wrap.appendChild(h('div.row', { style: { marginTop: '18px' } },
-      h('button.btn.quiet', { onClick: () => showEffort(), text: 'Effort & RIR' }),
-      h('button.btn.quiet', { onClick: () => app.navigate('train', { view: 'week' }), text: 'See the week' })));
-    wrap.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => finishFlow(app, session), text: 'Finish workout' }));
+    if (inst) wrap.appendChild(exerciseFocus(app, session, inst));
+
+    const nav = h('div.nav');
+    nav.appendChild(h('button.btn', { disabled: idx === 0, 'aria-label': 'Previous', onClick: () => { TR.setFocus(sid, idx - 1); app.render(); }, text: '‹' }));
+    nav.appendChild(h('span.tiny.muted', { text: (idx + 1) + ' / ' + session.exercises.length }));
+    nav.appendChild(h('button.btn', { disabled: idx >= session.exercises.length - 1, 'aria-label': 'Next', onClick: () => { TR.setFocus(sid, idx + 1); app.render(); }, text: '›' }));
+    wrap.appendChild(nav);
+
+    // Swipe between exercises
+    let x0 = null, y0 = null;
+    wrap.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    wrap.addEventListener('touchend', (e) => {
+      if (x0 == null) return;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+      const to = idx + (dx < 0 ? 1 : -1);
+      if (to >= 0 && to < session.exercises.length) { TR.setFocus(sid, to); app.render(); }
+    }, { passive: true });
+
     root.appendChild(wrap);
   }
 
-  function showEffort() {
-    X.sheet('Effort', (sh, api) => {
-      sh.appendChild(h('p', { text: P.EFFORT_GUIDANCE.short }));
-      sh.appendChild(h('p.muted', { style: { marginTop: '10px' }, text: P.EFFORT_GUIDANCE.rir }));
-      sh.appendChild(h('p.muted', { style: { marginTop: '10px' }, text: P.EFFORT_GUIDANCE.warmup }));
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
-    });
-  }
-
   function loadHint(ex) {
-    return { per_dumbbell: 'per dumbbell', total_bar: 'bar total', machine_stack: 'stack', assistance: 'assist', added: 'added', none: '' }[ex.loadConvention] || '';
+    return { per_dumbbell: C.logger.perDb, total_bar: C.logger.bar, machine_stack: C.logger.stack, assistance: C.logger.assist, added: C.logger.added, none: '' }[ex.loadConvention] || '';
   }
-
-  function fmtSets(sets, unit, ex) {
-    if (!sets || !sets.length) return null;
-    if (ex.type === 'timed') return sets.map((s) => (s.durationSec == null ? '—' : s.durationSec + ' s')).join(', ');
-    const loads = sets.map((s) => s.load);
-    const same = loads.every((l) => l === loads[0]);
+  function fmtLast(sets, ex) {
+    if (ex.type === 'timed') return sets.map((s) => (s.durationSec == null ? '—' : s.durationSec)).join(', ') + ' s';
     const reps = sets.map((s) => (s.reps == null ? '—' : s.reps)).join(', ');
-    if (ex.loadConvention === 'none') return reps + ' reps';
-    if (same) return (loads[0] == null ? '—' : U.fmtLoad(loads[0])) + ' ' + unit + ' × ' + reps;
-    return sets.map((s) => (s.load == null ? '—' : U.fmtLoad(s.load)) + '×' + (s.reps == null ? '—' : s.reps)).join(', ') + ' ' + unit;
+    if (ex.loadConvention === 'none') return reps;
+    const loads = sets.map((s) => s.load);
+    if (loads.every((l) => l === loads[0])) return (loads[0] == null ? '—' : U.fmtLoad(loads[0])) + ' × ' + reps;
+    return sets.map((s) => (s.load == null ? '—' : U.fmtLoad(s.load)) + '×' + (s.reps == null ? '—' : s.reps)).join(', ');
   }
 
-  function exerciseCard(app, session, inst) {
+  function exerciseFocus(app, session, inst) {
     const db = app.store.db;
     const sid = session.id;
     const ex = D.exercise(db, inst.exerciseId);
     const p = inst.prescription;
-    const card = h('div.card.excard', { class: inst.skipped ? 'skipped' : '', 'data-inst': inst.instanceId });
+    const card = h('div', { 'data-inst': inst.instanceId });
+    const range = ex.type === 'timed' && p.timed ? p.timed.secMin + '–' + p.timed.secMax + ' s' : p.repMin + '–' + p.repMax;
 
-    const rangeText = ex.type === 'timed' && p.timed ? p.timed.secMin + '–' + p.timed.secMax + ' s' : p.repMin + '–' + p.repMax;
-    const headL = h('div.grow',
-      h('div.exname', { text: ex.name }),
-      h('div.exmeta', { text: p.sets + ' × ' + rangeText + (p.perSide ? ' per side' : '') + ' · rest ' + U.fmtClock(inst.restSec) + (inst.substitutedFrom ? ' · in place of ' + D.exercise(db, inst.substitutedFrom).name : '') }));
-    if (ex.cues) headL.appendChild(h('div.tiny.muted', { style: { marginTop: '3px' }, text: ex.cues }));
-    card.appendChild(h('div.exhead', headL, h('button.btn.icon.xs', { 'aria-label': 'More options for ' + ex.name, onClick: () => exerciseMenu(app, session, inst) }, X.svg(X.ICON.more))));
+    card.appendChild(h('div.row.between', h('div.grow', h('div.exname', { text: ex.name }), h('div.exmeta', { text: p.sets + ' × ' + range + (p.perSide ? ' / side' : '') + ' · ' + C.logger.rest + ' ' + U.fmtClock(inst.restSec) })),
+      h('button.btn.icon.sm', { 'aria-label': ex.name, onClick: () => exerciseMenu(app, session, inst) }, X.svg(X.ICON.more))));
 
     if (inst.skipped) {
-      card.appendChild(h('div.row.between', { style: { marginTop: '8px' } }, h('span.small.muted', { text: 'Skipped' + (inst.skipReason ? ' — ' + inst.skipReason : '') }), h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.unskipExercise(d, sid, inst.instanceId)); app.render(); }, text: 'Undo skip' })));
+      card.appendChild(h('div.row.between', { style: { marginTop: '14px' } }, h('span.muted', { text: C.logger.skipped }), h('button.btn.sm', { onClick: () => { app.store.commit((d) => D.unskipExercise(d, sid, inst.instanceId)); app.render(); }, text: C.logger.unskip })));
       return card;
     }
 
-    // Last time
     const lp = inst.lastPerformance;
     const unit = (inst.sets[0] && inst.sets[0].unit) || db.profile.units;
-    if (lp && lp.sets.length) card.appendChild(h('div.lastline', { text: 'Last (' + U.fmtLocalDate(lp.localDate) + '): ' + fmtSets(lp.sets, lp.sets[0].unit || unit, ex) }));
-    else card.appendChild(h('div.lastline', { text: 'No history yet. Start light and find the range.' }));
+    card.appendChild(h('div.lastline', { text: lp && lp.sets.length ? C.logger.last + ' ' + fmtLast(lp.sets, ex) : C.logger.noHistory }));
 
-    // Suggestion
     const sg = inst.suggestionKey ? db.suggestions[inst.suggestionKey] : null;
-    const anyDone = inst.sets.some((s) => s.completed);
-    if (sg && sg.result && (sg.result.status === 'increase' || sg.result.status === 'assist_decrease') && sg.result.suggestedLoad != null) {
-      const label = (sg.result.status === 'assist_decrease' ? 'Suggested assistance: ' : 'Suggested: ') + U.fmtLoad(sg.result.suggestedLoad) + ' ' + sg.result.unit + ' ' + loadHint(ex);
-      const box = h('div.sugg');
-      if (!sg.decision) {
-        box.appendChild(h('div', { text: label }));
-        box.appendChild(h('div.row', { style: { marginTop: '6px' } },
-          h('button.btn.xs.primary', { onClick: () => {
-            app.store.commit((d) => {
-              D.decideSuggestion(d, sg.key, 'accepted');
-              const i2 = D.instance(d, sid, inst.instanceId);
-              i2.sets.forEach((s) => { if (!s.completed && s.kind === 'working') { s.load = sg.result.suggestedLoad; s.prefilled = true; } });
-            });
-            app.render();
-          }, text: 'Use it' }),
-          h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: 'Not now' }),
-          h('button.btn.xs', { onClick: () => showReasons(ex, sg.result), text: 'Why?' })));
-      } else if (sg.decision === 'accepted' || sg.decision === 'overridden') {
-        box.appendChild(h('div.row.between', h('span', { text: (sg.decision === 'accepted' ? 'Using suggested ' : 'Using your ') + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' ' + loadHint(ex) }), h('button.btn.xs', { onClick: () => showReasons(ex, sg.result), text: 'Why?' })));
-      }
-      if (box.childNodes.length) card.appendChild(box);
+    if (sg && sg.result && (sg.result.status === 'increase' || sg.result.status === 'assist_decrease') && sg.result.suggestedLoad != null && !sg.decision) {
+      card.appendChild(h('div.target',
+        h('span.grow', { text: U.fmtLoad(sg.result.suggestedLoad) + ' ' + sg.result.unit + ' · ' + range }),
+        h('button.btn.xs.primary', { onClick: () => { app.store.commit((d) => { D.decideSuggestion(d, sg.key, 'accepted'); const i2 = D.instance(d, sid, inst.instanceId); i2.sets.forEach((s) => { if (!s.completed && s.kind === 'working') { s.load = sg.result.suggestedLoad; s.prefilled = true; } }); }); app.render(); }, text: C.logger.use }),
+        h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: C.logger.hold }),
+        h('button.ibtn', { 'aria-label': C.logger.why, onClick: () => showReasons(ex, sg.result), text: 'i' })));
     }
 
-    // Sets
-    const usesLoad = ex.loadConvention !== 'none';
-    const timed = ex.type === 'timed';
-    const setsEl = h('div.sets');
-    setsEl.appendChild(h('div.sethead', h('span', { text: 'Set' }), h('span', { text: usesLoad ? 'Load · ' + loadHint(ex) : '' }), h('span', { text: timed ? 'Seconds' : 'Reps ' + (p.repMin != null ? p.repMin + '–' + p.repMax : '') }), h('span', { text: 'RIR' }), h('span', { text: 'Done' })));
-    let workingIdx = 0, warmIdx = 0;
-    const pairIdx = {};
+    const sets = h('div.sets');
+    const curId = (inst.sets.find((s) => s.kind === 'working' && !s.completed) || {}).id;
+    let w = 0, wu = 0; const pairN = {};
     inst.sets.forEach((s) => {
       let label;
-      if (s.kind === 'warmup') { if (s.side !== 'R') warmIdx++; label = 'W' + warmIdx; }
-      else {
-        if (s.pairId) { if (!(s.pairId in pairIdx)) pairIdx[s.pairId] = ++workingIdx; label = String(pairIdx[s.pairId]); }
-        else label = String(++workingIdx);
-      }
-      setsEl.appendChild(setRow(app, session, inst, ex, s, label));
+      if (s.kind === 'warmup') { if (s.side !== 'R') wu++; label = 'W' + wu; }
+      else if (s.pairId) { if (!(s.pairId in pairN)) pairN[s.pairId] = ++w; label = String(pairN[s.pairId]); }
+      else label = String(++w);
+      sets.appendChild(setRow(app, session, inst, ex, s, label, s.id === curId));
     });
-    card.appendChild(setsEl);
+    card.appendChild(sets);
 
-    const acts = h('div.setactions');
-    acts.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'working')); rerenderCard(app, session, inst); }, text: '+ Set' }));
-    acts.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'warmup')); rerenderCard(app, session, inst); }, text: '+ Warm-up' }));
-    acts.appendChild(h('button.btn.xs', { onClick: () => notesSheet(app, session, inst), text: inst.notes ? 'Notes ✓' : 'Notes' }));
-    if (ex.type === 'barbell') acts.appendChild(h('button.btn.xs', { onClick: () => plateSheet(app, inst, unit), text: 'Plates' }));
+    const acts = h('div.actions');
+    if (lp && lp.sets.length && inst.sets.some((s) => s.kind === 'working' && !s.completed && (s.load != null || s.reps != null || s.durationSec != null)))
+      acts.appendChild(h('button.btn.sm', { onClick: () => sameAsLast(app, session, inst), text: C.logger.sameAsLast }));
+    acts.appendChild(h('button.btn.sm', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'working')); app.render(); }, text: '+ ' + C.logger.addSet }));
+    acts.appendChild(h('button.btn.sm', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'warmup')); app.render(); }, text: '+ ' + C.logger.warmup }));
+    if (ex.type === 'barbell') acts.appendChild(h('button.btn.sm', { onClick: () => plateSheet(inst, unit), text: C.logger.plates }));
     card.appendChild(acts);
+    if (inst.notes) card.appendChild(h('p.small.muted', { style: { marginTop: '10px' }, text: inst.notes }));
     return card;
   }
 
-  function rerenderCard(app, session, inst) {
-    const db = app.store.db;
-    const s2 = db.sessions[session.id];
-    const i2 = s2.exercises.find((e) => e.instanceId === inst.instanceId);
-    const old = document.querySelector('[data-inst="' + inst.instanceId + '"]');
-    if (!old || !i2) { app.render(); return; }
-    old.replaceWith(exerciseCard(app, s2, i2));
-    const c = D.counts(s2);
-    const meta = document.querySelector('.logger-head .small.muted');
-    if (meta) meta.textContent = U.fmtLocalDate(s2.localDate, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + c.workingDone + ' of ' + c.workingPrescribed + ' working sets';
-  }
-
-  function setRow(app, session, inst, ex, s, label) {
+  function setRow(app, session, inst, ex, s, label, isCur) {
     const db = app.store.db;
     const sid = session.id, iid = inst.instanceId;
     const p = inst.prescription;
     const usesLoad = ex.loadConvention !== 'none';
     const timed = ex.type === 'timed';
-    const row = h('div.setrow', { class: (s.completed ? 'done ' : '') + (s.kind === 'warmup' ? 'warm' : '') });
+    const inc = (s.unit === 'kg' ? ex.incrementKg : ex.incrementLb) || 1;
+    const row = h('div.setrow', { class: (s.completed ? 'done ' : '') + (isCur ? 'cur ' : '') + (s.kind === 'warmup' ? 'warm' : '') });
 
-    const lbl = h('button.setlabel', { type: 'button', style: { background: 'none', border: 0, padding: 0 }, 'aria-label': (s.kind === 'warmup' ? 'Warm-up set ' : 'Working set ') + label + (s.side !== 'both' ? ' ' + s.side : '') + '. Tap to switch between warm-up and working.', onClick: () => {
-      app.store.commit((d) => D.setKind(d, sid, iid, s.id, s.kind === 'warmup' ? 'working' : 'warmup'));
-      rerenderCard(app, session, inst);
-    } }, h('b', { text: label + (s.side !== 'both' ? ' ' + s.side : '') }), h('span', { text: s.kind === 'warmup' ? 'warm' : '' }));
+    const lbl = h('button.setlabel', { type: 'button', 'aria-label': (s.kind === 'warmup' ? C.logger.warm : C.logger.working) + ' ' + label, onClick: () => setSheet(app, session, inst, s, label) }, label + (s.side !== 'both' ? s.side : ''));
+    if (db.settings.showRir && s.rir != null) lbl.appendChild(h('small', { text: 'RIR ' + s.rir }));
+    else if (s.kind === 'warmup') lbl.appendChild(h('small', { text: 'W' }));
+    longPress(lbl, () => { app.store.commit((d) => D.setKind(d, sid, iid, s.id, s.kind === 'warmup' ? 'working' : 'warmup')); app.render(); });
     row.appendChild(lbl);
 
     const silent = (fn) => app.store.commit(fn, { silent: true });
-    if (usesLoad) {
-      const inp = X.numInput({ value: s.load, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: '—', max: 5000, label: 'Load for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'load', v)) });
-      row.appendChild(inp);
-    } else row.appendChild(h('div.convention', { text: ex.type === 'timed' ? '' : 'bodyweight' }));
+    function stepper(field, value, step, integer, placeholder, ariaLabel) {
+      const wrap = h('div.stepper');
+      const inp = X.numInput({ value, integer, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder, max: field === 'load' ? 5000 : 3600, label: ariaLabel, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, field, v)) });
+      const bump = (dir) => { const next = app.store.commit((d) => D.stepField(d, sid, iid, s.id, field, dir * step), { silent: true }); inp.value = next == null ? '' : String(next); inp.classList.remove('prefilled'); };
+      wrap.appendChild(h('button.step', { type: 'button', 'aria-label': '−' + step + ' ' + ariaLabel, onClick: () => bump(-1), text: '−' }));
+      wrap.appendChild(inp);
+      wrap.appendChild(h('button.step', { type: 'button', 'aria-label': '+' + step + ' ' + ariaLabel, onClick: () => bump(1), text: '+' }));
+      return wrap;
+    }
+    if (usesLoad) row.appendChild(stepper('load', s.load, inc, false, '—', loadHint(ex) || 'load'));
+    else row.appendChild(h('div.convention', { text: timed ? '' : C.logger.bw }));
+    if (timed) row.appendChild(stepper('durationSec', s.durationSec, 5, true, p.timed ? p.timed.secMin + '–' + p.timed.secMax : 's', 's'));
+    else row.appendChild(stepper('reps', s.reps, 1, true, p.repMin != null ? p.repMin + '–' + p.repMax : '', 'reps'));
 
-    if (timed) row.appendChild(X.numInput({ value: s.durationSec, integer: true, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: p.timed ? p.timed.secMin + '–' + p.timed.secMax : 's', max: 3600, label: 'Seconds for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'durationSec', v)) }));
-    else row.appendChild(X.numInput({ value: s.reps, integer: true, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: p.repMin != null ? p.repMin + '–' + p.repMax : 'reps', max: 999, label: 'Reps for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'reps', v)) }));
-
-    row.appendChild(X.numInput({ value: s.rir, integer: true, cls: 'setinput rir', placeholder: '–', max: 10, label: 'Reps in reserve for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'rir', v)) }));
-
-    const chk = h('button.setcheck', { class: s.completed ? 'on' : '', type: 'button', 'aria-pressed': s.completed ? 'true' : 'false', 'aria-label': (s.completed ? 'Undo set ' : 'Complete set ') + label, onClick: () => {
+    row.appendChild(h('button.setcheck', { class: s.completed ? 'on' : '', type: 'button', 'aria-pressed': s.completed ? 'true' : 'false', 'aria-label': label, onClick: () => {
       let nowDone = false;
       app.store.commit((d) => {
         nowDone = D.toggleComplete(d, sid, iid, s.id, nowIso());
         if (nowDone && d.settings.autoStartRest && s.kind === 'working') D.startRest(d, inst.restSec, Date.now(), sid);
       });
-      rerenderCard(app, session, inst);
-      app.renderTimer();
-    } }, X.svg(X.ICON.check));
-    row.appendChild(chk);
+      if (nowDone) app.haptic(10);
+      app.render(); app.renderTimer();
+    } }, X.svg(X.ICON.check)));
     return row;
+  }
+
+  function longPress(el, fn) {
+    let t = null;
+    const start = () => { t = setTimeout(() => { t = null; fn(); }, 500); };
+    const cancel = () => { if (t) { clearTimeout(t); t = null; } };
+    el.addEventListener('touchstart', start, { passive: true }); el.addEventListener('touchend', cancel); el.addEventListener('touchmove', cancel);
+    el.addEventListener('mousedown', start); el.addEventListener('mouseup', cancel); el.addEventListener('mouseleave', cancel);
+  }
+
+  function sameAsLast(app, session, inst) {
+    let ids = [];
+    app.store.commit((d) => {
+      ids = D.completePrefilled(d, session.id, inst.instanceId, nowIso());
+      if (ids.length && d.settings.autoStartRest) D.startRest(d, inst.restSec, Date.now(), session.id);
+    });
+    if (!ids.length) return;
+    app.haptic(10);
+    app.render(); app.renderTimer();
+    const pill = h('div.undo', { role: 'status' }, h('span', { text: ids.length + ' ✓' }), h('button', { onClick: () => { app.store.commit((d) => { D.uncompleteSets(d, session.id, inst.instanceId, ids); D.dismissRest(d); }); pill.remove(); app.render(); app.renderTimer(); }, text: C.logger.undo }));
+    document.body.appendChild(pill);
+    setTimeout(() => pill.remove(), 10000);
+  }
+
+  function setSheet(app, session, inst, s, label) {
+    const db = app.store.db;
+    const sid = session.id, iid = inst.instanceId;
+    X.sheet(C.logger.setSheet + ' ' + label, (sh, api) => {
+      sh.appendChild(h('div.chips', h('button.chip', { type: 'button', 'aria-pressed': s.kind === 'working' ? 'true' : 'false', onClick: () => { app.store.commit((d) => D.setKind(d, sid, iid, s.id, 'working')); api.close(); app.render(); }, text: C.logger.working }),
+        h('button.chip', { type: 'button', 'aria-pressed': s.kind === 'warmup' ? 'true' : 'false', onClick: () => { app.store.commit((d) => D.setKind(d, sid, iid, s.id, 'warmup')); api.close(); app.render(); }, text: C.logger.warm })));
+      sh.appendChild(h('div.field', { style: { marginTop: '12px' } }, h('label', { text: C.logger.rir }), X.numInput({ value: s.rir, integer: true, max: 10, cls: 'input', label: C.logger.rir, onValue: (v) => app.store.commit((d) => D.setField(d, sid, iid, s.id, 'rir', v), { silent: true }) })));
+      sh.appendChild(h('div.field', { style: { marginTop: '12px' } }, h('label', { text: C.logger.notes }), h('input.input', { type: 'text', value: s.notes || '', 'aria-label': C.logger.notes, onInput: (e) => app.store.commit((d) => D.setField(d, sid, iid, s.id, 'notes', e.target.value), { silent: true }) })));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: () => { api.close(); app.render(); }, text: C.logger.close }));
+      sh.appendChild(h('button.btn.block.danger', { style: { marginTop: '8px' }, onClick: async () => {
+        if (s.completed && !(await X.confirm({ title: C.logger.delete + '?', confirmLabel: C.logger.delete, danger: true }))) return;
+        api.close(); app.store.commit((d) => D.deleteSet(d, sid, iid, s.id)); app.render();
+      }, text: C.logger.delete }));
+    });
   }
 
   function showReasons(ex, result) {
@@ -2330,19 +2349,35 @@ textarea.input { min-height: 80px; resize: vertical; }
       (result.reasons || []).forEach((r) => ul.appendChild(h('li', { text: r })));
       sh.appendChild(ul);
       if (result.decline) sh.appendChild(h('p.small', { style: { marginTop: '10px' }, text: result.decline }));
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: C.logger.close }));
     });
   }
-
   function headline(r) {
     switch (r.status) {
-      case 'increase': return 'Increase suggested: ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit + ' (from ' + U.fmtLoad(r.currentLoad) + ').';
-      case 'assist_decrease': return r.suggestedLoad == null ? 'Assistance is already 0.' : 'Less assistance suggested: ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit + ' (from ' + U.fmtLoad(r.currentLoad) + ').';
-      case 'bodyweight_top': return 'Top of the range on every set.';
-      case 'timed_top': return 'Upper bound reached on every hold.';
-      case 'not_evaluated': return 'Not evaluated.';
-      default: return 'Hold the load.';
+      case 'increase': return U.fmtLoad(r.currentLoad) + ' → ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit;
+      case 'assist_decrease': return r.suggestedLoad == null ? '0 ' + C.logger.assist : U.fmtLoad(r.currentLoad) + ' → ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit + ' ' + C.logger.assist;
+      case 'bodyweight_top': case 'timed_top': return '↑';
+      case 'not_evaluated': return '—';
+      default: return C.logger.hold + (r.currentLoad != null ? ' ' + U.fmtLoad(r.currentLoad) + ' ' + r.unit : '');
     }
+  }
+
+  function overviewSheet(app, session) {
+    const db = app.store.db;
+    X.sheet(session.templateName, (sh, api) => {
+      const list = h('div.list');
+      session.exercises.forEach((inst, i) => {
+        const ex = D.exercise(db, inst.exerciseId);
+        const done = D.logicalSets(inst, { completedOnly: true, kind: 'working' }).length;
+        list.appendChild(h('div', { class: 'ovrow' },
+          h('button', { class: 'ovname', style: { background: 'none', border: 0, padding: 0, textAlign: 'left', flex: '1', color: inst.skipped ? 'var(--muted)' : 'inherit', textDecoration: inst.skipped ? 'line-through' : 'none' }, onClick: () => { api.close(); TR.setFocus(session.id, i); app.render(); }, text: ex.name }),
+          h('span', { class: done >= inst.prescription.sets ? 'sand' : 'muted', text: done + '/' + inst.prescription.sets }),
+          h('button.ibtn', { 'aria-label': C.logger.up, disabled: i === 0, onClick: () => { app.store.commit((d) => D.moveExercise(d, session.id, inst.instanceId, -1)); api.close(); overviewSheet(app, db.sessions[session.id]); }, text: '↑' }),
+          h('button.ibtn', { 'aria-label': C.logger.down, disabled: i === session.exercises.length - 1, onClick: () => { app.store.commit((d) => D.moveExercise(d, session.id, inst.instanceId, 1)); api.close(); overviewSheet(app, db.sessions[session.id]); }, text: '↓' })));
+      });
+      sh.appendChild(list);
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '10px' }, onClick: () => { api.close(); app.navigate('train', { view: 'week' }); }, text: C.week.title }));
+    });
   }
 
   function exerciseMenu(app, session, inst) {
@@ -2350,36 +2385,13 @@ textarea.input { min-height: 80px; resize: vertical; }
     const sid = session.id, iid = inst.instanceId;
     const ex = D.exercise(db, inst.exerciseId);
     const anyDone = inst.sets.some((s) => s.completed);
-    const idx = session.exercises.findIndex((e) => e.instanceId === iid);
     X.actionSheet(ex.name, [
-      !inst.skipped && { label: 'Skip this exercise', onSelect: async () => {
-        const reason = await X.prompt({ title: 'Skip ' + ex.name, placeholder: 'Reason (optional)', confirmLabel: 'Skip' });
-        if (reason === null) return;
-        app.store.commit((d) => D.skipExercise(d, sid, iid, reason.trim()));
-        app.render();
-      } },
-      { label: 'Substitute', hint: anyDone ? 'Not after logging sets' : (inst.substitutedFrom ? 'Currently a substitute' : ''), onSelect: () => {
-        if (anyDone) { X.toast('Sets are already logged for this exercise. Add a new exercise instead — coming with plan editing.'); return; }
-        substituteSheet(app, session, inst);
-      } },
-      ex.unilateral && { label: inst.sidesSeparate ? 'Log both sides as one row' : 'Log left and right separately', onSelect: () => { app.store.commit((d) => D.setSidesSeparate(d, sid, iid, !inst.sidesSeparate)); app.render(); } },
-      { label: 'Remove a set', onSelect: () => removeSetSheet(app, session, inst) },
-      idx > 0 && { label: 'Move up (this session only)', onSelect: () => { app.store.commit((d) => D.moveExercise(d, sid, iid, -1)); app.render(); } },
-      idx < session.exercises.length - 1 && { label: 'Move down (this session only)', onSelect: () => { app.store.commit((d) => D.moveExercise(d, sid, iid, 1)); app.render(); } },
-      { label: 'Rest timer for this exercise', hint: U.fmtClock(inst.restSec), onSelect: async () => {
-        const v = await X.prompt({ title: 'Rest after each set (seconds)', value: String(inst.restSec), inputmode: 'numeric', help: 'A default, not a rule. Starts automatically when you complete a working set.' });
-        if (v === null) return;
-        const r = U.parseNum(v, { integer: true, max: 3600 });
-        if (r.error || r.value == null) { X.toast(r.error || 'Enter seconds.'); return; }
-        app.store.commit((d) => D.setInstanceField(d, sid, iid, 'restSec', r.value));
-        app.render();
-      } },
-      { label: 'Edit cues', onSelect: async () => {
-        const v = await X.prompt({ title: 'Cues for ' + ex.name, value: ex.cues || '', multiline: true });
-        if (v === null) return;
-        app.store.commit((d) => { if (d.exercises[ex.id]) d.exercises[ex.id].cues = v.trim(); });
-        app.render();
-      } }
+      ex.cues && { label: C.logger.cues, hint: ex.cues, onSelect: () => {} },
+      !inst.skipped && { label: C.logger.skip, onSelect: async () => { const r = await X.prompt({ title: C.logger.reason, confirmLabel: C.logger.skip }); if (r === null) return; app.store.commit((d) => D.skipExercise(d, sid, iid, r.trim())); app.render(); } },
+      !anyDone && { label: C.logger.substitute, hint: C.logger.thisSession, onSelect: () => substituteSheet(app, session, inst) },
+      ex.unilateral && { label: C.logger.sides, hint: inst.sidesSeparate ? C.logger.separate : C.logger.linked, onSelect: () => { app.store.commit((d) => D.setSidesSeparate(d, sid, iid, !inst.sidesSeparate)); app.render(); } },
+      { label: C.logger.restTimer, hint: U.fmtClock(inst.restSec), onSelect: async () => { const v = await X.prompt({ title: C.logger.restTimer, value: String(inst.restSec), inputmode: 'numeric' }); if (v === null) return; const r = U.parseNum(v, { integer: true, max: 3600 }); if (r.error || r.value == null) { X.toast(C.errors.number); return; } app.store.commit((d) => D.setInstanceField(d, sid, iid, 'restSec', r.value)); app.render(); } },
+      { label: C.logger.notes, hint: inst.notes ? '✓' : '', onSelect: async () => { const v = await X.prompt({ title: C.logger.notes, value: inst.notes || '', multiline: true }); if (v === null) return; app.store.commit((d) => D.setInstanceField(d, sid, iid, 'notes', v.trim())); app.render(); } }
     ]);
   }
 
@@ -2389,185 +2401,109 @@ textarea.input { min-height: 80px; resize: vertical; }
     const all = Object.values(db.exercises).filter((e) => e.id !== ex.id);
     const family = all.filter((e) => e.family && e.family === ex.family);
     const rest = all.filter((e) => family.indexOf(e) < 0).sort((a, b) => a.name.localeCompare(b.name));
-    X.sheet('Substitute ' + ex.name, (sh, api) => {
-      sh.appendChild(h('p.help', { style: { marginBottom: '8px' }, text: 'The substitute keeps its own history and progression. This session only.' }));
+    X.sheet(C.logger.substitute, (sh, api) => {
       const list = h('div.list');
-      const add = (e, hint) => list.appendChild(h('button', { onClick: () => { api.close(); app.store.commit((d) => D.substituteExercise(d, session.id, inst.instanceId, e.id)); app.render(); } }, h('span', { text: e.name }), h('span.small.muted', { text: hint || '' })));
-      family.forEach((e) => add(e, 'same movement'));
-      rest.forEach((e) => add(e, ''));
+      family.concat(rest).forEach((e) => list.appendChild(h('button', { onClick: () => { api.close(); app.store.commit((d) => D.substituteExercise(d, session.id, inst.instanceId, e.id)); app.render(); } }, h('span', { text: e.name }), h('span.small.muted', { text: family.indexOf(e) >= 0 ? '≈' : '' }))));
       sh.appendChild(list);
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '10px' }, onClick: api.close, text: 'Cancel' }));
     });
   }
 
-  function removeSetSheet(app, session, inst) {
-    const db = app.store.db;
-    const ex = D.exercise(db, inst.exerciseId);
-    X.sheet('Remove a set', (sh, api) => {
-      const list = h('div.list');
-      const seen = {};
-      inst.sets.forEach((s, i) => {
-        if (s.pairId && seen[s.pairId]) return;
-        if (s.pairId) seen[s.pairId] = true;
-        const desc = (s.kind === 'warmup' ? 'Warm-up' : 'Set') + ' ' + (i + 1) + ': ' + (s.load != null ? U.fmtLoad(s.load) + ' ' + s.unit + ' × ' : '') + (s.reps != null ? s.reps : s.durationSec != null ? s.durationSec + ' s' : '—') + (s.completed ? ' · done' : '');
-        list.appendChild(h('button', { class: s.completed ? 'danger' : '', onClick: async () => {
-          if (s.completed) { const ok = await X.confirm({ title: 'Remove a completed set?', body: 'This deletes the logged set from ' + ex.name + '.', confirmLabel: 'Remove', danger: true }); if (!ok) return; }
-          api.close();
-          app.store.commit((d) => D.deleteSet(d, session.id, inst.instanceId, s.id));
-          rerenderCard(app, session, inst);
-        } }, h('span', { text: desc })));
-      });
-      sh.appendChild(list);
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '10px' }, onClick: api.close, text: 'Cancel' }));
-    });
-  }
-
-  function notesSheet(app, session, inst) {
-    X.prompt({ title: 'Notes', value: inst.notes || '', multiline: true, placeholder: 'Seat position, grip, how it felt…' }).then((v) => {
-      if (v === null) return;
-      app.store.commit((d) => D.setInstanceField(d, session.id, inst.instanceId, 'notes', v.trim()));
-      rerenderCard(app, session, inst);
-    });
-  }
-
-  function plateSheet(app, inst, unit) {
+  function plateSheet(inst, unit) {
     const bars = X.BARS[unit], plates = X.PLATES[unit];
-    let target = (inst.sets.find((s) => s.kind === 'working' && s.load != null) || {}).load || null;
-    let bar = bars[0];
-    X.sheet('Plate math', (sh, api) => {
-      const out = h('div', { style: { marginTop: '12px' } });
+    let target = (inst.sets.find((s) => s.kind === 'working' && s.load != null) || {}).load || null, bar = bars[0];
+    X.sheet(C.logger.plates, (sh, api) => {
+      const out = h('div', { style: { marginTop: '12px', fontSize: '22px', fontWeight: '600' } });
       function calc() {
         X.clear(out);
+        if (target == null || target < bar) { out.appendChild(h('span.muted', { text: '—' })); return; }
         const r = X.plateMath(target, bar, plates);
-        if (target == null) { out.appendChild(h('p.muted', { text: 'Enter a target total.' })); return; }
-        if (target < bar) { out.appendChild(h('p.muted', { text: 'Target is below the bar weight.' })); return; }
-        out.appendChild(h('p', h('b', { text: 'Per side: ' }), r.perSide.length ? r.perSide.map(U.fmtLoad).join(' + ') + ' ' + unit : 'empty bar'));
-        if (!r.exact) out.appendChild(h('p.small.muted', { text: U.fmtLoad(r.remainder) + ' ' + unit + ' per side can\'t be made with these plates. Loaded total: ' + U.fmtLoad(bar + 2 * r.perSide.reduce((a, b) => a + b, 0)) + ' ' + unit + '.' }));
+        out.appendChild(h('span', { text: r.perSide.length ? r.perSide.map(U.fmtLoad).join(' + ') : '0' }));
+        if (!r.exact) out.appendChild(h('span.small.muted', { text: '  ≈ ' + U.fmtLoad(bar + 2 * r.perSide.reduce((a, b) => a + b, 0)) }));
       }
-      sh.appendChild(h('div.field', h('label', { text: 'Target total (' + unit + ')' }), X.numInput({ value: target, cls: 'setinput', max: 5000, label: 'Target total', onValue: (v) => { target = v; calc(); } })));
+      sh.appendChild(X.numInput({ value: target, cls: 'input', max: 5000, label: unit, onValue: (v) => { target = v; calc(); } }));
       const bc = h('div.chips', { style: { marginTop: '10px' } });
-      bars.forEach((b) => bc.appendChild(h('button.chip.sm', { type: 'button', 'aria-pressed': b === bar ? 'true' : 'false', onClick: () => { bar = b; bc.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.textContent.startsWith(String(b)) ? 'true' : 'false')); calc(); }, text: b + ' ' + unit + ' bar' })));
-      sh.appendChild(bc);
-      sh.appendChild(out);
-      sh.appendChild(h('p.tiny.muted', { style: { marginTop: '8px' }, text: 'Plates: ' + plates.join(', ') + ' ' + unit + '.' }));
-      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
-      calc();
+      bars.forEach((b) => bc.appendChild(h('button.chip.sm', { type: 'button', 'aria-pressed': b === bar ? 'true' : 'false', onClick: () => { bar = b; Array.from(bc.children).forEach((c) => c.setAttribute('aria-pressed', c.textContent === String(b) ? 'true' : 'false')); calc(); }, text: String(b) })));
+      sh.appendChild(bc); sh.appendChild(out); calc();
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: C.logger.close }));
     });
   }
 
-  /* ---------- finish ---------- */
   function finishFlow(app, session) {
     const c = D.counts(session);
-    const body = c.workingDone === 0
-      ? 'No working sets are logged. Finishing records the session with nothing completed — it will not count toward the week or progression.'
-      : c.workingDone + ' of ' + c.workingPrescribed + ' working sets across ' + c.exercisesDone + ' of ' + c.exercisesTotal + ' exercises. Sets you didn\'t complete stay incomplete.';
-    X.confirm({ title: 'Finish ' + session.templateName + '?', body, confirmLabel: 'Finish' }).then((ok) => {
+    X.confirm({ title: C.logger.finishQ, body: c.workingDone + ' / ' + c.workingPrescribed, confirmLabel: C.logger.finish, cancelLabel: C.logger.cancel }).then((ok) => {
       if (!ok) return;
       app.store.commit((d) => D.finishSession(d, session.id, nowIso()));
+      delete focusIdx[session.id];
+      if (S.prsForSession(app.store.db, session.id).length) app.haptic([30, 60, 30]);
       app.navigate('train', { view: 'summary', sessionId: session.id });
     });
   }
 
-  /* ---------- completion summary ---------- */
+  /* ---------- summary (PRs first) ---------- */
   function topSet(sets) {
     let best = null;
-    sets.forEach((s) => {
-      if (!best) { best = s; return; }
-      const a = s.load == null ? -1 : s.load, b = best.load == null ? -1 : best.load;
-      if (a > b || (a === b && (s.reps || 0) > (best.reps || 0))) best = s;
-    });
+    sets.forEach((s) => { if (!best) { best = s; return; } const a = s.load == null ? -1 : s.load, b = best.load == null ? -1 : best.load; if (a > b || (a === b && (s.reps || 0) > (best.reps || 0))) best = s; });
     return best;
   }
 
   function renderSummary(root, app, session) {
     const db = app.store.db;
     const c = D.counts(session);
-    const wrap = h('div.stack.summ');
-    wrap.appendChild(h('div', h('h1', { text: session.templateName }), h('div.small.muted', { text: U.fmtLocalDate(session.localDate, { weekday: 'long', month: 'short', day: 'numeric' }) })));
+    const wrap = h('div.summ');
+    wrap.appendChild(h('h1', { text: session.templateName }));
+    wrap.appendChild(h('p.small.muted', { text: U.fmtLocalDate(session.localDate, { weekday: 'short', month: 'short', day: 'numeric' }) }));
+    wrap.appendChild(h('div.row', { style: { gap: '24px', margin: '14px 0 6px' } },
+      h('div', h('div.stat', { text: c.workingDone + ' / ' + c.workingPrescribed }), h('div.tiny.muted', { text: C.summary.sets })),
+      h('div', h('div.stat', { text: U.fmtDuration(D.activeMs(session, Date.now())) }))));
 
-    const stats = h('div.card', h('div.row', { style: { justifyContent: 'space-between' } },
-      h('div', h('div.stat', { text: String(c.workingDone) }), h('div.tiny.muted', { text: 'working sets of ' + c.workingPrescribed })),
-      h('div', h('div.stat', { text: c.exercisesDone + '/' + c.exercisesTotal }), h('div.tiny.muted', { text: 'exercises complete' })),
-      h('div', h('div.stat', { text: U.fmtDuration(D.activeMs(session, Date.now())) }), h('div.tiny.muted', { text: 'active time' }))));
-    if (c.warmupsDone) stats.appendChild(h('p.tiny.muted', { style: { marginTop: '8px' }, text: c.warmupsDone + ' warm-up set(s) logged, excluded from the counts above.' }));
-    wrap.appendChild(stats);
-
-    // Comparison with the previous completed session of the same template
-    const prev = D.sessionList(db).filter((s) => s.id !== session.id && s.templateId === session.templateId && s.status === 'completed' && s.finishedAt < (session.finishedAt || '9')).slice(-1)[0];
-    const cmp = h('div.card');
-    cmp.appendChild(h('h3', { text: prev ? 'Compared with ' + U.fmtLocalDate(prev.localDate) : 'First ' + session.templateName + ' session' }));
-    if (prev) {
-      const grid = h('div.cmp', { style: { marginTop: '10px' } }, h('span.h', { text: 'Top working set' }), h('span.h', { text: U.fmtLocalDate(prev.localDate) }), h('span.h', { text: 'Today' }));
-      session.exercises.forEach((inst) => {
-        if (inst.skipped) return;
-        const ex = D.exercise(db, inst.exerciseId);
-        const now = topSet(D.logicalSets(inst, { completedOnly: true, kind: 'working' }));
-        const pi = prev.exercises.find((e) => e.exerciseId === inst.exerciseId && !e.skipped);
-        const then = pi ? topSet(D.logicalSets(pi, { completedOnly: true, kind: 'working' })) : null;
-        const f = (s) => !s ? '—' : ex.type === 'timed' ? (s.durationSec == null ? '—' : s.durationSec + ' s') : (s.load != null ? U.fmtLoad(s.load) + ' × ' : '') + (s.reps == null ? '—' : s.reps);
-        grid.appendChild(h('span', { text: ex.name })); grid.appendChild(h('span.muted', { text: f(then) })); grid.appendChild(h('span', { text: f(now) }));
-      });
-      cmp.appendChild(grid);
-      const pc = D.counts(prev);
-      cmp.appendChild(h('p.small.muted', { style: { marginTop: '10px' }, text: 'Working sets ' + pc.workingDone + ' → ' + c.workingDone + '. Active time ' + U.fmtDuration(D.activeMs(prev, Date.now())) + ' → ' + U.fmtDuration(D.activeMs(session, Date.now())) + '.' }));
-    } else cmp.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'Nothing to compare against yet.' }));
-    wrap.appendChild(cmp);
-
-    // Progression decisions
-    const sugg = session.exercises.map((inst) => ({ inst, sg: db.suggestions[session.id + ':' + inst.instanceId] })).filter((x) => x.sg);
-    if (sugg.length) {
-      const sc = h('div.card');
-      sc.appendChild(h('h3', { text: 'Next time' }));
-      sugg.forEach(({ inst, sg }) => {
-        const ex = D.exercise(db, inst.exerciseId);
-        const r = sg.result;
-        if (r.status === 'not_evaluated') return;
-        const item = h('div', { style: { marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--line)' } });
-        item.appendChild(h('div.row.between', h('b', { text: ex.name }), h('button.btn.xs', { onClick: () => showReasons(ex, r), text: 'Why?' })));
-        item.appendChild(h('p.small', { style: { marginTop: '4px' }, text: headline(r) }));
-        if (r.rirFlag) item.appendChild(h('p.small', { style: { marginTop: '4px', color: 'var(--sand)' }, text: 'Logged at 0 RIR — holding the load may be appropriate.' }));
-        if (r.decline) item.appendChild(h('p.small.muted', { style: { marginTop: '4px' }, text: r.decline }));
-        if ((r.status === 'increase' || r.status === 'assist_decrease') && r.suggestedLoad != null) {
-          const controls = h('div.row.wrap', { style: { marginTop: '8px' } });
-          if (!sg.decision) {
-            controls.appendChild(h('button.btn.xs.primary', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'accepted')); app.render(); }, text: 'Accept ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit }));
-            controls.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: 'Dismiss' }));
-            controls.appendChild(h('button.btn.xs', { onClick: async () => {
-              const v = await X.prompt({ title: 'Load to use next time (' + r.unit + ')', value: String(r.suggestedLoad), inputmode: 'decimal', confirmLabel: 'Use this' });
-              if (v === null) return;
-              const n = U.parseNum(v, { max: 5000 });
-              if (n.error || n.value == null) { X.toast(n.error || 'Enter a load.'); return; }
-              app.store.commit((d) => D.decideSuggestion(d, sg.key, 'overridden', n.value));
-              app.render();
-            }, text: 'Override…' }));
-          } else {
-            controls.appendChild(h('span.small.muted', { text: sg.decision === 'accepted' ? 'Accepted — ' + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' will be prefilled next time.' : sg.decision === 'overridden' ? 'Using ' + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' next time.' : 'Dismissed — last load stays.' }));
-            controls.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => { const g = d.suggestions[sg.key]; g.decision = null; g.appliedLoad = null; }); app.render(); }, text: 'Change' }));
-          }
-          item.appendChild(controls);
-        }
-        sc.appendChild(item);
-      });
-      sc.appendChild(h('p.tiny.muted', { style: { marginTop: '12px' }, text: 'Suggestions never rewrite the next workout. Undecided ones show up again at the start of the next session.' }));
-      wrap.appendChild(sc);
+    const prs = S.prsForSession(db, session.id);
+    if (prs.length) {
+      wrap.appendChild(h('div.section.sand', { text: C.summary.pr }));
+      prs.forEach((pr) => wrap.appendChild(h('div.prline', h('span', { text: D.exercise(db, pr.exerciseId).name }), h('span.v', { text: pr.label }))));
     }
 
-    // Optional feedback
-    const fb = h('div.card');
-    fb.appendChild(h('h3', { text: 'Optional' }));
-    [['energy', 'Energy'], ['difficulty', 'Difficulty'], ['soreness', 'Soreness']].forEach(([k, label]) => {
+    const prev = D.sessionList(db).filter((s) => s.id !== session.id && s.templateId === session.templateId && s.status === 'completed' && (s.finishedAt || '') < (session.finishedAt || '9')).slice(-1)[0];
+    wrap.appendChild(h('div.section', { text: C.summary.next }));
+    session.exercises.forEach((inst) => {
+      if (inst.skipped) return;
+      const ex = D.exercise(db, inst.exerciseId);
+      const sg = db.suggestions[session.id + ':' + inst.instanceId];
+      const r = sg && sg.result;
+      const now = topSet(D.logicalSets(inst, { completedOnly: true, kind: 'working' }));
+      const pi = prev && prev.exercises.find((e) => e.exerciseId === inst.exerciseId && !e.skipped);
+      const then = pi ? topSet(D.logicalSets(pi, { completedOnly: true, kind: 'working' })) : null;
+      const f = (s) => !s ? '—' : ex.type === 'timed' ? (s.durationSec == null ? '—' : s.durationSec + ' s') : (s.load != null ? U.fmtLoad(s.load) + ' × ' : '') + (s.reps == null ? '—' : s.reps);
+      const line = h('div.nextline');
+      line.appendChild(h('div', h('div', { text: ex.name }), h('div.t', { text: (then ? f(then) + ' → ' : '') + f(now) })));
+      const right = h('div.row');
+      if (r && (r.status === 'increase' || r.status === 'assist_decrease') && r.suggestedLoad != null) {
+        if (!sg.decision) {
+          right.appendChild(h('button.btn.xs.primary', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'accepted')); app.render(); }, text: C.summary.use + ' ' + U.fmtLoad(r.suggestedLoad) }));
+          right.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: C.summary.hold }));
+          right.appendChild(h('button.btn.xs', { onClick: async () => { const v = await X.prompt({ title: r.unit, value: String(r.suggestedLoad), inputmode: 'decimal', confirmLabel: C.summary.use }); if (v === null) return; const n = U.parseNum(v, { max: 5000 }); if (n.error || n.value == null) { X.toast(C.errors.number); return; } app.store.commit((d) => D.decideSuggestion(d, sg.key, 'overridden', n.value)); app.render(); }, text: C.summary.edit }));
+        } else {
+          right.appendChild(h('span.small', { class: sg.decision === 'dismissed' ? 'muted' : 'sand', text: sg.decision === 'dismissed' ? C.summary.hold : U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit }));
+          right.appendChild(h('button.ibtn', { 'aria-label': C.summary.edit, onClick: () => { app.store.commit((d) => { const g = d.suggestions[sg.key]; g.decision = null; g.appliedLoad = null; }); app.render(); }, text: '↺' }));
+        }
+      } else if (r) right.appendChild(h('span.small.muted', { text: headline(r) }));
+      if (r) right.appendChild(h('button.ibtn', { 'aria-label': C.summary.why, onClick: () => showReasons(ex, r), text: 'i' }));
+      line.appendChild(right);
+      wrap.appendChild(line);
+    });
+
+    [['energy', C.summary.energy], ['difficulty', C.summary.effort], ['soreness', C.summary.soreness]].forEach(([k, label]) => {
+      wrap.appendChild(h('div.section', { text: label }));
       const sc = h('div.scale');
       for (let i = 1; i <= 5; i++) sc.appendChild(h('button.chip', { type: 'button', 'aria-pressed': session[k] === i ? 'true' : 'false', onClick: () => { app.store.commit((d) => D.setSessionField(d, session.id, k, session[k] === i ? null : i)); app.render(); }, text: String(i) }));
-      fb.appendChild(h('div.field', { style: { marginTop: '10px' } }, h('label', { text: label + ' (1 low – 5 high)' }), sc));
+      wrap.appendChild(sc);
     });
-    fb.appendChild(h('div.field', { style: { marginTop: '10px' } }, h('label', { text: 'Notes' }), h('textarea.input', { 'aria-label': 'Session notes', onInput: (e) => app.store.commit((d) => D.setSessionField(d, session.id, 'notes', e.target.value), { silent: true }) }, session.notes || '')));
-    wrap.appendChild(fb);
-
-    wrap.appendChild(h('button.btn.primary.block', { onClick: () => app.navigate('today'), text: 'Done' }));
+    wrap.appendChild(h('div.section', { text: C.summary.notes }));
+    wrap.appendChild(h('textarea.input', { 'aria-label': C.summary.notes, onInput: (e) => app.store.commit((d) => D.setSessionField(d, session.id, 'notes', e.target.value), { silent: true }) }, session.notes || ''));
+    wrap.appendChild(h('button.btn.primary.block', { style: { marginTop: '16px' }, onClick: () => app.navigate('today'), text: C.summary.done }));
     root.appendChild(wrap);
   }
 
-  /* ---------- rest timer bar ---------- */
+  /* ---------- rest timer ---------- */
   TR.renderTimer = function (bar, app) {
     const db = app.store.db;
     X.clear(bar);
@@ -2575,190 +2511,165 @@ textarea.input { min-height: 80px; resize: vertical; }
     const st = D.restState(db, Date.now());
     bar.hidden = false;
     bar.className = 'timerbar' + (st.done ? ' done' : '');
-    const inner = h('div.inner');
     const frac = st.durationSec ? Math.max(0, Math.min(1, 1 - st.remainingSec / st.durationSec)) : 0;
     bar.appendChild(h('div.bar', { style: { width: (frac * 100).toFixed(1) + '%' } }));
-    inner.appendChild(h('div.clock', { id: 'restclock', 'aria-live': 'off', text: st.done ? 'Rest done' : U.fmtClock(st.remainingSec) }));
-    inner.appendChild(h('div.grow.tiny.muted', { text: st.done ? 'Next set when ready.' : (st.paused ? 'Paused' : 'Rest') }));
-    inner.appendChild(h('button.btn.xs', { 'aria-label': 'Shorten by 30 seconds', onClick: () => { app.store.commit((d) => D.adjustRest(d, -30, Date.now())); app.renderTimer(); }, text: '−30' }));
-    inner.appendChild(h('button.btn.xs', { 'aria-label': 'Extend by 30 seconds', onClick: () => { app.store.commit((d) => D.adjustRest(d, 30, Date.now())); app.renderTimer(); }, text: '+30' }));
-    inner.appendChild(h('button.btn.xs.icon', { 'aria-label': st.paused ? 'Resume rest timer' : 'Pause rest timer', onClick: () => { app.store.commit((d) => st.paused ? D.resumeRest(d, Date.now()) : D.pauseRest(d, Date.now())); app.renderTimer(); } }, X.svg(st.paused ? X.ICON.play : X.ICON.pause)));
-    inner.appendChild(h('button.btn.xs.icon', { 'aria-label': 'Dismiss rest timer', onClick: () => { app.store.commit((d) => D.dismissRest(d)); app.renderTimer(); } }, X.svg(X.ICON.close)));
+    const inner = h('div.inner');
+    inner.appendChild(h('div.clock', { id: 'restclock', text: st.done ? C.logger.restDone : U.fmtClock(st.remainingSec) }));
+    inner.appendChild(h('div.grow'));
+    inner.appendChild(h('button.btn.sm', { 'aria-label': '−15', onClick: () => { app.store.commit((d) => D.adjustRest(d, -15, Date.now())); app.renderTimer(); }, text: '−15' }));
+    inner.appendChild(h('button.btn.sm', { 'aria-label': '+15', onClick: () => { app.store.commit((d) => D.adjustRest(d, 15, Date.now())); app.renderTimer(); }, text: '+15' }));
+    inner.appendChild(h('button.btn.sm', { onClick: () => { app.store.commit((d) => D.dismissRest(d)); app.renderTimer(); }, text: C.logger.skip }));
     bar.appendChild(inner);
+  };
+
+  /* Called each tick: when the rest ends and the focused exercise is complete, move on. */
+  TR.onRestDone = function (app) {
+    const db = app.store.db;
+    const active = D.findActiveSession(db);
+    if (!active || app.tab !== 'train') return;
+    const idx = currentIdx(active);
+    const inst = active.exercises[idx];
+    if (!inst || inst.skipped) return;
+    if (D.logicalSets(inst, { completedOnly: true, kind: 'working' }).length < inst.prescription.sets) return;
+    const next = active.exercises.findIndex((e, i) => i > idx && !e.skipped && D.logicalSets(e, { completedOnly: true, kind: 'working' }).length < e.prescription.sets);
+    if (next > idx) { TR.setFocus(active.id, next); app.render(); }
   };
 
   CS.train = TR;
 })();
 
 
-/* ===== ui/profile.js ===== */
-/* Coastal Strength — ui/profile.js */
+/* ===== ui/settings.js ===== */
+/* Coastal Strength — ui/settings.js (v2) */
 (function () {
   const CS = (window.CS = window.CS || {});
-  const X = CS.dom, U = CS.util, D = CS.db, P = CS.plan;
+  const X = CS.dom, U = CS.util, D = CS.db, P = CS.plan, C = CS.copy;
   const h = X.h;
-  const PF = {};
+  const SG = {};
 
-  PF.render = function (root, app) {
+  SG.render = function (root, app, params) {
+    if (params && params.view === 'about') return renderAbout(root, app);
     const db = app.store.db;
     const pr = db.profile;
-    const stack = h('div.stack');
-    stack.appendChild(h('h1', { text: 'Profile' }));
+    const set = (fn) => { app.store.commit(fn); app.render(); };
+    root.appendChild(h('h1', { text: C.settings.title }));
 
-    /* You */
-    const you = h('div.card.stack');
-    you.appendChild(h('h3', { text: 'You' }));
-    you.appendChild(field('Name', h('input.input', { type: 'text', value: pr.name, 'aria-label': 'Name', onChange: (e) => app.store.commit((d) => { d.profile.name = e.target.value.trim(); }) })));
-    const hIn = pr.heightIn;
-    you.appendChild(field('Height', h('div.row',
-      X.numInput({ value: hIn == null ? null : (pr.units === 'lb' ? Math.round(hIn * 10) / 10 : Math.round(hIn * 2.54)), max: 300, label: 'Height', onValue: (v) => app.store.commit((d) => { d.profile.heightIn = v == null ? null : (d.profile.units === 'lb' ? v : v / 2.54); }, { silent: true }) }),
-      h('span.muted', { text: pr.units === 'lb' ? 'in' : 'cm' }))));
-    you.appendChild(field('Units', chips([['lb', 'lb'], ['kg', 'kg']], pr.units, (v) => { app.store.commit((d) => { d.profile.units = v; }); app.render(); }), 'Logged sets keep the unit they were logged in; prefill converts.'));
-    const tzSel = h('select.input', { 'aria-label': 'Time zone', onChange: (e) => { app.store.commit((d) => { d.profile.timezone = e.target.value; }); app.render(); } });
-    let zones = [];
-    try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [pr.timezone]; }
+    const list = h('div.list', { style: { marginTop: '10px' } });
+    const row = (label, control) => list.appendChild(h('div.lrow', h('span.grow', { text: label }), control));
+    const toggle = (on, onChange) => h('button.chip.sm', { type: 'button', 'aria-pressed': on ? 'true' : 'false', onClick: () => onChange(!on), text: on ? C.settings.on : C.settings.off });
+    const prompt = (label, value, opts, apply) => h('button.btn.xs', { onClick: async () => { const v = await X.prompt(Object.assign({ title: label, value: value == null ? '' : String(value) }, opts || {})); if (v === null) return; apply(v); }, text: value == null || value === '' ? '—' : String(value) });
+
+    row(C.settings.name, prompt(C.settings.name, pr.name, {}, (v) => set((d) => { d.profile.name = v.trim(); })));
+    const hDisp = pr.heightIn == null ? null : (pr.units === 'lb' ? Math.round(pr.heightIn) + ' in' : Math.round(pr.heightIn * 2.54) + ' cm');
+    row(C.settings.height, prompt(C.settings.height, hDisp, { inputmode: 'decimal' }, (v) => { const n = U.parseNum(v.replace(/[a-z ]/gi, ''), { max: 300 }); if (n.error || n.value == null) return X.toast(C.errors.number); set((d) => { d.profile.heightIn = d.profile.units === 'lb' ? n.value : n.value / 2.54; }); }));
+    row(C.settings.units, h('div.chips', ['lb', 'kg'].map((u) => h('button.chip.sm', { type: 'button', 'aria-pressed': pr.units === u ? 'true' : 'false', onClick: () => set((d) => { d.profile.units = u; }), text: u }))));
+    const tzSel = h('select.input', { style: { width: 'auto', minHeight: '36px', padding: '4px 8px', fontSize: '14px', maxWidth: '190px' }, 'aria-label': C.settings.timezone, onChange: (e) => set((d) => { d.profile.timezone = e.target.value; }) });
+    let zones = []; try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [pr.timezone]; }
     if (zones.indexOf(pr.timezone) < 0) zones.unshift(pr.timezone);
     zones.forEach((z) => tzSel.appendChild(h('option', { value: z, selected: z === pr.timezone, text: z })));
-    you.appendChild(field('Time zone', tzSel));
-    you.appendChild(field('Nutrition mode', chips([['maintenance', 'Maintenance / recomp'], ['gain', 'Gradual gain'], ['loss', 'Gradual fat loss'], ['undecided', 'Undecided']], pr.nutritionMode, (v) => { app.store.commit((d) => { d.profile.nutritionMode = v; }); app.render(); })));
-    you.appendChild(field('Limitations', h('textarea.input', { 'aria-label': 'Limitations', onChange: (e) => app.store.commit((d) => { d.profile.limitations = e.target.value; }) }, pr.limitations || '')));
-    stack.appendChild(you);
+    row(C.settings.timezone, tzSel);
+    row(C.settings.nutrition, h('div.chips', Object.keys(C.settings.modes).map((k) => h('button.chip.sm', { type: 'button', 'aria-pressed': pr.nutritionMode === k ? 'true' : 'false', onClick: () => set((d) => { d.profile.nutritionMode = k; }), text: C.settings.modes[k] }))));
+    row(C.settings.limitations, prompt(C.settings.limitations, pr.limitations, { multiline: true }, (v) => set((d) => { d.profile.limitations = v.trim(); })));
+    root.appendChild(list);
 
-    /* Schedule */
-    const sched = h('div.card.stack');
-    sched.appendChild(h('h3', { text: 'Week' }));
+    root.appendChild(h('div.section', { text: C.settings.week }));
+    const week = h('div.list');
     const plan = D.activePlan(db).templates;
     ['push', 'pull', 'legs', 'upper', 'zone2', 'conditioning'].forEach((tid) => {
-      const sel = h('select.input', { 'aria-label': plan[tid].name + ' day', onChange: (e) => {
+      const sel = h('select.input', { style: { width: 'auto', minHeight: '36px', padding: '4px 8px', fontSize: '15px' }, 'aria-label': plan[tid].name, onChange: (e) => {
         const wd = e.target.value || null;
         const clash = wd && Object.keys(pr.schedule).find((t) => t !== tid && pr.schedule[t] === wd);
-        if (clash) { X.toast(plan[clash].name + ' is already on ' + U.WEEKDAY_LABEL[wd] + '.'); app.render(); return; }
-        app.store.commit((d) => { d.profile.schedule[tid] = wd; }); app.render();
+        if (clash) { X.toast(plan[clash].name + ' · ' + U.WEEKDAY_SHORT[wd]); app.render(); return; }
+        set((d) => { d.profile.schedule[tid] = wd; });
       } });
-      sel.appendChild(h('option', { value: '', selected: !pr.schedule[tid], text: 'Not scheduled' }));
-      U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: pr.schedule[tid] === wd, text: U.WEEKDAY_LABEL[wd] })));
-      sched.appendChild(field(plan[tid].name, sel));
+      sel.appendChild(h('option', { value: '', selected: !pr.schedule[tid], text: C.settings.notScheduled }));
+      U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: pr.schedule[tid] === wd, text: U.WEEKDAY_SHORT[wd] })));
+      week.appendChild(h('div.lrow', h('span.grow', { text: plan[tid].name }), sel));
     });
-    sched.appendChild(h('p.help', { text: 'Changes the plan going forward. Completed sessions are never rewritten.' }));
-    stack.appendChild(sched);
+    root.appendChild(week);
 
-    /* Picks */
-    const picks = h('div.card.stack');
-    picks.appendChild(h('h3', { text: 'Plan choices' }));
-    P.OR_SLOTS.forEach((s) => {
-      picks.appendChild(field(s.label, chips(s.options.map((id) => [id, P.EXERCISE_MAP[id].name]), pr.picks[s.slotId], (v) => { app.store.commit((d) => { d.profile.picks[s.slotId] = v; }); app.render(); })));
-    });
-    picks.appendChild(h('p.help', { text: 'Applies to sessions started from now on. Each option keeps its own history.' }));
-    stack.appendChild(picks);
+    root.appendChild(h('div.section', { text: C.settings.choices }));
+    const picks = h('div.stack');
+    P.OR_SLOTS.forEach((s) => picks.appendChild(h('div.chips', s.options.map((id) => h('button.chip.sm', { type: 'button', 'aria-pressed': pr.picks[s.slotId] === id ? 'true' : 'false', onClick: () => set((d) => { d.profile.picks[s.slotId] = id; }), text: P.EXERCISE_MAP[id].name })))));
+    root.appendChild(picks);
 
-    /* Rest timer */
-    const rest = h('div.card.stack');
-    rest.appendChild(h('h3', { text: 'Rest timer' }));
-    rest.appendChild(field('Auto-start when a working set is completed', chips([['on', 'On'], ['off', 'Off']], db.settings.autoStartRest ? 'on' : 'off', (v) => { app.store.commit((d) => { d.settings.autoStartRest = v === 'on'; }); app.render(); })));
-    rest.appendChild(field('Default after compounds (seconds)', X.numInput({ value: db.settings.restDefaults.compound, integer: true, max: 3600, label: 'Compound rest seconds', onValue: (v) => { if (v != null) app.store.commit((d) => { d.settings.restDefaults.compound = v; }, { silent: true }); } })));
-    rest.appendChild(field('Default after isolation (seconds)', X.numInput({ value: db.settings.restDefaults.isolation, integer: true, max: 3600, label: 'Isolation rest seconds', onValue: (v) => { if (v != null) app.store.commit((d) => { d.settings.restDefaults.isolation = v; }, { silent: true }); } })));
-    rest.appendChild(field('When the timer ends', h('div.chips',
-      h('button.chip', { type: 'button', 'aria-pressed': db.settings.restSound ? 'true' : 'false', onClick: () => { app.store.commit((d) => { d.settings.restSound = !d.settings.restSound; }); app.render(); }, text: 'Sound' }),
-      h('button.chip', { type: 'button', 'aria-pressed': db.settings.restVibrate ? 'true' : 'false', onClick: () => { app.store.commit((d) => { d.settings.restVibrate = !d.settings.restVibrate; }); app.render(); }, text: 'Vibrate' })),
-      'Sound and vibration only work where the browser allows them. When the app is in the background or the phone is locked, browser alerts may not fire — the timer itself stays accurate because it runs on timestamps.'));
-    stack.appendChild(rest);
+    root.appendChild(h('div.section', { text: C.settings.restTimer }));
+    const rest = h('div.list');
+    const rrow = (label, control) => rest.appendChild(h('div.lrow', h('span.grow', { text: label }), control));
+    rrow(C.settings.autoStart, toggle(db.settings.autoStartRest, (v) => set((d) => { d.settings.autoStartRest = v; })));
+    rrow(C.settings.compound, prompt(C.settings.compound, db.settings.restDefaults.compound + ' s', { inputmode: 'numeric' }, (v) => { const n = U.parseNum(v.replace(/[a-z ]/gi, ''), { integer: true, max: 3600 }); if (n.error || n.value == null) return X.toast(C.errors.number); set((d) => { d.settings.restDefaults.compound = n.value; }); }));
+    rrow(C.settings.isolation, prompt(C.settings.isolation, db.settings.restDefaults.isolation + ' s', { inputmode: 'numeric' }, (v) => { const n = U.parseNum(v.replace(/[a-z ]/gi, ''), { integer: true, max: 3600 }); if (n.error || n.value == null) return X.toast(C.errors.number); set((d) => { d.settings.restDefaults.isolation = n.value; }); }));
+    rrow(C.settings.sound, toggle(db.settings.restSound, (v) => set((d) => { d.settings.restSound = v; })));
+    rrow(C.settings.vibrate, toggle(db.settings.restVibrate, (v) => set((d) => { d.settings.restVibrate = v; })));
+    rrow(C.settings.haptics, toggle(db.settings.haptics, (v) => set((d) => { d.settings.haptics = v; })));
+    rrow(C.settings.rir, toggle(db.settings.showRir, (v) => set((d) => { d.settings.showRir = v; })));
+    root.appendChild(rest);
 
-    /* Effort */
-    stack.appendChild(h('div.card', h('h3', { text: 'Effort' }), h('p.small', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.short }), h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.rir }), h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.warmup })));
+    root.appendChild(h('div.section', { text: C.settings.theme }));
+    root.appendChild(h('div.chips', [['auto', C.settings.system], ['light', C.settings.light], ['dark', C.settings.dark]].map(([v, l]) => h('button.chip.sm', { type: 'button', 'aria-pressed': db.settings.theme === v ? 'true' : 'false', onClick: () => { app.store.commit((d) => { d.settings.theme = v; }); app.applyTheme(); app.render(); }, text: l }))));
 
-    /* Appearance */
-    const app2 = h('div.card.stack');
-    app2.appendChild(h('h3', { text: 'Appearance' }));
-    app2.appendChild(field('Theme', chips([['auto', 'System'], ['light', 'Light'], ['dark', 'Dark']], db.settings.theme, (v) => { app.store.commit((d) => { d.settings.theme = v; }); app.applyTheme(); app.render(); })));
-    stack.appendChild(app2);
-
-    /* Storage */
-    const stor = h('div.card.stack');
-    stor.appendChild(h('h3', { text: 'Where your data lives' }));
-    stor.appendChild(h('p.small', { text: app.store.backend.label + '.' }));
-    stor.appendChild(h('p.small.muted', { text: app.storageNote() }));
-    stor.appendChild(h('p.small.muted', { text: 'Export and import (JSON and CSV) arrive with the export slice. Until then there is no backup — treat this as a working copy.' }));
-    const buildMeta = document.querySelector('meta[name="build"]');
-    stor.appendChild(h('p.tiny.muted', { text: 'Build ' + (buildMeta ? buildMeta.getAttribute('content') : 'unknown') + '. Updates never touch logged data.' }));
-    stack.appendChild(stor);
-
-    /* Data */
-    const data = h('div.card.stack');
-    data.appendChild(h('h3', { text: 'Data' }));
-    const n = db.sessionOrder.length, m = db.measurements.length;
-    data.appendChild(h('p.small.muted', { text: n + ' session' + (n === 1 ? '' : 's') + ', ' + m + ' measurement' + (m === 1 ? '' : 's') + ' on this device.' }));
-    data.appendChild(h('button.btn.danger', { onClick: async () => {
-      const ok = await X.confirm({ title: 'Delete all data?', body: 'Every session, set, measurement and setting on this device is removed. There is no undo and no backup yet.', confirmLabel: 'Delete everything', danger: true, typed: 'DELETE' });
-      if (!ok) return;
-      await app.resetAll();
-    }, text: 'Delete all data on this device' }));
-    stack.appendChild(data);
-
-    root.appendChild(stack);
+    root.appendChild(h('div.section', { text: '' }));
+    const more = h('div.list');
+    more.appendChild(h('button.lrow', { onClick: () => app.navigate('settings', { view: 'about' }) }, h('span.grow', { text: C.settings.about }), h('span.val', { text: '›' })));
+    more.appendChild(h('button.lrow', { onClick: async () => {
+      const ok = await X.confirm({ title: C.confirm.deleteTitle, body: C.confirm.deleteBody, confirmLabel: C.confirm.deleteLabel, cancelLabel: C.confirm.cancel, danger: true, typed: C.confirm.typed });
+      if (ok) await app.resetAll();
+    } }, h('span.grow', { style: { color: 'var(--danger)' }, text: C.settings.deleteAll })));
+    root.appendChild(more);
   };
 
-  function field(label, control, help) {
-    const f = h('div.field', h('label', { text: label }), control);
-    if (help) f.appendChild(h('p.help', { text: help }));
-    return f;
-  }
-  function chips(options, current, onPick) {
-    const wrap = h('div.chips');
-    options.forEach(([v, label]) => wrap.appendChild(h('button.chip', { type: 'button', 'aria-pressed': current === v ? 'true' : 'false', onClick: () => onPick(v), text: label })));
-    return wrap;
+  function renderAbout(root, app) {
+    const db = app.store.db;
+    root.appendChild(h('div.row', h('button.btn.icon.sm', { 'aria-label': C.settings.title, onClick: () => app.navigate('settings'), text: '‹' }), h('h1', { text: C.about.title })));
+    const m = app.store.backend.mode;
+    const blocks = [
+      [C.about.storage, m === 'preview' ? C.about.storagePreview : m === 'memory' ? C.about.storageMemory : C.about.storageDevice],
+      [C.about.platform, C.about.platformText],
+      [C.about.effort, P.EFFORT_GUIDANCE.short + ' ' + P.EFFORT_GUIDANCE.rir + ' ' + P.EFFORT_GUIDANCE.warmup],
+      [C.about.frame, C.about.frameText],
+      [C.about.numbers, C.about.numbersText],
+      [C.about.build, (document.querySelector('meta[name="build"]') || { getAttribute: () => '—' }).getAttribute('content') + ' · ' + app.store.backend.label + ' · ' + db.sessionOrder.length + ' sessions']
+    ];
+    blocks.forEach(([t, body]) => { root.appendChild(h('div.section', { text: t })); root.appendChild(h('p.small', { text: body })); });
   }
 
-  CS.profile = PF;
+  CS.settings = SG;
 })();
 
 
 /* ===== ui/app.js ===== */
-/* Coastal Strength — ui/app.js */
+/* Coastal Strength — ui/app.js (v2) */
 (function () {
   const CS = (window.CS = window.CS || {});
-  const X = CS.dom, U = CS.util, D = CS.db, B = CS.brand;
+  const X = CS.dom, U = CS.util, D = CS.db, B = CS.brand, C = CS.copy;
   const h = X.h;
 
-  const app = {
-    store: null, tab: 'today', params: {}, root: null, tabsEl: null, timerEl: null, statusEl: null,
-    tickHandle: null, renderQueued: false, audio: null
-  };
+  const app = { store: null, tab: 'today', params: {}, root: null, tabsEl: null, timerEl: null, statusEl: null, tickHandle: null, audio: null, renderQueued: false };
 
   app.today = function () { return U.localDate(Date.now(), app.store.db ? app.store.db.profile.timezone : U.defaultTz()); };
 
-  app.navigate = function (tab, params) {
-    app.tab = tab; app.params = params || {};
-    app.render();
-    window.scrollTo(0, 0);
-  };
+  app.navigate = function (tab, params) { app.tab = tab; app.params = params || {}; app.render(); window.scrollTo(0, 0); };
 
   app.startSession = function (templateId) {
     const active = D.findActiveSession(app.store.db);
-    if (active && active.templateId !== templateId) {
-      X.toast(active.templateName + ' is still open. Finish it first.');
-      app.navigate('train', { view: 'logger' });
-      return;
-    }
+    if (active && active.templateId !== templateId) { X.toast(active.templateName + ' ' + C.errors.open); app.navigate('train', { view: 'logger' }); return; }
     app.store.commit((d) => D.startSession(d, templateId, app.today(), new Date().toISOString()));
     app.navigate('train', { view: 'logger' });
   };
 
-  app.storageNote = function () {
-    const m = app.store.backend.mode;
-    if (m === 'preview') return 'Saved to your claude.ai account for this artifact — not to any server of ours, and not synced to a phone. If this preview is deleted, the data goes with it.';
-    if (m === 'indexeddb' || m === 'localstorage') return 'Device- and browser-specific. Clearing site data, using a different browser, or a private window means a different (or empty) copy. This is not cloud sync.';
-    return 'Storage is unavailable in this browser, so nothing you log will survive a reload. Check the site-data settings or open the app somewhere else.';
+  app.haptic = function (pattern) {
+    const s = app.store.db && app.store.db.settings;
+    if (!s || !s.haptics || !navigator.vibrate) return;
+    try { navigator.vibrate(pattern); } catch (e) { /* ignore */ }
   };
 
   app.applyTheme = function () {
     const t = app.store && app.store.db ? app.store.db.settings.theme : 'auto';
-    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme', t);
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() || '#0A1922');
   };
 
-  /* ---------- rendering ---------- */
   app.render = function () {
     if (app.renderQueued) return;
     app.renderQueued = true;
@@ -2771,41 +2682,28 @@ textarea.input { min-height: 80px; resize: vertical; }
     const db = app.store.db;
     if (!db || !db.profile || !db.profile.onboarded) {
       app.tabsEl.hidden = true; app.timerEl.hidden = true;
-      CS.onboarding.render(root, (input) => {
-        app.store.set(D.createInitial(input, new Date().toISOString()));
-        app.applyTheme();
-        app.navigate('today');
-      });
+      CS.onboarding.render(root, (input) => { app.store.set(D.createInitial(input, new Date().toISOString())); app.applyTheme(); app.navigate('today'); });
       return;
     }
     app.tabsEl.hidden = false;
     const scr = h('div.screen', { class: db.timer ? 'has-timer' : '' });
-    scr.appendChild(h('div.topbar', h('div.brand', B.mark(26), h('span', { text: 'Coastal Strength' })), app.statusEl));
+    scr.appendChild(h('div.topbar', h('div.brand', B.mark(24), h('span.small', { text: C.app })), app.statusEl));
     try {
       if (app.tab === 'today') CS.today.render(scr, app);
       else if (app.tab === 'train') CS.train.render(scr, app, app.params);
-      else if (app.tab === 'profile') CS.profile.render(scr, app);
-      else if (app.tab === 'progress') later(scr, 'Progress', 'Per-exercise history, the rep-range climb, PRs, measurements and consistency arrive with the history slice. Every set you log now is already kept for it.');
-      else if (app.tab === 'nutrition') later(scr, 'Nutrition', 'Protein and food logging arrive with the nutrition slice. Nothing here is estimated in the meantime.');
+      else if (app.tab === 'settings') CS.settings.render(scr, app, app.params);
     } catch (e) {
-      scr.appendChild(h('div.card', h('b', { text: 'Something broke while drawing this screen.' }), h('p.small.muted', { text: String(e && e.message || e) })));
+      scr.appendChild(h('p.error', { text: String(e && e.message || e) }));
       console.error(e);
     }
     root.appendChild(scr);
-    app.renderTabs();
-    app.renderTimer();
-    app.renderStatus(app.store.status);
+    app.renderTabs(); app.renderTimer(); app.renderStatus(app.store.status);
   };
 
-  function later(scr, title, text) {
-    scr.appendChild(h('div.later', h('h1', { text: title }), h('p.muted', { style: { marginTop: '8px' }, text: 'Not built yet.' }), h('p.small.muted', { style: { marginTop: '8px' }, text })));
-  }
-
   app.renderTabs = function () {
-    const tabs = [['today', 'Today', X.ICON.today], ['train', 'Train', X.ICON.train], ['progress', 'Progress', X.ICON.progress], ['nutrition', 'Nutrition', X.ICON.nutrition], ['profile', 'Profile', X.ICON.profile]];
     X.clear(app.tabsEl);
     const inner = h('div.inner', { role: 'tablist' });
-    tabs.forEach(([id, label, icon]) => {
+    [['today', C.tabs.today, X.ICON.today], ['train', C.tabs.train, X.ICON.train], ['settings', C.tabs.settings, X.ICON.profile]].forEach(([id, label, icon]) => {
       inner.appendChild(h('button.tab', { role: 'tab', 'aria-current': app.tab === id ? 'page' : null, 'aria-label': label, onClick: () => app.navigate(id) }, X.svg(icon), h('span', { text: label })));
     });
     app.tabsEl.appendChild(inner);
@@ -2815,25 +2713,25 @@ textarea.input { min-height: 80px; resize: vertical; }
 
   app.renderStatus = function (st) {
     const el = app.statusEl;
-    el.className = 'status ' + (app.store.backend.mode === 'memory' ? 'unavailable' : st.state);
-    el.textContent = app.store.backend.mode === 'memory' ? 'Not saving' : (st.state === 'saved' ? 'Saved' : st.state === 'saving' ? 'Saving…' : st.state === 'dirty' ? 'Unsaved' : st.state === 'error' ? 'Save failed — retrying' : '');
+    const mode = app.store.backend.mode;
+    el.className = 'dot ' + (mode === 'memory' ? 'unavailable' : st.state);
+    el.setAttribute('aria-label', mode === 'memory' ? C.status.off : st.state === 'saved' ? C.status.saved : st.state === 'saving' ? C.status.saving : st.state === 'error' ? C.status.error : C.status.unsaved);
+    el.title = el.getAttribute('aria-label');
   };
 
-  /* ---------- per-second tick: elapsed clock + rest timer, no full re-render ---------- */
   app.tick = function () {
     const db = app.store.db;
     if (!db) return;
     const active = D.findActiveSession(db);
     const el = document.getElementById('elapsed');
-    if (el && active) el.textContent = U.fmtDuration(D.activeMs(active, Date.now()));
+    if (el && active) el.textContent = U.fmtDuration(D.activeMs(active, Date.now())) + (active.status === 'paused' ? ' ⏸' : '');
     if (db.timer) {
       const st = D.restState(db, Date.now());
       const clock = document.getElementById('restclock');
-      if (clock) clock.textContent = st.done ? 'Rest done' : U.fmtClock(st.remainingSec);
+      if (clock) clock.textContent = st.done ? C.logger.restDone : U.fmtClock(st.remainingSec);
       if (st.done && !db.timer.alerted) {
         app.store.commit((d) => { if (d.timer) d.timer.alerted = true; }, { silent: true });
-        app.alert();
-        app.renderTimer();
+        app.alert(); app.renderTimer(); CS.train.onRestDone(app);
       } else if (app.timerEl.hidden) app.renderTimer();
     } else if (!app.timerEl.hidden) app.renderTimer();
   };
@@ -2843,59 +2741,36 @@ textarea.input { min-height: 80px; resize: vertical; }
     if (s.restVibrate && navigator.vibrate) { try { navigator.vibrate([180, 90, 180]); } catch (e) { /* ignore */ } }
     if (s.restSound) {
       try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
         if (!app.audio) app.audio = new AC();
-        const ctx = app.audio;
-        const t0 = ctx.currentTime;
-        [0, 0.22].forEach((off) => {
-          const o = ctx.createOscillator(), g = ctx.createGain();
-          o.type = 'sine'; o.frequency.value = 880;
-          g.gain.setValueAtTime(0.0001, t0 + off); g.gain.exponentialRampToValueAtTime(0.25, t0 + off + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.16);
-          o.connect(g); g.connect(ctx.destination); o.start(t0 + off); o.stop(t0 + off + 0.18);
-        });
+        const ctx = app.audio, t0 = ctx.currentTime;
+        [0, 0.22].forEach((off) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(0.0001, t0 + off); g.gain.exponentialRampToValueAtTime(0.25, t0 + off + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.16); o.connect(g); g.connect(ctx.destination); o.start(t0 + off); o.stop(t0 + off + 0.18); });
       } catch (e) { /* ignore */ }
     }
   };
 
-  app.resetAll = async function () {
-    await app.store.clear();
-    app.tab = 'today'; app.params = {};
-    app.applyTheme();
-    app.renderNow();
-    X.toast('All data deleted');
-  };
+  app.resetAll = async function () { await app.store.clear(); app.tab = 'today'; app.params = {}; app.applyTheme(); app.renderNow(); };
 
-  /* ---------- boot ---------- */
   app.boot = async function () {
-    app.root = document.getElementById('app');
-    app.tabsEl = document.getElementById('tabs');
-    app.timerEl = document.getElementById('timerbar');
-    app.statusEl = h('span.status', { role: 'status', 'aria-live': 'polite' });
+    app.root = document.getElementById('app'); app.tabsEl = document.getElementById('tabs'); app.timerEl = document.getElementById('timerbar');
+    app.statusEl = h('button.dot', { type: 'button', role: 'status', onClick: () => X.toast(app.statusEl.title || '') });
     const backend = await CS.storage.detect();
     app.store = CS.storage.createStore(backend);
     app.store.onChange(() => app.render());
     app.store.onStatus((st) => app.renderStatus(st));
     try { await app.store.load(); } catch (e) { console.error(e); }
-    app.applyTheme();
-    app.renderNow();
-    if (backend.mode === 'memory') X.toast('Storage unavailable — nothing will be saved.', 5000);
+    app.applyTheme(); app.renderNow();
+    if (backend.mode === 'memory') X.toast(C.status.off, 5000);
     app.tickHandle = setInterval(app.tick, 1000);
-    // Offline shell when hosted (not in the single-file preview): fails silently if sw.js isn't served.
-    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
-    // Unlock audio on first interaction so the rest-timer beep can play later
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('./sw.js').catch(() => {});
     document.addEventListener('pointerdown', () => { try { const AC = window.AudioContext || window.webkitAudioContext; if (AC && !app.audio) app.audio = new AC(); if (app.audio && app.audio.state === 'suspended') app.audio.resume(); } catch (e) { /* ignore */ } }, { once: true, passive: true });
-    // Flush on backgrounding / navigation away; re-sync clocks when we come back
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') app.store.flushSync(); else app.tick(); });
     window.addEventListener('pagehide', () => app.store.flushSync());
     window.addEventListener('beforeunload', () => app.store.flushSync());
   };
 
   CS.app = app;
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', app.boot);
-  else app.boot();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', app.boot); else app.boot();
 })();
 
 
