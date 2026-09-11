@@ -1,0 +1,2901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coastal Strength</title>
+<meta name="description" content="A strength and body-composition log. Local-first, no invented numbers.">
+<meta name="theme-color" content="#0A1922">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coastal">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --surface: #F7F4EE; --card: #FFFFFF; --ink: #0E2231; --muted: #5A6B78;
+  --accent: #1F8C84; --accent-ink: #FFFFFF; --sand: #C8A96E; --danger: #C9614F;
+  --line: #E4DFD5; --line-strong: #CDC6B9; --field: #FBFAF7; --tint: rgba(31,140,132,.10); --sand-tint: rgba(200,169,110,.16);
+  --tab-h: 62px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #0A1922; --card: #12293A; --ink: #F2EFE9; --muted: #9AAAB6;
+    --accent: #3FBDB2; --accent-ink: #061A1C; --sand: #D9BE84; --danger: #D9705E;
+    --line: #1E3A4E; --line-strong: #2C4C63; --field: #0E2230; --tint: rgba(63,189,178,.14); --sand-tint: rgba(217,190,132,.14);
+  }
+}
+:root[data-theme="dark"] {
+  --surface: #0A1922; --card: #12293A; --ink: #F2EFE9; --muted: #9AAAB6;
+  --accent: #3FBDB2; --accent-ink: #061A1C; --sand: #D9BE84; --danger: #D9705E;
+  --line: #1E3A4E; --line-strong: #2C4C63; --field: #0E2230; --tint: rgba(63,189,178,.14); --sand-tint: rgba(217,190,132,.14);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--surface); color: var(--ink); }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.4;
+  font-variant-numeric: tabular-nums lining-nums;
+  min-height: 100dvh; overflow-x: hidden;
+}
+button, input, select, textarea { font: inherit; color: inherit; font-variant-numeric: tabular-nums lining-nums; }
+button { cursor: pointer; }
+a { color: var(--accent); }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: 24px; } h2 { font-size: 18px; } h3 { font-size: 16px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.tiny { font-size: 12px; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
+.screen {
+  flex: 1; padding: calc(12px + env(safe-area-inset-top)) 16px calc(var(--tab-h) + 24px + env(safe-area-inset-bottom));
+  width: 100%; overflow-x: hidden;
+}
+.screen.no-tabs { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.screen.has-timer { padding-bottom: calc(var(--tab-h) + 96px + env(safe-area-inset-bottom)); }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; min-height: 36px; }
+.topbar .brand { display: flex; align-items: center; gap: 10px; }
+.topbar .brand svg { width: 26px; height: 26px; flex: none; }
+.status { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
+.status.saved::before { background: var(--accent); }
+.status.saving::before, .status.dirty::before { background: var(--sand); }
+.status.error::before, .status.unavailable::before { background: var(--danger); }
+
+.stack > * + * { margin-top: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.card.flat { background: transparent; border-style: dashed; }
+.row { display: flex; align-items: center; gap: 10px; }
+.row.between { justify-content: space-between; }
+.row.wrap { flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line-strong);
+  background: var(--card); color: var(--ink); font-weight: 600; font-size: 16px; text-decoration: none;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.block { width: 100%; }
+.btn.quiet { background: transparent; border-color: transparent; color: var(--accent); padding: 0 10px; }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn.danger.solid { background: var(--danger); color: #fff; }
+.btn.sm { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.btn.xs { min-height: 34px; padding: 0 10px; font-size: 13px; border-radius: 9px; font-weight: 500; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.icon { width: 44px; min-width: 44px; padding: 0; }
+.link { background: none; border: 0; color: var(--accent); padding: 4px 0; font-weight: 500; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; color: var(--muted); }
+.input, select.input, textarea.input {
+  width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong);
+  background: var(--field); color: var(--ink); font-size: 17px; outline: none;
+}
+textarea.input { min-height: 80px; resize: vertical; }
+.input:focus, select.input:focus, textarea.input:focus, .btn:focus-visible, .chip:focus-visible, .tab:focus-visible, .setcheck:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 2px;
+}
+.input.invalid { border-color: var(--danger); }
+.help { font-size: 13px; color: var(--muted); }
+.error { font-size: 13px; color: var(--danger); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--card);
+  font-size: 15px; display: inline-flex; align-items: center; gap: 6px;
+}
+.chip[aria-pressed="true"], .chip.on { background: var(--tint); border-color: var(--accent); color: var(--ink); }
+.chip.sm { min-height: 34px; padding: 0 11px; font-size: 14px; }
+
+/* Tabs */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: var(--card); border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tabs .inner { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); height: var(--tab-h); }
+.tab { background: none; border: 0; color: var(--muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--ink); }
+.tab[aria-current="page"] svg { color: var(--accent); }
+
+/* Rest timer bar */
+.timerbar {
+  position: fixed; left: 0; right: 0; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); z-index: 19;
+  background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.timerbar .inner { max-width: 480px; margin: 0 auto; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+.timerbar .clock { font-size: 26px; font-weight: 600; min-width: 74px; }
+.timerbar.done .clock { color: var(--accent); }
+.timerbar .bar { position: absolute; left: 0; top: 0; height: 3px; background: var(--accent); }
+
+/* Today */
+.session-card .name { font-size: 24px; font-weight: 600; }
+.ring { display: flex; align-items: center; gap: 16px; }
+.ring svg { width: 72px; height: 72px; flex: none; }
+.ring .big { font-size: 24px; font-weight: 600; }
+.daydots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+.daydot { text-align: center; font-size: 11px; color: var(--muted); }
+.daydot i { display: block; width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 4px; border: 1.5px solid var(--line-strong); background: transparent; }
+.daydot.lift i { border-color: var(--ink); }
+.daydot.done i { background: var(--accent); border-color: var(--accent); }
+.daydot.today span { color: var(--ink); font-weight: 600; }
+.daydot.other i { border-style: dotted; }
+.weightline { font-size: 24px; font-weight: 600; }
+
+/* Train list */
+.weekrow { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.weekrow:first-child { border-top: 0; }
+.weekrow .day { font-weight: 600; }
+.weekrow.today .day { color: var(--accent); }
+.pill { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--tint); color: var(--ink); }
+.pill.done { background: var(--accent); color: var(--accent-ink); }
+.pill.muted { background: transparent; border: 1px solid var(--line-strong); color: var(--muted); }
+
+/* Logger */
+.logger-head { position: sticky; top: 0; z-index: 5; background: var(--surface); padding: 6px 0 8px; margin: -6px 0 6px; }
+.elapsed { font-size: 20px; font-weight: 600; }
+.excard { padding: 12px 12px 10px; }
+.excard .exhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.excard .exname { font-size: 17px; font-weight: 600; }
+.excard .exmeta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.excard.skipped { opacity: .6; }
+.lastline { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.sugg { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--sand-tint); font-size: 14px; }
+.sets { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.sethead { display: grid; grid-template-columns: 38px 1fr 1fr 44px 52px; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 2px; }
+.setrow { display: grid; grid-template-columns: 38px 1fr 1fr 44px 52px; gap: 6px; align-items: center; border-radius: 12px; padding: 4px 2px; border-left: 3px solid transparent; }
+.setrow.done { border-left-color: var(--accent); background: var(--tint); }
+.setrow.warm .setlabel { color: var(--muted); }
+.setlabel { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.1; }
+.setlabel b { display: block; font-size: 15px; color: var(--ink); font-weight: 600; }
+.setinput {
+  width: 100%; min-height: 50px; padding: 0 6px; text-align: center; font-size: 22px; font-weight: 600; border-radius: 10px;
+  border: 1px solid var(--line-strong); background: var(--field); color: var(--ink);
+}
+.setinput.rir { font-size: 16px; font-weight: 500; }
+.setinput.prefilled { color: var(--muted); font-weight: 500; }
+.setinput.invalid { border-color: var(--danger); }
+.setinput::placeholder { color: var(--line-strong); font-weight: 400; }
+.setcheck {
+  width: 52px; height: 50px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--card);
+  display: inline-flex; align-items: center; justify-content: center; color: var(--muted);
+}
+.setcheck svg { width: 26px; height: 26px; }
+.setcheck.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.setactions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.convention { font-size: 11px; color: var(--muted); text-align: center; margin-top: -2px; }
+.rangebar { position: relative; height: 6px; border-radius: 3px; background: var(--line); margin: 8px 0 2px; }
+.rangebar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--accent); }
+.rangebar .tick { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--muted); }
+
+/* Sheets */
+.sheet-back { position: fixed; inset: 0; background: rgba(6, 20, 28, .45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 480px; background: var(--card); border-radius: 18px 18px 0 0; padding: 14px 16px calc(20px + env(safe-area-inset-bottom)); max-height: 88dvh; overflow-y: auto; }
+.sheet h2 { margin-bottom: 8px; }
+.sheet .list > * { display: flex; width: 100%; text-align: left; padding: 14px 4px; background: none; border: 0; border-top: 1px solid var(--line); font-size: 16px; color: var(--ink); align-items: center; justify-content: space-between; gap: 8px; }
+.sheet .list > *:first-child { border-top: 0; }
+.sheet .list .danger { color: var(--danger); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--surface); padding: 10px 14px; border-radius: 10px; font-size: 14px; z-index: 50; max-width: 90vw; }
+
+/* Summary */
+.summ .stat { font-size: 26px; font-weight: 600; }
+.summ .cmp { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; font-size: 14px; align-items: baseline; }
+.summ .cmp .h { color: var(--muted); font-size: 12px; }
+.reasons { margin: 8px 0 0; padding-left: 18px; font-size: 14px; color: var(--muted); }
+.reasons li + li { margin-top: 4px; }
+.pr { color: var(--sand); font-weight: 600; }
+.scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.scale .chip { justify-content: center; padding: 0; min-height: 44px; }
+
+/* Onboarding */
+.ob .step { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.ob h1 { margin-bottom: 4px; }
+.ob .lead { color: var(--muted); margin-bottom: 18px; }
+.ob .actions { position: sticky; bottom: 0; padding: 12px 0 calc(8px + env(safe-area-inset-bottom)); background: var(--surface); margin-top: 20px; display: flex; gap: 10px; }
+.ob .actions .btn.primary { flex: 1; }
+.leverage { padding-left: 18px; margin: 10px 0 0; }
+.leverage li + li { margin-top: 8px; }
+
+/* Placeholder screens */
+.later { padding: 28px 16px; text-align: left; }
+
+/* Empty state */
+.empty { color: var(--muted); padding: 8px 0; }
+
+/* Progress list */
+.exlist button { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: 0; border-top: 1px solid var(--line); padding: 13px 2px; text-align: left; color: var(--ink); font-size: 16px; }
+.exlist button:first-child { border-top: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .setcheck, .chip, .btn { transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+  .sheet { animation: rise .18s ease-out; }
+  @keyframes rise { from { transform: translateY(12px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+@media (min-width: 481px) { .screen { padding-left: 20px; padding-right: 20px; } }
+
+</style>
+</head>
+<body>
+<div id="app" aria-live="off"></div>
+<div id="timerbar" class="timerbar" hidden></div>
+<nav id="tabs" class="tabs" aria-label="Sections" hidden></nav>
+<script>
+/* ===== core/util.js ===== */
+/* Coastal Strength — core/util.js
+   Plain-script module. Attaches to window.CS.util. No DOM access. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const U = {};
+
+  U.uid = function (prefix) {
+    return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
+  };
+
+  U.defaultTz = function () {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; }
+  };
+
+  const fmtCache = {};
+  function fmtFor(tz) {
+    if (fmtCache[tz]) return fmtCache[tz];
+    let f;
+    try {
+      f = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+    } catch (e) {
+      f = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+    fmtCache[tz] = f;
+    return f;
+  }
+
+  /* Local calendar date (YYYY-MM-DD) for an instant, in the given IANA zone.
+     Schedules and daily logs key off this; timestamps stay UTC ISO. */
+  U.localDate = function (ts, tz) {
+    const d = ts instanceof Date ? ts : new Date(ts);
+    const parts = fmtFor(tz || U.defaultTz()).formatToParts(d);
+    const get = (t) => parts.find((p) => p.type === t).value;
+    return get('year') + '-' + get('month') + '-' + get('day');
+  };
+
+  U.WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  U.WEEKDAY_LABEL = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+  U.WEEKDAY_SHORT = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+
+  function split(localDate) {
+    const p = localDate.split('-').map(Number);
+    return { y: p[0], m: p[1], d: p[2] };
+  }
+
+  U.isLocalDate = function (s) {
+    return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  };
+
+  U.weekday = function (localDate) {
+    const { y, m, d } = split(localDate);
+    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = Sunday
+    return U.WEEKDAYS[(dow + 6) % 7];
+  };
+
+  U.addDays = function (localDate, n) {
+    const { y, m, d } = split(localDate);
+    return new Date(Date.UTC(y, m - 1, d) + n * 86400000).toISOString().slice(0, 10);
+  };
+
+  U.diffDays = function (a, b) {
+    const A = split(a), B = split(b);
+    return Math.round((Date.UTC(B.y, B.m - 1, B.d) - Date.UTC(A.y, A.m - 1, A.d)) / 86400000);
+  };
+
+  /* Monday-start weeks. */
+  U.weekStart = function (localDate) {
+    return U.addDays(localDate, -U.WEEKDAYS.indexOf(U.weekday(localDate)));
+  };
+
+  U.weekDates = function (localDate) {
+    const s = U.weekStart(localDate);
+    return U.WEEKDAYS.map((key, i) => ({ key, date: U.addDays(s, i) }));
+  };
+
+  U.fmtLocalDate = function (localDate, opts) {
+    const { y, m, d } = split(localDate);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    const o = Object.assign({ month: 'short', day: 'numeric', timeZone: 'UTC' }, opts || {});
+    return new Intl.DateTimeFormat('en-US', o).format(dt);
+  };
+
+  /* Units */
+  U.LB_PER_KG = 2.2046226218;
+  U.toUnit = function (value, from, to) {
+    if (value == null || from === to) return value;
+    return from === 'lb' ? value / U.LB_PER_KG : value * U.LB_PER_KG;
+  };
+  U.fmtNum = function (n, maxDecimals) {
+    if (n == null || isNaN(n)) return '—';
+    const md = maxDecimals == null ? 2 : maxDecimals;
+    const r = Math.round(n * Math.pow(10, md)) / Math.pow(10, md);
+    return String(r);
+  };
+  U.fmtLoad = function (n) { return U.fmtNum(n, 2); };
+
+  /* Parse a numeric input. Returns { value, error }.
+     Empty -> null value with no error. Negative -> error. */
+  U.parseNum = function (raw, opts) {
+    opts = opts || {};
+    if (raw == null) return { value: null };
+    const s = String(raw).trim().replace(',', '.');
+    if (s === '') return { value: null };
+    if (!/^-?\d*(\.\d*)?$/.test(s) || s === '-' || s === '.') return { value: null, error: 'Enter a number.' };
+    const v = Number(s);
+    if (isNaN(v)) return { value: null, error: 'Enter a number.' };
+    if (v < 0) return { value: null, error: "Can't be negative." };
+    if (opts.integer && Math.round(v) !== v) return { value: null, error: 'Whole numbers only.' };
+    if (opts.max != null && v > opts.max) return { value: null, error: 'Too large.' };
+    return { value: v };
+  };
+
+  U.fmtDuration = function (ms) {
+    if (ms == null || ms < 0) ms = 0;
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const pad = (n) => (n < 10 ? '0' + n : '' + n);
+    return h > 0 ? h + ':' + pad(m) + ':' + pad(sec) : m + ':' + pad(sec);
+  };
+
+  U.fmtClock = function (sec) {
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  };
+
+  U.clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+
+  U.mean = function (arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null; };
+
+  CS.util = U;
+})();
+
+
+/* ===== core/plan.js ===== */
+/* Coastal Strength — core/plan.js
+   Exercise catalogue + default plan template (spec §6, seeded exactly). */
+(function () {
+  const CS = (window.CS = window.CS || {});
+
+  /* Exercise types and load conventions — modelled explicitly, never flattened.
+     type:           dumbbell | barbell | machine | cable | bodyweight | assisted | weighted_bw | timed
+     loadConvention: per_dumbbell | total_bar | machine_stack | none | assistance | added
+     Increments are per exercise and per unit; editable later in Profile (not yet built). */
+  function ex(id, name, type, opts) {
+    const conv = {
+      dumbbell: 'per_dumbbell', barbell: 'total_bar', machine: 'machine_stack', cable: 'machine_stack',
+      bodyweight: 'none', assisted: 'assistance', weighted_bw: 'added', timed: 'none'
+    }[type];
+    return Object.assign({
+      id, name, type, loadConvention: conv,
+      unilateral: false, compound: false, priority: false,
+      incrementLb: type === 'dumbbell' ? 5 : type === 'barbell' ? 5 : 5,
+      incrementKg: 2.5,
+      cues: '',
+      family: null // shared substitution family
+    }, opts || {});
+  }
+
+  const EXERCISES = [
+    // Push
+    ex('inc_db_press', 'Incline dumbbell press', 'dumbbell', { compound: true, priority: true, family: 'press_incline', cues: 'Bench 30°. Dumbbells start at chest level, press up and slightly in.' }),
+    ex('flat_mach_press', 'Flat machine press', 'machine', { compound: true, family: 'press_flat', cues: 'Handles at mid-chest. Full range, no lockout slam.' }),
+    ex('flat_db_press', 'Flat dumbbell press', 'dumbbell', { compound: true, family: 'press_flat' }),
+    ex('seated_db_ohp', 'Seated dumbbell shoulder press', 'dumbbell', { compound: true, family: 'ohp', cues: 'Back supported. Press to lockout, control down to ear level.' }),
+    ex('cable_lat_raise', 'Cable lateral raises', 'cable', { priority: true, unilateral: true, family: 'lat_raise', incrementLb: 2.5, incrementKg: 1, cues: 'Lead with the elbow. Stop at shoulder height.' }),
+    ex('rope_pushdown', 'Rope triceps pushdowns', 'cable', { family: 'pushdown', cues: 'Elbows pinned. Spread the rope at the bottom.' }),
+    ex('oh_cable_ext', 'Overhead cable extensions', 'cable', { family: 'oh_ext', cues: 'Full stretch at the bottom, elbows stay forward.' }),
+    // Pull
+    ex('pullup', 'Pull-ups', 'bodyweight', { compound: true, priority: true, family: 'vertical_pull', cues: 'Dead hang start. Chest to bar, control the descent.' }),
+    ex('assisted_pullup', 'Assisted pull-ups', 'assisted', { compound: true, priority: true, family: 'vertical_pull', incrementLb: 5, incrementKg: 2.5, cues: 'Load shown is assistance. Less assistance is progress.' }),
+    ex('weighted_pullup', 'Weighted pull-ups', 'weighted_bw', { compound: true, priority: true, family: 'vertical_pull', incrementLb: 2.5, incrementKg: 1.25, cues: 'Load shown is added weight (belt or vest).' }),
+    ex('cs_row', 'Chest-supported rows', 'machine', { compound: true, priority: true, family: 'row', cues: 'Chest stays on the pad. Drive elbows back and down.' }),
+    ex('ng_pulldown', 'Neutral-grip lat pulldowns', 'cable', { compound: true, priority: true, family: 'vertical_pull_machine', cues: 'Lean back slightly. Pull to the upper chest.' }),
+    ex('rear_delt_fly', 'Rear-delt flyes', 'machine', { priority: true, family: 'rear_delt', incrementLb: 5, incrementKg: 2.5, cues: 'Reverse pec deck. Arms slightly bent, squeeze at the back.' }),
+    ex('rear_delt_fly_db', 'Rear-delt flyes (dumbbell)', 'dumbbell', { priority: true, family: 'rear_delt', incrementLb: 2.5, incrementKg: 1 }),
+    ex('inc_db_curl', 'Incline dumbbell curls', 'dumbbell', { priority: true, family: 'curl', incrementLb: 2.5, incrementKg: 1, cues: 'Arms hang behind the torso. Full stretch each rep.' }),
+    ex('hammer_curl', 'Hammer curls', 'dumbbell', { priority: true, family: 'curl_neutral', incrementLb: 2.5, incrementKg: 1 }),
+    // Legs & Abs
+    ex('back_squat', 'Back squats', 'barbell', { compound: true, family: 'squat', cues: 'Brace, sit between the hips, drive up. Stop 1–2 reps short on every set.' }),
+    ex('hack_squat', 'Hack squats', 'machine', { compound: true, family: 'squat', incrementLb: 10, incrementKg: 5, cues: 'Feet mid-platform. Full depth you can control.' }),
+    ex('rdl', 'Romanian deadlifts', 'barbell', { compound: true, family: 'hinge', cues: 'Hips back, bar stays on the legs, flat back. Stop at hamstring stretch.' }),
+    ex('bss', 'Bulgarian split squats', 'dumbbell', { compound: true, unilateral: true, family: 'split_squat', cues: 'Rear foot on bench. Front shin vertical-ish, drive through the whole foot.' }),
+    ex('calf_raise', 'Standing calf raises', 'machine', { family: 'calf', incrementLb: 10, incrementKg: 5, cues: 'Pause at the bottom stretch. Full rise.' }),
+    ex('hlr', 'Hanging leg raises', 'bodyweight', { family: 'abs_hang', cues: 'Posterior tilt first, then raise. No swing.' }),
+    ex('cable_crunch', 'Cable crunches', 'cable', { family: 'abs_cable', cues: 'Round the spine, hips still.' }),
+    // Upper
+    ex('inc_bb_press', 'Incline barbell press', 'barbell', { compound: true, priority: true, family: 'press_incline', cues: 'Bar to upper chest. Load is total bar weight including the bar.' }),
+    ex('lat_pulldown', 'Lat pulldowns', 'cable', { compound: true, priority: true, family: 'vertical_pull_machine', cues: 'Wide-ish grip. Pull to the upper chest, elbows down.' }),
+    ex('sa_cable_row', 'Single-arm cable rows', 'cable', { compound: true, priority: true, unilateral: true, family: 'row', cues: 'Rotate slightly as you pull. Full stretch at the front.' }),
+    ex('db_lat_raise', 'Dumbbell lateral raises', 'dumbbell', { priority: true, family: 'lat_raise', incrementLb: 2.5, incrementKg: 1, cues: 'Slight forward lean. Raise to shoulder height, lower slow.' }),
+    ex('cable_curl', 'Cable curls', 'cable', { family: 'curl', incrementLb: 5, incrementKg: 2.5 }),
+    ex('tri_pushdown', 'Triceps pushdowns', 'cable', { family: 'pushdown', cues: 'Straight bar or V-bar. Elbows pinned.' }),
+    // Saturday circuit
+    ex('ab_wheel', 'Ab-wheel rollouts', 'bodyweight', { family: 'abs_rollout', cues: 'Hips stay level. Roll only as far as you can hold a brace.' }),
+    ex('reverse_crunch', 'Reverse crunches', 'bodyweight', { family: 'abs_reverse' }),
+    ex('side_plank', 'Side planks', 'timed', { unilateral: true, family: 'abs_side', cues: 'Hips high, straight line head to feet.' })
+  ];
+
+  const EXERCISE_MAP = {};
+  EXERCISES.forEach((e) => { EXERCISE_MAP[e.id] = e; });
+
+  function slot(slotId, options, sets, repMin, repMax, extra) {
+    return Object.assign({ slotId, options, sets, repMin, repMax, perSide: false }, extra || {});
+  }
+
+  /* Templates. The user's schedule maps template -> weekday (default below).
+     Set counts and rep ranges are verbatim from spec §6. */
+  const DEFAULT_TEMPLATES = {
+    push: {
+      id: 'push', name: 'Push', kind: 'lift',
+      slots: [
+        slot('push_1', ['inc_db_press'], 4, 6, 10),
+        slot('push_2', ['flat_mach_press', 'flat_db_press'], 3, 8, 12),
+        slot('push_3', ['seated_db_ohp'], 3, 6, 10),
+        slot('push_4', ['cable_lat_raise'], 4, 12, 20),
+        slot('push_5', ['rope_pushdown'], 3, 10, 15),
+        slot('push_6', ['oh_cable_ext'], 2, 12, 15)
+      ]
+    },
+    pull: {
+      id: 'pull', name: 'Pull', kind: 'lift',
+      slots: [
+        slot('pull_1', ['pullup', 'assisted_pullup'], 4, 6, 10),
+        slot('pull_2', ['cs_row'], 4, 8, 12),
+        slot('pull_3', ['ng_pulldown'], 3, 8, 12),
+        slot('pull_4', ['rear_delt_fly'], 4, 12, 20),
+        slot('pull_5', ['inc_db_curl'], 3, 8, 12),
+        slot('pull_6', ['hammer_curl'], 2, 10, 15)
+      ]
+    },
+    legs: {
+      id: 'legs', name: 'Legs & Abs', kind: 'lift',
+      slots: [
+        slot('legs_1', ['back_squat', 'hack_squat'], 4, 6, 10),
+        slot('legs_2', ['rdl'], 3, 8, 12),
+        slot('legs_3', ['bss'], 3, 8, 12, { perSide: true }),
+        slot('legs_4', ['calf_raise'], 4, 10, 15),
+        slot('legs_5', ['hlr'], 3, 8, 15),
+        slot('legs_6', ['cable_crunch'], 3, 10, 15)
+      ]
+    },
+    zone2: {
+      id: 'zone2', name: 'Rest or Zone 2', kind: 'cardio_optional',
+      cardio: { optional: true, minutesMin: 30, minutesMax: 40, cue: 'Conversational intensity. Incline walk, cycle, jog, swim, or other steady work.' },
+      restIsValid: true
+    },
+    upper: {
+      id: 'upper', name: 'Upper', kind: 'lift',
+      slots: [
+        slot('upper_1', ['inc_bb_press'], 4, 6, 10),
+        slot('upper_2', ['pullup', 'lat_pulldown'], 4, 8, 12),
+        slot('upper_3', ['sa_cable_row'], 3, 10, 12, { perSide: true }),
+        slot('upper_4', ['db_lat_raise'], 4, 12, 20),
+        slot('upper_5', ['cable_curl'], 3, 10, 15),
+        slot('upper_6', ['tri_pushdown'], 3, 10, 15)
+      ]
+    },
+    conditioning: {
+      id: 'conditioning', name: 'Conditioning & Abs', kind: 'conditioning',
+      cardio: {
+        optional: false,
+        choices: [
+          { id: 'zone2', label: 'Zone 2, 30–45 min', minutesMin: 30, minutesMax: 45 },
+          { id: 'intervals', label: 'Intervals: 10 × (30 s hard / 90 s easy)', rounds: 10, hardSec: 30, easySec: 90 }
+        ]
+      },
+      circuit: { rounds: 3 },
+      slots: [
+        slot('cond_1', ['ab_wheel'], 3, 8, 12),
+        slot('cond_2', ['reverse_crunch'], 3, 12, 20),
+        slot('cond_3', ['side_plank'], 3, null, null, { perSide: true, timed: { secMin: 30, secMax: 45 } })
+      ]
+    }
+  };
+
+  const DEFAULT_SCHEDULE = { push: 'mon', pull: 'tue', legs: 'wed', zone2: 'thu', upper: 'fri', conditioning: 'sat' };
+
+  const OR_SLOTS = [
+    { slotId: 'push_2', label: 'Flat press (Push day)', options: ['flat_mach_press', 'flat_db_press'] },
+    { slotId: 'pull_1', label: 'Vertical pull (Pull day)', options: ['pullup', 'assisted_pullup'] },
+    { slotId: 'legs_1', label: 'Squat (Legs day)', options: ['back_squat', 'hack_squat'] },
+    { slotId: 'upper_2', label: 'Vertical pull (Upper day)', options: ['pullup', 'lat_pulldown'] }
+  ];
+
+  const EQUIPMENT = [
+    { id: 'barbell', label: 'Barbell + rack/bench' },
+    { id: 'dumbbells', label: 'Dumbbells' },
+    { id: 'cables', label: 'Cable stack' },
+    { id: 'machines', label: 'Selectorized machines' },
+    { id: 'pullup_bar', label: 'Pull-up bar' },
+    { id: 'assisted_pullup', label: 'Assisted pull-up machine' },
+    { id: 'hack_squat', label: 'Hack squat' },
+    { id: 'ab_wheel', label: 'Ab wheel' },
+    { id: 'bike_rower', label: 'Bike or rower' }
+  ];
+
+  const EFFORT_GUIDANCE = {
+    short: 'Most working sets end 1–2 reps before failure. Taking the last isolation set to failure is optional. Never take heavy compounds to failure.',
+    rir: 'RIR = reps in reserve: how many more clean reps you could have done when you stopped the set.',
+    warmup: 'Warm-up sets are logged but excluded from completion and progression math.'
+  };
+
+  const REST_DEFAULTS = { compound: 150, isolation: 75 }; // seconds; configurable, not enforced
+
+  CS.plan = { EXERCISES, EXERCISE_MAP, DEFAULT_TEMPLATES, DEFAULT_SCHEDULE, OR_SLOTS, EQUIPMENT, EFFORT_GUIDANCE, REST_DEFAULTS };
+})();
+
+
+/* ===== core/db.js ===== */
+/* Coastal Strength — core/db.js
+   The data model and every mutation on it. Pure functions over a plain object.
+   The UI never mutates the db directly; it calls these through the store. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const U = CS.util, P = CS.plan;
+  const D = {};
+
+  D.SCHEMA_VERSION = 1;
+
+  /* ---------- creation ---------- */
+
+  D.createInitial = function (input, nowIso) {
+    nowIso = nowIso || new Date().toISOString();
+    const tz = input.timezone || U.defaultTz();
+    const planId = U.uid('plan');
+    const db = {
+      schemaVersion: D.SCHEMA_VERSION,
+      createdAt: nowIso,
+      profile: {
+        name: input.name || '',
+        heightIn: input.heightIn == null ? null : input.heightIn,
+        units: input.units === 'kg' ? 'kg' : 'lb',
+        timezone: tz,
+        schedule: Object.assign({}, P.DEFAULT_SCHEDULE, input.schedule || {}),
+        equipment: input.equipment || {},
+        picks: Object.assign({}, input.picks || {}),
+        nutritionMode: input.nutritionMode || 'undecided',
+        calorieTarget: input.calorieTarget == null ? null : input.calorieTarget,
+        experience: input.experience || '',
+        limitations: input.limitations || '',
+        frameNoteShown: !!input.frameNoteShown,
+        onboarded: true
+      },
+      exercises: U.clone(P.EXERCISE_MAP),
+      planVersions: [{ id: planId, version: 1, createdAt: nowIso, note: 'Default plan', templates: U.clone(P.DEFAULT_TEMPLATES) }],
+      activePlanVersionId: planId,
+      sessions: {},
+      sessionOrder: [],
+      measurements: [],
+      cardioSessions: [],
+      recoveryLogs: {},
+      nutrition: { days: {}, savedFoods: [] },
+      suggestions: {},
+      timer: null,
+      settings: {
+        restDefaults: Object.assign({}, P.REST_DEFAULTS),
+        autoStartRest: true,
+        restSound: true,
+        restVibrate: true,
+        theme: 'auto'
+      }
+    };
+    // Default picks: first option of every OR slot unless the user chose.
+    P.OR_SLOTS.forEach((s) => { if (!db.profile.picks[s.slotId]) db.profile.picks[s.slotId] = s.options[0]; });
+    if (input.weight != null) {
+      D.addMeasurement(db, { type: 'weight', value: input.weight, unit: input.weightUnit || db.profile.units, localDate: input.weightDate || U.localDate(nowIso, tz) }, nowIso);
+    }
+    return db;
+  };
+
+  /* ---------- lookups ---------- */
+
+  D.activePlan = function (db) {
+    return db.planVersions.find((p) => p.id === db.activePlanVersionId) || db.planVersions[db.planVersions.length - 1];
+  };
+
+  D.templateForWeekday = function (db, weekday) {
+    const plan = D.activePlan(db);
+    const tid = Object.keys(db.profile.schedule).find((t) => db.profile.schedule[t] === weekday && plan.templates[t]);
+    return tid ? plan.templates[tid] : { id: 'rest', name: 'Rest', kind: 'rest' };
+  };
+
+  D.exercise = function (db, id) { return db.exercises[id] || P.EXERCISE_MAP[id] || null; };
+
+  D.sessionList = function (db) { return db.sessionOrder.map((id) => db.sessions[id]).filter(Boolean); };
+
+  D.sessionsOn = function (db, localDate) { return D.sessionList(db).filter((s) => s.localDate === localDate); };
+
+  D.findActiveSession = function (db) {
+    return D.sessionList(db).find((s) => s.status === 'in_progress' || s.status === 'paused') || null;
+  };
+
+  D.sessionFor = function (db, templateId, localDate) {
+    return D.sessionList(db).find((s) => s.templateId === templateId && s.localDate === localDate) || null;
+  };
+
+  /* Most recent session where this exercise had at least one completed working set.
+     Returns { sessionId, localDate, sets:[logical sets], prescription } or null. */
+  D.lastPerformance = function (db, exerciseId, excludeSessionId) {
+    const list = D.sessionList(db);
+    for (let i = list.length - 1; i >= 0; i--) {
+      const s = list[i];
+      if (s.id === excludeSessionId) continue;
+      for (const inst of s.exercises || []) {
+        if (inst.exerciseId !== exerciseId || inst.skipped) continue;
+        const sets = D.logicalSets(inst, { completedOnly: true, kind: 'working' });
+        if (sets.length) return { sessionId: s.id, localDate: s.localDate, sets, prescription: inst.prescription, sidesSeparate: !!inst.sidesSeparate };
+      }
+    }
+    return null;
+  };
+
+  /* Pending progression decision for this exercise that has not yet been applied to a session. */
+  D.pendingSuggestion = function (db, exerciseId) {
+    const all = Object.values(db.suggestions).filter((s) => s.exerciseId === exerciseId && !s.consumedBy);
+    all.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return all[0] || null;
+  };
+
+  /* ---------- logical sets (unilateral pairs collapse to one) ---------- */
+
+  D.logicalSets = function (inst, opts) {
+    opts = opts || {};
+    const kind = opts.kind || null;
+    const sets = (inst.sets || []).filter((s) => !kind || s.kind === kind);
+    const out = [];
+    const seen = {};
+    for (const s of sets) {
+      if (s.side === 'both' || !s.pairId) {
+        out.push({ setIds: [s.id], load: s.load, unit: s.unit, reps: s.reps, durationSec: s.durationSec, rir: s.rir, completed: !!s.completed, mixedLoad: false, kind: s.kind, sides: null, notes: s.notes });
+      } else {
+        if (seen[s.pairId]) continue;
+        seen[s.pairId] = true;
+        const pair = sets.filter((x) => x.pairId === s.pairId);
+        const L = pair.find((x) => x.side === 'L') || null, R = pair.find((x) => x.side === 'R') || null;
+        const both = [L, R].filter(Boolean);
+        const loads = both.map((x) => x.load);
+        const mixed = loads.length > 1 && !(loads[0] === loads[1]);
+        const reps = both.every((x) => x.reps != null) ? Math.min.apply(null, both.map((x) => x.reps)) : null;
+        const durs = both.filter((x) => x.durationSec != null).map((x) => x.durationSec);
+        const rirs = both.filter((x) => x.rir != null).map((x) => x.rir);
+        out.push({
+          setIds: both.map((x) => x.id), load: mixed ? null : loads[0], unit: both[0].unit,
+          reps: both.length === 2 ? reps : both[0].reps,
+          durationSec: durs.length ? Math.min.apply(null, durs) : null,
+          rir: rirs.length ? Math.min.apply(null, rirs) : null,
+          completed: both.length === 2 && both.every((x) => x.completed), mixedLoad: mixed, kind: s.kind,
+          sides: { L: L, R: R }, notes: both.map((x) => x.notes).filter(Boolean).join(' / ')
+        });
+      }
+    }
+    return opts.completedOnly ? out.filter((s) => s.completed) : out;
+  };
+
+  /* ---------- session creation ---------- */
+
+  function newSet(exercise, unit, base, kind) {
+    return {
+      id: U.uid('set'), kind: kind || 'working', side: 'both', pairId: null,
+      load: base && base.load != null ? base.load : null,
+      unit: unit,
+      reps: base && base.reps != null ? base.reps : null,
+      durationSec: base && base.durationSec != null ? base.durationSec : null,
+      rir: null, completed: false, completedAt: null,
+      prefilled: !!(base && (base.load != null || base.reps != null || base.durationSec != null)),
+      notes: ''
+    };
+  }
+
+  function convertLoad(load, from, to) {
+    if (load == null || from === to) return load;
+    return Math.round(U.toUnit(load, from, to) * 2) / 2;
+  }
+
+  /* Prefill from the most recent comparable performance. Never marks anything completed. */
+  D.buildSets = function (db, exercise, prescription, excludeSessionId) {
+    const unit = db.profile.units;
+    const last = D.lastPerformance(db, exercise.id, excludeSessionId);
+    const sugg = D.pendingSuggestion(db, exercise.id);
+    const sets = [];
+    for (let i = 0; i < prescription.sets; i++) {
+      let base = null;
+      if (last) {
+        const src = last.sets[i] || last.sets[last.sets.length - 1];
+        base = { load: convertLoad(src.load, src.unit, unit), reps: src.reps, durationSec: src.durationSec };
+        if (sugg && sugg.decision && sugg.decision !== 'dismissed' && sugg.appliedLoad != null) {
+          base.load = convertLoad(sugg.appliedLoad, sugg.unit, unit);
+        }
+      }
+      sets.push(newSet(exercise, unit, base, 'working'));
+    }
+    return { sets, last, suggestion: sugg };
+  };
+
+  D.createSession = function (db, templateId, localDate, nowIso) {
+    const plan = D.activePlan(db);
+    const t = plan.templates[templateId];
+    if (!t) throw new Error('Unknown template ' + templateId);
+    const id = U.uid('sess');
+    const session = {
+      id, templateId, templateName: t.name, kind: t.kind, planVersionId: plan.id,
+      localDate, weekday: U.weekday(localDate), scheduledWeekday: db.profile.schedule[templateId] || null,
+      status: 'planned', createdAt: nowIso, startedAt: null, finishedAt: null, segments: [],
+      exercises: [], notes: '', energy: null, difficulty: null, soreness: null, cardio: null
+    };
+    (t.slots || []).forEach((slot, i) => {
+      const exId = db.profile.picks[slot.slotId] && slot.options.indexOf(db.profile.picks[slot.slotId]) >= 0 ? db.profile.picks[slot.slotId] : slot.options[0];
+      const ex = D.exercise(db, exId);
+      const prescription = { sets: slot.sets, repMin: slot.repMin, repMax: slot.repMax, perSide: !!slot.perSide, timed: slot.timed ? U.clone(slot.timed) : null };
+      const built = D.buildSets(db, ex, prescription, id);
+      session.exercises.push({
+        instanceId: U.uid('inst'), slotId: slot.slotId, exerciseId: exId, order: i,
+        prescription, sets: built.sets, skipped: false, skipReason: '', substitutedFrom: null, notes: '',
+        restSec: ex.compound ? db.settings.restDefaults.compound : db.settings.restDefaults.isolation,
+        sidesSeparate: false,
+        lastPerformance: built.last ? { sessionId: built.last.sessionId, localDate: built.last.localDate, sets: built.last.sets.map((s) => ({ load: s.load, unit: s.unit, reps: s.reps, durationSec: s.durationSec })) } : null,
+        suggestionKey: built.suggestion ? built.suggestion.key : null
+      });
+      if (built.suggestion) built.suggestion.consumedBy = id;
+    });
+    db.sessions[id] = session;
+    db.sessionOrder.push(id);
+    return id;
+  };
+
+  /* Start (or resume) the session for a template on a date. Idempotent: one session per template per date. */
+  D.startSession = function (db, templateId, localDate, nowIso) {
+    let s = D.sessionFor(db, templateId, localDate);
+    if (s && s.status === 'completed') return s.id; // don't restart a finished session
+    if (!s) s = db.sessions[D.createSession(db, templateId, localDate, nowIso)];
+    if (s.status === 'planned' || s.status === 'skipped') {
+      s.status = 'in_progress';
+      s.startedAt = s.startedAt || nowIso;
+      s.segments.push({ start: nowIso, end: null });
+    } else if (s.status === 'paused') {
+      D.resumeSession(db, s.id, nowIso);
+    }
+    return s.id;
+  };
+
+  D.pauseSession = function (db, sid, nowIso) {
+    const s = db.sessions[sid];
+    if (!s || s.status !== 'in_progress') return;
+    const open = s.segments.find((g) => !g.end);
+    if (open) open.end = nowIso;
+    s.status = 'paused';
+  };
+
+  D.resumeSession = function (db, sid, nowIso) {
+    const s = db.sessions[sid];
+    if (!s || s.status !== 'paused') return;
+    s.segments.push({ start: nowIso, end: null });
+    s.status = 'in_progress';
+  };
+
+  /* Active time from timestamps only. */
+  D.activeMs = function (s, nowMs) {
+    let total = 0;
+    (s.segments || []).forEach((g) => {
+      const a = Date.parse(g.start), b = g.end ? Date.parse(g.end) : nowMs;
+      if (!isNaN(a) && !isNaN(b) && b > a) total += b - a;
+    });
+    return total;
+  };
+
+  D.finishSession = function (db, sid, nowIso) {
+    const s = db.sessions[sid];
+    if (!s || s.status === 'completed') return s;
+    const open = s.segments.find((g) => !g.end);
+    if (open) open.end = nowIso;
+    s.status = 'completed';
+    s.finishedAt = nowIso;
+    if (db.timer && db.timer.sessionId === sid) db.timer = null;
+    // Progression suggestions are built once, at completion, from what was actually logged.
+    if (CS.progression) {
+      s.exercises.forEach((inst) => {
+        const ex = D.exercise(db, inst.exerciseId);
+        const result = CS.progression.evaluate({ exercise: ex, instance: inst, session: s, db });
+        const key = sid + ':' + inst.instanceId;
+        db.suggestions[key] = {
+          key, sessionId: sid, instanceId: inst.instanceId, exerciseId: inst.exerciseId, createdAt: nowIso,
+          result, decision: null, appliedLoad: null, unit: result.unit || db.profile.units, consumedBy: null
+        };
+      });
+    }
+    return s;
+  };
+
+  D.decideSuggestion = function (db, key, decision, overrideLoad) {
+    const sg = db.suggestions[key];
+    if (!sg) return;
+    sg.decision = decision;
+    sg.decidedAt = new Date().toISOString();
+    if (decision === 'accepted') sg.appliedLoad = sg.result.suggestedLoad;
+    else if (decision === 'overridden') sg.appliedLoad = overrideLoad;
+    else sg.appliedLoad = null;
+  };
+
+  D.skipSession = function (db, templateId, localDate, nowIso, reason) {
+    let s = D.sessionFor(db, templateId, localDate);
+    if (!s) s = db.sessions[D.createSession(db, templateId, localDate, nowIso)];
+    if (s.status === 'completed') return s.id;
+    s.status = 'skipped';
+    s.skipReason = reason || '';
+    return s.id;
+  };
+
+  /* ---------- set-level mutations ---------- */
+
+  function findInst(db, sid, iid) {
+    const s = db.sessions[sid];
+    return s ? s.exercises.find((e) => e.instanceId === iid) : null;
+  }
+  D.instance = findInst;
+
+  D.setField = function (db, sid, iid, setId, field, value) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    const set = inst.sets.find((x) => x.id === setId);
+    if (!set) return;
+    if (['load', 'reps', 'durationSec', 'rir', 'notes'].indexOf(field) < 0) return;
+    set[field] = value;
+    if (field !== 'notes') set.prefilled = false;
+    // Linked unilateral: nothing to mirror (single row). Separate rows are edited individually.
+  };
+
+  D.toggleComplete = function (db, sid, iid, setId, nowIso) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    const set = inst.sets.find((x) => x.id === setId);
+    if (!set) return;
+    if (set.completed) {
+      set.completed = false;
+      set.completedAt = null;
+    } else {
+      set.completed = true;
+      set.completedAt = nowIso;
+      set.prefilled = false;
+    }
+    return set.completed;
+  };
+
+  D.addSet = function (db, sid, iid, kind) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    const ex = D.exercise(db, inst.exerciseId);
+    const unit = db.profile.units;
+    const lastWorking = inst.sets.slice().reverse().find((s) => s.kind === 'working');
+    const base = lastWorking ? { load: lastWorking.load, reps: lastWorking.reps, durationSec: lastWorking.durationSec } : null;
+    if (inst.sidesSeparate) {
+      const pairId = U.uid('pair');
+      const a = newSet(ex, unit, base, kind); a.side = 'L'; a.pairId = pairId;
+      const b = newSet(ex, unit, base, kind); b.side = 'R'; b.pairId = pairId;
+      a.prefilled = b.prefilled = false;
+      inst.sets.push(a, b);
+      return a.id;
+    }
+    const s = newSet(ex, unit, base, kind);
+    s.prefilled = false;
+    if (kind === 'warmup') {
+      const firstWorking = inst.sets.findIndex((x) => x.kind === 'working');
+      inst.sets.splice(firstWorking < 0 ? inst.sets.length : firstWorking, 0, s);
+    } else inst.sets.push(s);
+    return s.id;
+  };
+
+  D.deleteSet = function (db, sid, iid, setId) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    const set = inst.sets.find((x) => x.id === setId);
+    if (!set) return;
+    inst.sets = inst.sets.filter((x) => (set.pairId ? x.pairId !== set.pairId : x.id !== setId));
+  };
+
+  D.setKind = function (db, sid, iid, setId, kind) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    const set = inst.sets.find((x) => x.id === setId);
+    if (!set) return;
+    const targets = set.pairId ? inst.sets.filter((x) => x.pairId === set.pairId) : [set];
+    targets.forEach((t) => { t.kind = kind; });
+  };
+
+  /* Switch a unilateral exercise between linked (one row = both sides) and separate L/R rows. */
+  D.setSidesSeparate = function (db, sid, iid, separate) {
+    const inst = findInst(db, sid, iid);
+    if (!inst || !!inst.sidesSeparate === !!separate) return;
+    const next = [];
+    if (separate) {
+      inst.sets.forEach((s) => {
+        if (s.side !== 'both') { next.push(s); return; }
+        const pairId = U.uid('pair');
+        const L = Object.assign({}, s, { id: U.uid('set'), side: 'L', pairId });
+        const R = Object.assign({}, s, { id: U.uid('set'), side: 'R', pairId });
+        next.push(L, R);
+      });
+    } else {
+      const seen = {};
+      inst.sets.forEach((s) => {
+        if (s.side === 'both' || !s.pairId) { next.push(s); return; }
+        if (seen[s.pairId]) return;
+        seen[s.pairId] = true;
+        const pair = inst.sets.filter((x) => x.pairId === s.pairId);
+        const both = pair.every((x) => x.completed);
+        const merged = Object.assign({}, pair[0], { id: U.uid('set'), side: 'both', pairId: null, completed: both, completedAt: both ? pair[0].completedAt : null });
+        if (pair.length === 2 && pair[0].reps != null && pair[1].reps != null) merged.reps = Math.min(pair[0].reps, pair[1].reps);
+        next.push(merged);
+      });
+    }
+    inst.sets = next;
+    inst.sidesSeparate = !!separate;
+  };
+
+  D.skipExercise = function (db, sid, iid, reason) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    inst.skipped = true;
+    inst.skipReason = reason || '';
+  };
+
+  D.unskipExercise = function (db, sid, iid) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    inst.skipped = false;
+    inst.skipReason = '';
+  };
+
+  /* Substitution keeps separate histories: the new exercise prefills from ITS own history. */
+  D.substituteExercise = function (db, sid, iid, newExerciseId) {
+    const inst = findInst(db, sid, iid);
+    const ex = D.exercise(db, newExerciseId);
+    if (!inst || !ex) return;
+    const anyDone = inst.sets.some((s) => s.completed);
+    if (anyDone) return false; // never rewrite logged work
+    inst.substitutedFrom = inst.substitutedFrom || inst.exerciseId;
+    inst.exerciseId = newExerciseId;
+    const built = D.buildSets(db, ex, inst.prescription, sid);
+    inst.sets = built.sets;
+    inst.sidesSeparate = false;
+    inst.lastPerformance = built.last ? { sessionId: built.last.sessionId, localDate: built.last.localDate, sets: built.last.sets.map((s) => ({ load: s.load, unit: s.unit, reps: s.reps, durationSec: s.durationSec })) } : null;
+    inst.restSec = ex.compound ? db.settings.restDefaults.compound : db.settings.restDefaults.isolation;
+    if (built.suggestion) built.suggestion.consumedBy = sid;
+    return true;
+  };
+
+  D.moveExercise = function (db, sid, iid, dir) {
+    const s = db.sessions[sid];
+    if (!s) return;
+    const i = s.exercises.findIndex((e) => e.instanceId === iid);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= s.exercises.length) return;
+    const tmp = s.exercises[i]; s.exercises[i] = s.exercises[j]; s.exercises[j] = tmp;
+    s.exercises.forEach((e, k) => { e.order = k; });
+  };
+
+  D.setInstanceField = function (db, sid, iid, field, value) {
+    const inst = findInst(db, sid, iid);
+    if (!inst) return;
+    if (['notes', 'restSec'].indexOf(field) < 0) return;
+    inst[field] = value;
+  };
+
+  D.setSessionField = function (db, sid, field, value) {
+    const s = db.sessions[sid];
+    if (!s) return;
+    if (['notes', 'energy', 'difficulty', 'soreness'].indexOf(field) < 0) return;
+    s[field] = value;
+  };
+
+  /* ---------- counts (completed only — prefilled never counts) ---------- */
+
+  D.counts = function (session) {
+    let workingDone = 0, workingPrescribed = 0, exercisesDone = 0, exercisesTotal = 0, warmupsDone = 0;
+    (session.exercises || []).forEach((inst) => {
+      if (inst.skipped) return;
+      exercisesTotal++;
+      const done = D.logicalSets(inst, { completedOnly: true, kind: 'working' }).length;
+      workingDone += done;
+      workingPrescribed += inst.prescription.sets;
+      warmupsDone += D.logicalSets(inst, { completedOnly: true, kind: 'warmup' }).length;
+      if (done >= inst.prescription.sets) exercisesDone++;
+    });
+    return { workingDone, workingPrescribed, exercisesDone, exercisesTotal, warmupsDone };
+  };
+
+  /* ---------- measurements ---------- */
+
+  D.addMeasurement = function (db, m, nowIso) {
+    const rec = { id: U.uid('meas'), type: m.type, value: m.value, unit: m.unit || null, localDate: m.localDate, createdAt: nowIso || new Date().toISOString(), note: m.note || '' };
+    db.measurements.push(rec);
+    return rec.id;
+  };
+
+  D.latestMeasurement = function (db, type) {
+    const list = db.measurements.filter((m) => m.type === type).sort((a, b) => (a.localDate < b.localDate ? 1 : a.localDate > b.localDate ? -1 : (a.createdAt < b.createdAt ? 1 : -1)));
+    return list[0] || null;
+  };
+
+  /* ---------- rest timer (timestamp based; persisted so it survives navigation and reload) ---------- */
+
+  D.startRest = function (db, seconds, nowMs, sessionId) {
+    db.timer = { kind: 'rest', startedAt: nowMs, endsAt: nowMs + seconds * 1000, durationSec: seconds, pausedAt: null, remainingMs: null, alerted: false, sessionId: sessionId || null };
+  };
+  D.adjustRest = function (db, deltaSec, nowMs) {
+    const t = db.timer; if (!t) return;
+    if (t.pausedAt != null) t.remainingMs = Math.max(0, t.remainingMs + deltaSec * 1000);
+    else t.endsAt = Math.max(nowMs, t.endsAt + deltaSec * 1000);
+    t.alerted = false;
+  };
+  D.pauseRest = function (db, nowMs) {
+    const t = db.timer; if (!t || t.pausedAt != null) return;
+    t.pausedAt = nowMs; t.remainingMs = Math.max(0, t.endsAt - nowMs);
+  };
+  D.resumeRest = function (db, nowMs) {
+    const t = db.timer; if (!t || t.pausedAt == null) return;
+    t.endsAt = nowMs + t.remainingMs; t.pausedAt = null; t.remainingMs = null;
+  };
+  D.dismissRest = function (db) { db.timer = null; };
+  D.restState = function (db, nowMs) {
+    const t = db.timer; if (!t) return null;
+    const remainingMs = t.pausedAt != null ? t.remainingMs : t.endsAt - nowMs;
+    return { remainingSec: Math.max(0, Math.ceil(remainingMs / 1000)), done: remainingMs <= 0, paused: t.pausedAt != null, durationSec: t.durationSec, alerted: t.alerted };
+  };
+
+  /* ---------- migrations ---------- */
+
+  D.migrate = function (db) {
+    if (!db || typeof db !== 'object') return null;
+    if (!db.schemaVersion) db.schemaVersion = 1;
+    // Future schema bumps go here, one step at a time.
+    return db;
+  };
+
+  CS.db = D;
+})();
+
+
+/* ===== core/progression.js ===== */
+/* Coastal Strength — core/progression.js
+   Transparent double progression. Every result carries its exact reasons.
+   Nothing here rewrites a workout; results are suggestions the user decides on. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const U = CS.util, D = CS.db;
+  const PR = {};
+
+  function loadLabel(ex) {
+    return { per_dumbbell: 'per dumbbell', total_bar: 'total bar', machine_stack: 'on the stack', assistance: 'assistance', added: 'added', none: '' }[ex.loadConvention] || '';
+  }
+
+  /* evaluate({ exercise, instance, session, db }) ->
+     { status, reasons[], currentLoad, suggestedLoad, increment, unit, rirFlag, rirNote, decline }
+     status: increase | assist_decrease | bodyweight_top | timed_top | hold | none | not_evaluated */
+  PR.evaluate = function (args) {
+    const ex = args.exercise, inst = args.instance, s = args.session, db = args.db;
+    const p = inst.prescription;
+    const reasons = [];
+    const unit = (inst.sets.find((x) => x.unit) || {}).unit || (db && db.profile.units) || 'lb';
+    const inc = unit === 'kg' ? ex.incrementKg : ex.incrementLb;
+    const base = { status: 'none', reasons, currentLoad: null, suggestedLoad: null, increment: inc, unit, rirFlag: false, rirNote: null, decline: null, exerciseName: ex.name };
+
+    if (!s || s.status !== 'completed') {
+      reasons.push('Session not finished. Increases are only evaluated for completed sessions.');
+      return Object.assign(base, { status: 'not_evaluated' });
+    }
+    if (inst.skipped) {
+      reasons.push('Exercise skipped this session.');
+      return Object.assign(base, { status: 'not_evaluated' });
+    }
+
+    const done = D.logicalSets(inst, { completedOnly: true, kind: 'working' });
+    reasons.push('Warm-up sets excluded. ' + done.length + ' of ' + p.sets + ' prescribed working sets completed.');
+    if (done.length < p.sets) {
+      reasons.push('Not every prescribed working set was completed, so no increase.');
+      return base;
+    }
+    const evaluated = done.slice(0, p.sets);
+    if (done.length > p.sets) reasons.push((done.length - p.sets) + ' extra set(s) logged; only the first ' + p.sets + ' prescribed sets are evaluated.');
+
+    // RIR
+    const rirLogged = evaluated.filter((x) => x.rir != null);
+    const rirFlag = rirLogged.some((x) => x.rir <= 0);
+    const rirNote = rirLogged.length ? null : 'RIR was not logged, so this used load and reps only.';
+    base.rirFlag = rirFlag; base.rirNote = rirNote;
+
+    // Timed holds
+    if (ex.type === 'timed' && p.timed) {
+      const top = evaluated.filter((x) => x.durationSec != null && x.durationSec >= p.timed.secMax).length;
+      reasons.push(top + ' of ' + p.sets + ' holds reached ' + p.timed.secMax + ' s.');
+      if (top < p.sets) { reasons.push('Progress toward ' + p.timed.secMax + ' s on every hold.'); return base; }
+      reasons.push('Every hold reached the upper bound. Make the hold harder (e.g. feet elevated) or extend the target — your call.');
+      return Object.assign(base, { status: 'timed_top' });
+    }
+
+    // Load consistency
+    const loads = evaluated.map((x) => x.load);
+    const usesLoad = ex.loadConvention !== 'none';
+    if (usesLoad) {
+      const distinct = {};
+      loads.forEach((l) => { distinct[l == null ? 'none' : String(l)] = true; });
+      const mixed = evaluated.some((x) => x.mixedLoad) || Object.keys(distinct).length > 1;
+      if (mixed) {
+        reasons.push('Sets used different loads (' + loads.map((l) => (l == null ? '—' : U.fmtLoad(l))).join(', ') + ' ' + unit + '). A blanket increase is never suggested for a mixed-load session.');
+        return base;
+      }
+      if (loads[0] == null) {
+        reasons.push('No load was logged, so no increase can be computed.');
+        return base;
+      }
+    }
+    const load = usesLoad ? loads[0] : null;
+    base.currentLoad = load;
+
+    // Rep test: every prescribed working set at or above the top of the range
+    const top = evaluated.filter((x) => x.reps != null && x.reps >= p.repMax).length;
+    reasons.push(top + ' of ' + p.sets + ' sets reached ' + p.repMax + ' reps' + (usesLoad ? ' at ' + U.fmtLoad(load) + ' ' + unit + ' ' + loadLabel(ex) : '') + ' (' + evaluated.map((x) => (x.reps == null ? '—' : x.reps)).join('/') + ').');
+    if (top < p.sets) {
+      reasons.push('An increase needs all ' + p.sets + ' sets at ' + p.repMax + '+ reps. Hold the load and build reps.');
+      base.decline = PR.detectDecline(db, ex.id, s.id);
+      return base;
+    }
+
+    let result;
+    if (ex.type === 'bodyweight') {
+      reasons.push('All sets at the top of the range. Prioritize control and clean reps first; when that is solid, ' + (ex.family === 'vertical_pull' ? 'switch to weighted pull-ups (a separate history).' : 'move to a harder variation.'));
+      result = Object.assign(base, { status: 'bodyweight_top' });
+    } else if (ex.type === 'assisted') {
+      const next = Math.max(0, load - inc);
+      if (load <= 0) reasons.push('Assistance is already 0. Try bodyweight pull-ups next time (a separate history).');
+      else reasons.push('All sets at the top of the range. Less assistance is progress: try ' + U.fmtLoad(next) + ' ' + unit + ' assistance (' + U.fmtLoad(inc) + ' ' + unit + ' less).');
+      result = Object.assign(base, { status: 'assist_decrease', suggestedLoad: load <= 0 ? null : next });
+    } else {
+      const next = load + inc;
+      reasons.push('All sets at the top of the range. Smallest configured step for this exercise is ' + U.fmtLoad(inc) + ' ' + unit + ': try ' + U.fmtLoad(next) + ' ' + unit + ' ' + loadLabel(ex) + ' next session.');
+      result = Object.assign(base, { status: 'increase', suggestedLoad: next });
+    }
+    if (rirFlag) reasons.push('One or more sets were logged at 0 RIR. Holding the load another session may be appropriate.');
+    if (rirNote) reasons.push(rirNote);
+    return result;
+  };
+
+  /* Repeated decline: three most recent completed sessions of this exercise, each with
+     fewer total working reps than the one before at the same or lower load. Returns a
+     neutral prompt string or null. Never diagnoses. */
+  PR.detectDecline = function (db, exerciseId, throughSessionId) {
+    if (!db) return null;
+    const hist = PR.history(db, exerciseId).filter((h) => h.status === 'completed');
+    const idx = hist.findIndex((h) => h.sessionId === throughSessionId);
+    const upto = idx >= 0 ? hist.slice(0, idx + 1) : hist;
+    if (upto.length < 4) return null;
+    const last4 = upto.slice(-4);
+    for (let i = 1; i < last4.length; i++) {
+      const prev = last4[i - 1], cur = last4[i];
+      if (prev.totalReps == null || cur.totalReps == null) return null;
+      if (!(cur.totalReps < prev.totalReps && (cur.topLoad == null || prev.topLoad == null || cur.topLoad <= prev.topLoad))) return null;
+    }
+    return 'Working reps have dropped over the last three sessions of this exercise. Worth a look at sleep, recovery, technique, and recent workload.';
+  };
+
+  /* Per-exercise session history (chronological). One entry per session where the exercise appeared. */
+  PR.history = function (db, exerciseId) {
+    const out = [];
+    D.sessionList(db).forEach((s) => {
+      s.exercises.forEach((inst) => {
+        if (inst.exerciseId !== exerciseId || inst.skipped) return;
+        const sets = D.logicalSets(inst, { completedOnly: true, kind: 'working' });
+        if (!sets.length && s.status !== 'completed') return;
+        const loads = sets.filter((x) => x.load != null).map((x) => x.load);
+        out.push({
+          sessionId: s.id, localDate: s.localDate, status: s.status, templateName: s.templateName,
+          prescription: inst.prescription, sets,
+          totalReps: sets.length ? sets.reduce((a, x) => a + (x.reps || 0), 0) : null,
+          topLoad: loads.length ? Math.max.apply(null, loads) : null
+        });
+      });
+    });
+    return out;
+  };
+
+  CS.progression = PR;
+})();
+
+
+/* ===== core/stats.js ===== */
+/* Coastal Strength — core/stats.js
+   Derived numbers for Today. Everything here is computed from logged records only. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const U = CS.util, D = CS.db;
+  const S = {};
+
+  /* Week ring: completed scheduled lifting sessions / scheduled lifting sessions, Mon–Sun.
+     Cardio and rest days are never in the denominator. A lift template counts once per
+     week regardless of which day it was actually done on. */
+  S.weekRing = function (db, localDate) {
+    const plan = D.activePlan(db);
+    const week = U.weekDates(localDate);
+    const first = week[0].date, last = week[6].date;
+    const scheduledLift = Object.keys(db.profile.schedule).filter((t) => db.profile.schedule[t] && plan.templates[t] && plan.templates[t].kind === 'lift');
+    const completed = {};
+    D.sessionList(db).forEach((s) => {
+      if (s.status === 'completed' && s.kind === 'lift' && s.localDate >= first && s.localDate <= last) completed[s.templateId] = true;
+    });
+    const days = week.map((d) => {
+      const t = D.templateForWeekday(db, d.key);
+      const sessions = D.sessionsOn(db, d.date);
+      const forTemplate = sessions.find((s) => s.templateId === t.id);
+      return {
+        key: d.key, date: d.date, templateId: t.id, templateName: t.name, kind: t.kind,
+        status: forTemplate ? forTemplate.status : (sessions.length ? 'other' : 'none'),
+        isToday: d.date === localDate, isPast: d.date < localDate,
+        sessions
+      };
+    });
+    return {
+      completed: scheduledLift.filter((t) => completed[t]).length,
+      scheduled: scheduledLift.length,
+      days
+    };
+  };
+
+  S.todayPlan = function (db, localDate) {
+    const wd = U.weekday(localDate);
+    const t = D.templateForWeekday(db, wd);
+    return { weekday: wd, template: t, session: D.sessionFor(db, t.id, localDate) };
+  };
+
+  /* Weight card: latest observation + 7-day average when ≥3 observations fall in the last 7 days.
+     Missing days stay missing — no zeros, no interpolation. */
+  S.weightSummary = function (db, localDate) {
+    const latest = D.latestMeasurement(db, 'weight');
+    if (!latest) return null;
+    const from = U.addDays(localDate, -6);
+    const byDay = {};
+    db.measurements.filter((m) => m.type === 'weight' && m.localDate >= from && m.localDate <= localDate)
+      .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
+      .forEach((m) => { byDay[m.localDate] = U.toUnit(m.value, m.unit, db.profile.units); }); // last entry per day wins
+    const vals = Object.values(byDay);
+    return {
+      latest: { value: U.toUnit(latest.value, latest.unit, db.profile.units), unit: db.profile.units, localDate: latest.localDate },
+      avg7: vals.length >= 3 ? U.mean(vals) : null,
+      avg7Count: vals.length,
+      avg7Definition: 'Mean of the last weigh-in on each day with an observation in the trailing 7 days (' + vals.length + ' of 7 days). Shown only with 3+ observations.'
+    };
+  };
+
+  /* At most two observations, each derived from a specific log. Neutral wording. */
+  S.observations = function (db, localDate) {
+    const out = [];
+    const sessions = D.sessionList(db).filter((s) => s.status === 'completed' && s.kind === 'lift');
+    const last = sessions[sessions.length - 1];
+    if (last) {
+      for (const inst of last.exercises) {
+        if (inst.skipped) continue;
+        const sets = D.logicalSets(inst, { completedOnly: true, kind: 'working' });
+        const p = inst.prescription;
+        if (!p.repMax || sets.length < p.sets) continue;
+        const top = sets.slice(0, p.sets).every((x) => x.reps != null && x.reps >= p.repMax);
+        if (top) {
+          const ex = D.exercise(db, inst.exerciseId);
+          out.push({ text: 'You hit the top of the range on all ' + p.sets + ' ' + ex.name.toLowerCase() + ' sets on ' + U.fmtLocalDate(last.localDate) + '.', source: { sessionId: last.id, instanceId: inst.instanceId } });
+          break;
+        }
+      }
+    }
+    const weights = db.measurements.filter((m) => m.type === 'weight');
+    const distinctDays = {};
+    weights.forEach((m) => { distinctDays[m.localDate] = true; });
+    if (Object.keys(distinctDays).length < 3) out.push({ text: 'Not enough weight history for a trend yet (' + Object.keys(distinctDays).length + ' of the 3 days needed).', source: null });
+    return out.slice(0, 2);
+  };
+
+  CS.stats = S;
+})();
+
+
+/* ===== core/storage.js ===== */
+/* Coastal Strength — core/storage.js
+   Local-first persistence. The whole database is one JSON document written atomically,
+   so a retried write can never duplicate a set or a session.
+
+   Backends, tried in order:
+     1. window.storage  — the claude.ai preview's per-user key-value API (artifact sandbox)
+     2. IndexedDB       — when hosted as a normal web page / iPhone home-screen app
+     3. localStorage    — fallback
+     4. memory          — nothing persists; the UI shows a warning
+   None of these is cloud sync. Data lives on this device in this browser. */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const KEY = 'cs:db';
+  const ST = {};
+
+  function previewBackend() {
+    const w = window.storage;
+    if (!w || typeof w.get !== 'function' || typeof w.set !== 'function') return null;
+    return {
+      mode: 'preview',
+      label: 'Preview storage (claude.ai account, this artifact)',
+      async probe() {
+        const r = await w.set('cs:probe', '1', false);
+        if (!r) throw new Error('preview storage set failed');
+        try { await w.delete('cs:probe', false); } catch (e) { /* ignore */ }
+        return true;
+      },
+      async load() {
+        try {
+          const r = await w.get(KEY, false);
+          return r && r.value ? r.value : null;
+        } catch (e) { return null; } // missing key throws
+      },
+      async save(json) {
+        const r = await w.set(KEY, json, false);
+        if (!r) throw new Error('Save rejected by preview storage');
+      },
+      async clear() { try { await w.delete(KEY, false); } catch (e) { /* ignore */ } }
+    };
+  }
+
+  function idbBackend() {
+    if (typeof indexedDB === 'undefined' || !indexedDB) return null;
+    let dbp = null;
+    function open() {
+      if (dbp) return dbp;
+      dbp = new Promise((resolve, reject) => {
+        let req;
+        try { req = indexedDB.open('coastal-strength', 1); } catch (e) { reject(e); return; }
+        req.onupgradeneeded = () => { req.result.createObjectStore('kv'); };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+        req.onblocked = () => reject(new Error('IndexedDB blocked'));
+      });
+      return dbp;
+    }
+    function tx(mode, fn) {
+      return open().then((db) => new Promise((resolve, reject) => {
+        const t = db.transaction('kv', mode);
+        const store = t.objectStore('kv');
+        const req = fn(store);
+        t.oncomplete = () => resolve(req ? req.result : undefined);
+        t.onerror = () => reject(t.error || new Error('IndexedDB transaction failed'));
+        t.onabort = () => reject(t.error || new Error('IndexedDB transaction aborted'));
+      }));
+    }
+    return {
+      mode: 'indexeddb',
+      label: 'IndexedDB (this browser on this device)',
+      async probe() { await tx('readonly', (s) => s.get('probe')); return true; },
+      async load() { const v = await tx('readonly', (s) => s.get(KEY)); return v == null ? null : v; },
+      async save(json) { await tx('readwrite', (s) => s.put(json, KEY)); },
+      async clear() { await tx('readwrite', (s) => s.delete(KEY)); }
+    };
+  }
+
+  function localBackend() {
+    try {
+      const ls = window.localStorage;
+      if (!ls) return null;
+      ls.setItem('cs:probe', '1'); ls.removeItem('cs:probe');
+      return {
+        mode: 'localstorage',
+        label: 'localStorage (this browser on this device)',
+        sync: true,
+        async probe() { return true; },
+        async load() { return ls.getItem(KEY); },
+        async save(json) { ls.setItem(KEY, json); },
+        saveSync(json) { ls.setItem(KEY, json); },
+        async clear() { ls.removeItem(KEY); }
+      };
+    } catch (e) { return null; }
+  }
+
+  function memoryBackend() {
+    let mem = null;
+    return {
+      mode: 'memory',
+      label: 'Memory only — nothing is saved',
+      async probe() { return true; },
+      async load() { return mem; },
+      async save(json) { mem = json; },
+      async clear() { mem = null; }
+    };
+  }
+
+  /* Pick the first backend that works. */
+  ST.detect = async function (prefer) {
+    const candidates = [previewBackend, idbBackend, localBackend, memoryBackend];
+    for (const make of candidates) {
+      const b = make();
+      if (!b) continue;
+      if (prefer && b.mode !== prefer && b.mode !== 'memory') continue;
+      try {
+        await Promise.race([b.probe(), new Promise((_, rej) => setTimeout(() => rej(new Error('probe timeout')), 1500))]);
+        return b;
+      } catch (e) { /* next */ }
+    }
+    return memoryBackend();
+  };
+
+  /* The store: in-memory db + listeners + debounced, serialized autosave. */
+  ST.createStore = function (backend, opts) {
+    opts = opts || {};
+    const debounceMs = opts.debounceMs == null ? 250 : opts.debounceMs;
+    const listeners = [];
+    const statusListeners = [];
+    let db = null;
+    let status = { state: 'idle', at: null, message: '' };
+    let timer = null, saving = false, dirtyAgain = false, retryTimer = null;
+
+    function setStatus(s) { status = Object.assign({ at: Date.now() }, s); statusListeners.forEach((f) => f(status)); }
+
+    const store = {
+      backend,
+      get db() { return db; },
+      get status() { return status; },
+      onChange(f) { listeners.push(f); return () => { const i = listeners.indexOf(f); if (i >= 0) listeners.splice(i, 1); }; },
+      onStatus(f) { statusListeners.push(f); return () => { const i = statusListeners.indexOf(f); if (i >= 0) statusListeners.splice(i, 1); }; },
+
+      async load() {
+        const json = await backend.load();
+        if (!json) { db = null; return null; }
+        try {
+          const parsed = JSON.parse(json);
+          db = CS.db.migrate(parsed);
+        } catch (e) {
+          setStatus({ state: 'error', message: 'Stored data could not be read: ' + e.message });
+          db = null;
+        }
+        return db;
+      },
+
+      /* Replace the db wholesale (onboarding, import). */
+      set(next) { db = next; listeners.forEach((f) => f(db)); store.scheduleSave(); },
+
+      /* Apply a mutation and autosave. Every UI write goes through here. */
+      commit(fn, opts) {
+        if (!db) return undefined;
+        const r = fn(db);
+        if (!(opts && opts.silent)) listeners.forEach((f) => f(db));
+        store.scheduleSave();
+        return r;
+      },
+
+      scheduleSave() {
+        setStatus({ state: 'dirty', message: 'Unsaved changes' });
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => { timer = null; store.flush(); }, debounceMs);
+      },
+
+      /* Serialized: one write at a time; a change during a write triggers one more write after it. */
+      async flush() {
+        if (!db) return;
+        if (saving) { dirtyAgain = true; return; }
+        if (timer) { clearTimeout(timer); timer = null; }
+        saving = true;
+        setStatus({ state: 'saving', message: 'Saving…' });
+        try {
+          db.savedAt = new Date().toISOString();
+          await backend.save(JSON.stringify(db));
+          setStatus({ state: 'saved', message: backend.mode === 'memory' ? 'Not saved — storage unavailable' : 'Saved' });
+        } catch (e) {
+          setStatus({ state: 'error', message: 'Save failed — retrying' });
+          if (retryTimer) clearTimeout(retryTimer);
+          retryTimer = setTimeout(() => { retryTimer = null; dirtyAgain = true; store.flush(); }, 2000);
+        } finally {
+          saving = false;
+          if (dirtyAgain) { dirtyAgain = false; store.flush(); }
+        }
+      },
+
+      /* Best-effort synchronous write for pagehide on backends that support it. */
+      flushSync() {
+        if (!db) return;
+        if (backend.saveSync) { try { db.savedAt = new Date().toISOString(); backend.saveSync(JSON.stringify(db)); setStatus({ state: 'saved', message: 'Saved' }); } catch (e) { /* ignore */ } }
+        else store.flush();
+      },
+
+      async clear() { db = null; if (timer) clearTimeout(timer); await backend.clear(); setStatus({ state: 'idle', message: '' }); }
+    };
+    return store;
+  };
+
+  CS.storage = ST;
+})();
+
+
+</script>
+<script>
+/* ===== ui/dom.js ===== */
+/* Coastal Strength — ui/dom.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const U = CS.util;
+  const X = {};
+
+  /* h('div.card.stack', { onClick }, child, [children], 'text') */
+  X.h = function (spec, attrs) {
+    const parts = spec.split('.');
+    const el = document.createElement(parts[0] || 'div');
+    if (parts.length > 1) el.className = parts.slice(1).join(' ');
+    if (attrs && typeof attrs === 'object' && !(attrs instanceof Node) && !Array.isArray(attrs)) {
+      Object.keys(attrs).forEach((k) => {
+        const v = attrs[k];
+        if (v == null || v === false) return;
+        if (k === 'class') el.className += (el.className ? ' ' : '') + v;
+        else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+        else if (k === 'html') el.innerHTML = v;
+        else if (k === 'text') el.textContent = v;
+        else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+        else if (k === 'value' || k === 'checked' || k === 'disabled' || k === 'readOnly' || k === 'selected') el[k] = v;
+        else el.setAttribute(k, v === true ? '' : v);
+      });
+    } else if (attrs != null) {
+      X.append(el, attrs);
+    }
+    for (let i = 2; i < arguments.length; i++) X.append(el, arguments[i]);
+    return el;
+  };
+
+  X.append = function (el, child) {
+    if (child == null || child === false) return;
+    if (Array.isArray(child)) { child.forEach((c) => X.append(el, c)); return; }
+    if (child instanceof Node) { el.appendChild(child); return; }
+    el.appendChild(document.createTextNode(String(child)));
+  };
+
+  X.clear = function (el) { while (el.firstChild) el.removeChild(el.firstChild); return el; };
+
+  X.svg = function (html, cls) {
+    const wrap = document.createElement('span');
+    wrap.innerHTML = html;
+    const s = wrap.firstElementChild;
+    if (cls) s.setAttribute('class', cls);
+    return s;
+  };
+
+  X.ICON = {
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+    today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+    train: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h2M19 12h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></svg>',
+    progress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l4-5 3 3 5-7"/></svg>',
+    nutrition: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 3v7a3 3 0 0 0 6 0V3M9 3v18M16 3c-2 2-2 6 0 8v10"/></svg>',
+    profile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+  };
+
+  /* Bottom sheet. Returns { close }. */
+  X.sheet = function (title, build) {
+    const back = X.h('div.sheet-back', { role: 'dialog', 'aria-modal': 'true', 'aria-label': title || 'Options' });
+    const sh = X.h('div.sheet');
+    const api = { close() { if (back.parentNode) back.parentNode.removeChild(back); document.removeEventListener('keydown', onKey); } };
+    function onKey(e) { if (e.key === 'Escape') api.close(); }
+    back.addEventListener('click', (e) => { if (e.target === back) api.close(); });
+    document.addEventListener('keydown', onKey);
+    if (title) sh.appendChild(X.h('h2', { text: title }));
+    build(sh, api);
+    back.appendChild(sh);
+    document.body.appendChild(back);
+    const first = sh.querySelector('button, input, select, textarea');
+    if (first) setTimeout(() => first.focus(), 30);
+    return api;
+  };
+
+  /* Action list sheet: items = [{label, onSelect, danger, hint}] */
+  X.actionSheet = function (title, items) {
+    return X.sheet(title, (sh, api) => {
+      const list = X.h('div.list');
+      items.filter(Boolean).forEach((it) => {
+        list.appendChild(X.h('button', { class: it.danger ? 'danger' : '', onClick: () => { api.close(); it.onSelect(); } },
+          X.h('span', { text: it.label }), it.hint ? X.h('span.small.muted', { text: it.hint }) : null));
+      });
+      sh.appendChild(list);
+      sh.appendChild(X.h('button.btn.block', { style: { marginTop: '10px' }, onClick: api.close, text: 'Cancel' }));
+    });
+  };
+
+  /* Confirm sheet. opts: { title, body, confirmLabel, danger, typed } -> Promise<boolean> */
+  X.confirm = function (opts) {
+    return new Promise((resolve) => {
+      X.sheet(opts.title, (sh, api) => {
+        if (opts.body) sh.appendChild(X.h('p.muted', { text: opts.body, style: { marginBottom: '14px' } }));
+        let typedOk = !opts.typed;
+        let btn;
+        if (opts.typed) {
+          const inp = X.h('input.input', { type: 'text', placeholder: 'Type ' + opts.typed + ' to confirm', autocomplete: 'off', 'aria-label': 'Type ' + opts.typed + ' to confirm' });
+          inp.addEventListener('input', () => { typedOk = inp.value.trim().toUpperCase() === opts.typed.toUpperCase(); btn.disabled = !typedOk; });
+          sh.appendChild(X.h('div.field', { style: { marginBottom: '12px' } }, inp));
+        }
+        btn = X.h('button.btn.block', { class: opts.danger ? 'danger solid' : 'primary', disabled: !typedOk, onClick: () => { api.close(); resolve(true); }, text: opts.confirmLabel || 'Confirm' });
+        sh.appendChild(btn);
+        sh.appendChild(X.h('button.btn.block', { style: { marginTop: '8px' }, onClick: () => { api.close(); resolve(false); }, text: opts.cancelLabel || 'Cancel' }));
+      });
+    });
+  };
+
+  /* Prompt sheet -> Promise<string|null> */
+  X.prompt = function (opts) {
+    return new Promise((resolve) => {
+      X.sheet(opts.title, (sh, api) => {
+        const inp = X.h(opts.multiline ? 'textarea.input' : 'input.input', { type: opts.type || 'text', value: opts.value || '', placeholder: opts.placeholder || '', inputmode: opts.inputmode, 'aria-label': opts.title });
+        if (opts.help) sh.appendChild(X.h('p.help', { text: opts.help, style: { marginBottom: '10px' } }));
+        sh.appendChild(X.h('div.field', { style: { marginBottom: '12px' } }, inp));
+        sh.appendChild(X.h('button.btn.block.primary', { onClick: () => { api.close(); resolve(inp.value); }, text: opts.confirmLabel || 'Save' }));
+        sh.appendChild(X.h('button.btn.block', { style: { marginTop: '8px' }, onClick: () => { api.close(); resolve(null); }, text: 'Cancel' }));
+      });
+    });
+  };
+
+  let toastTimer = null;
+  X.toast = function (msg, ms) {
+    const old = document.querySelector('.toast');
+    if (old) old.remove();
+    const t = X.h('div.toast', { role: 'status', text: msg });
+    document.body.appendChild(t);
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.remove(), ms || 2200);
+  };
+
+  /* Numeric input bound to a setter. opts: { value, integer, max, placeholder, cls, label, onValue(value|null), inputmode } */
+  X.numInput = function (opts) {
+    const inp = X.h('input', {
+      class: opts.cls || 'input', type: 'text', inputmode: opts.inputmode || (opts.integer ? 'numeric' : 'decimal'),
+      pattern: opts.integer ? '[0-9]*' : '[0-9]*[.,]?[0-9]*', autocomplete: 'off', enterkeyhint: 'done',
+      placeholder: opts.placeholder || '', 'aria-label': opts.label || '', value: opts.value == null ? '' : String(opts.value)
+    });
+    inp.addEventListener('focus', () => { try { inp.select(); } catch (e) { /* ignore */ } setTimeout(() => { try { inp.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { /* ignore */ } }, 250); });
+    inp.addEventListener('input', () => {
+      const r = U.parseNum(inp.value, { integer: opts.integer, max: opts.max });
+      inp.classList.toggle('invalid', !!r.error);
+      inp.classList.remove('prefilled');
+      if (r.error) { inp.setAttribute('aria-invalid', 'true'); inp.title = r.error; if (opts.onError) opts.onError(r.error); return; }
+      inp.removeAttribute('aria-invalid'); inp.title = '';
+      if (opts.onError) opts.onError(null);
+      opts.onValue(r.value);
+    });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') inp.blur(); });
+    return inp;
+  };
+
+  /* Plate math: plates per side for a target total on a bar. */
+  X.plateMath = function (target, bar, plates) {
+    if (target == null || target < bar) return { perSide: [], remainder: target == null ? null : target - bar, exact: false };
+    let perSide = (target - bar) / 2;
+    const out = [];
+    plates.slice().sort((a, b) => b - a).forEach((p) => {
+      while (perSide + 1e-9 >= p) { out.push(p); perSide -= p; }
+    });
+    return { perSide: out, remainder: Math.round(perSide * 100) / 100, exact: Math.abs(perSide) < 1e-6 };
+  };
+
+  X.PLATES = { lb: [45, 35, 25, 10, 5, 2.5], kg: [25, 20, 15, 10, 5, 2.5, 1.25] };
+  X.BARS = { lb: [45, 35, 15], kg: [20, 15, 10] };
+
+  CS.dom = X;
+})();
+
+
+/* ===== ui/brand.js ===== */
+/* Coastal Strength — ui/brand.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom;
+  const B = {};
+
+  B.MARK_PATH = 'M37 27.5 C46 27 52 18.5 45.5 12 C36 5 17.5 9 13.5 24 C9.5 40 18 54 34 55 C43 55.6 50.5 50 55 41';
+
+  B.mark = function (size, color) {
+    return X.svg('<svg viewBox="0 0 64 64" width="' + (size || 24) + '" height="' + (size || 24) + '" aria-hidden="true"><path d="' + B.MARK_PATH + '" fill="none" stroke="' + (color || 'var(--accent)') + '" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  };
+
+  /* Week ring: completed / scheduled. Accent only when something is earned. */
+  B.ring = function (completed, scheduled, size) {
+    const r = 28, c = 2 * Math.PI * r;
+    const frac = scheduled > 0 ? completed / scheduled : 0;
+    const dash = (c * frac).toFixed(2) + ' ' + (c * (1 - frac)).toFixed(2);
+    return X.svg(
+      '<svg viewBox="0 0 72 72" width="' + (size || 72) + '" height="' + (size || 72) + '" role="img" aria-label="' + completed + ' of ' + scheduled + ' scheduled lifting sessions completed this week">' +
+      '<circle cx="36" cy="36" r="' + r + '" fill="none" stroke="var(--line)" stroke-width="7"/>' +
+      (completed > 0 ? '<circle cx="36" cy="36" r="' + r + '" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + dash + '" transform="rotate(-90 36 36)"/>' : '') +
+      '<text x="36" y="41" text-anchor="middle" font-size="16" font-weight="600" fill="currentColor">' + completed + '/' + scheduled + '</text></svg>');
+  };
+
+  /* Rep-range bar: where a set sits inside [repMin, repMax]. */
+  B.rangeBar = function (reps, repMin, repMax) {
+    const wrap = X.h('div.rangebar', { role: 'img', 'aria-label': reps == null ? 'No reps logged' : reps + ' reps in a ' + repMin + ' to ' + repMax + ' range' });
+    const span = Math.max(1, repMax - repMin);
+    if (reps != null) {
+      const frac = Math.max(0, Math.min(1, (reps - repMin + 1) / (span + 1)));
+      wrap.appendChild(X.h('div.fill', { style: { width: (frac * 100).toFixed(1) + '%' } }));
+    }
+    return wrap;
+  };
+
+  CS.brand = B;
+})();
+
+
+/* ===== ui/onboarding.js ===== */
+/* Coastal Strength — ui/onboarding.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom, U = CS.util, P = CS.plan, B = CS.brand;
+  const h = X.h;
+  const O = {};
+
+  const LAST_REPORTED_WEIGHT = 172; // lb — confirm or correct; never assumed
+
+  O.render = function (root, onDone) {
+    const tz = U.defaultTz();
+    const st = {
+      step: 0,
+      name: 'Brenden', units: 'lb', timezone: tz,
+      weight: LAST_REPORTED_WEIGHT, weightTouched: false, weightDate: U.localDate(Date.now(), tz),
+      heightFt: 6, heightIn: 1, heightCm: 185,
+      schedule: Object.assign({}, P.DEFAULT_SCHEDULE),
+      equipment: { barbell: true, dumbbells: true, cables: true, machines: true, pullup_bar: true },
+      picks: {},
+      nutritionMode: 'undecided', calorieTarget: null,
+      experience: '', limitations: '',
+      errors: {}
+    };
+    P.OR_SLOTS.forEach((s) => { st.picks[s.slotId] = s.options[0]; });
+
+    const steps = [stepYou, stepSchedule, stepGear, stepNutrition, stepGoal];
+
+    function draw() {
+      X.clear(root);
+      const scr = h('div.screen.no-tabs.ob');
+      scr.appendChild(h('div.topbar', h('div.brand', B.mark(26), h('span', { text: 'Coastal Strength' }))));
+      scr.appendChild(h('div.step', { text: 'Step ' + (st.step + 1) + ' of ' + steps.length }));
+      steps[st.step](scr);
+      root.appendChild(scr);
+      window.scrollTo(0, 0);
+    }
+
+    function actions(scr, opts) {
+      opts = opts || {};
+      const bar = h('div.actions');
+      if (st.step > 0) bar.appendChild(h('button.btn', { onClick: () => { st.step--; draw(); }, text: 'Back' }));
+      if (opts.skippable) bar.appendChild(h('button.btn', { onClick: () => next(true), text: 'Skip' }));
+      bar.appendChild(h('button.btn.primary', { onClick: () => next(false), text: opts.label || 'Continue' }));
+      scr.appendChild(bar);
+    }
+
+    function next(skipped) {
+      if (!skipped && steps[st.step].validate && !steps[st.step].validate()) { draw(); return; }
+      if (st.step === steps.length - 1) { finish(); return; }
+      st.step++; draw();
+    }
+
+    function finish() {
+      const heightIn = st.units === 'lb' ? st.heightFt * 12 + st.heightIn : st.heightCm / 2.54;
+      onDone({
+        name: st.name.trim(), units: st.units, timezone: st.timezone,
+        weight: st.weight, weightUnit: st.units, weightDate: st.weightDate,
+        heightIn: heightIn ? Math.round(heightIn * 10) / 10 : null,
+        schedule: st.schedule, equipment: st.equipment, picks: st.picks,
+        nutritionMode: st.nutritionMode, calorieTarget: st.calorieTarget,
+        experience: st.experience, limitations: st.limitations,
+        frameNoteShown: true
+      });
+    }
+
+    /* Step 1: you */
+    function stepYou(scr) {
+      scr.appendChild(h('h1', { text: 'Start with the basics' }));
+      scr.appendChild(h('p.lead', { text: 'Everything here is editable later in Profile.' }));
+      const stack = h('div.stack');
+      stack.appendChild(field('Name', h('input.input', { type: 'text', value: st.name, autocomplete: 'given-name', 'aria-label': 'Name', onInput: (e) => { st.name = e.target.value; } })));
+      stack.appendChild(field('Units', chips([['lb', 'lb / ft-in'], ['kg', 'kg / cm']], st.units, (v) => { st.units = v; if (st.weight != null) { st.weight = v === 'kg' ? Math.round(U.toUnit(st.weight, 'lb', 'kg') * 10) / 10 : Math.round(U.toUnit(st.weight, 'kg', 'lb') * 10) / 10; } draw(); })));
+
+      const lastW = st.units === 'lb' ? LAST_REPORTED_WEIGHT : Math.round(U.toUnit(LAST_REPORTED_WEIGHT, 'lb', 'kg') * 10) / 10;
+      const wInput = X.numInput({ value: st.weight, placeholder: String(lastW), label: 'Current weight in ' + st.units, onValue: (v) => { st.weight = v; st.weightTouched = true; const b = root.querySelector('.ob .actions .btn.primary'); if (b) b.textContent = 'Continue'; } });
+      const wField = field('Current weight (' + st.units + ')', h('div.row', wInput, h('span.muted', { text: st.units })), st.errors.weight);
+      wField.appendChild(h('p.help', { text: 'Last reported: ' + lastW + ' ' + st.units + '. Confirm it below or type the correct number.' }));
+      stack.appendChild(wField);
+      stack.appendChild(field('Weighed on', h('input.input', { type: 'date', value: st.weightDate, 'aria-label': 'Weight measurement date', max: U.localDate(Date.now(), st.timezone), onInput: (e) => { st.weightDate = e.target.value; } })));
+
+      if (st.units === 'lb') {
+        stack.appendChild(field('Height', h('div.row',
+          X.numInput({ value: st.heightFt, integer: true, max: 8, label: 'Height feet', onValue: (v) => { st.heightFt = v || 0; } }), h('span.muted', { text: 'ft' }),
+          X.numInput({ value: st.heightIn, integer: true, max: 11, label: 'Height inches', onValue: (v) => { st.heightIn = v || 0; } }), h('span.muted', { text: 'in' }))));
+      } else {
+        stack.appendChild(field('Height (cm)', X.numInput({ value: st.heightCm, max: 260, label: 'Height in centimetres', onValue: (v) => { st.heightCm = v || 0; } })));
+      }
+
+      const tzSel = h('select.input', { 'aria-label': 'Time zone', onChange: (e) => { st.timezone = e.target.value; } });
+      let zones = [];
+      try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [st.timezone]; }
+      if (zones.indexOf(st.timezone) < 0) zones.unshift(st.timezone);
+      zones.forEach((z) => tzSel.appendChild(h('option', { value: z, selected: z === st.timezone, text: z })));
+      stack.appendChild(field('Time zone', tzSel, null, 'Used for the day boundary on schedules and daily logs.'));
+      scr.appendChild(stack);
+      actions(scr, { label: st.weightTouched || st.weight !== lastW ? 'Continue' : 'Confirm ' + lastW + ' ' + st.units });
+    }
+    stepYou.validate = function () {
+      st.errors = {};
+      if (st.weight == null || st.weight <= 0) st.errors.weight = 'Enter your current weight.';
+      if (!U.isLocalDate(st.weightDate)) st.errors.weight = 'Enter the date you weighed in.';
+      return !Object.keys(st.errors).length;
+    };
+
+    /* Step 2: schedule */
+    function stepSchedule(scr) {
+      scr.appendChild(h('h1', { text: 'Training days' }));
+      scr.appendChild(h('p.lead', { text: 'The default week from your plan. Move a session to another weekday if it fits better; unassigned days are rest.' }));
+      const stack = h('div.stack');
+      const plan = P.DEFAULT_TEMPLATES;
+      ['push', 'pull', 'legs', 'upper', 'zone2', 'conditioning'].forEach((tid) => {
+        const sel = h('select.input', { 'aria-label': plan[tid].name + ' day', onChange: (e) => { st.schedule[tid] = e.target.value || null; draw(); } });
+        sel.appendChild(h('option', { value: '', selected: !st.schedule[tid], text: 'Not scheduled' }));
+        U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: st.schedule[tid] === wd, text: U.WEEKDAY_LABEL[wd] })));
+        stack.appendChild(field(plan[tid].name + (plan[tid].kind === 'lift' ? '' : ' (' + (plan[tid].kind === 'cardio_optional' ? 'optional cardio' : 'cardio + abs') + ')'), sel));
+      });
+      if (st.errors.schedule) stack.appendChild(h('p.error', { text: st.errors.schedule }));
+      scr.appendChild(stack);
+      actions(scr);
+    }
+    stepSchedule.validate = function () {
+      st.errors = {};
+      const used = {};
+      for (const t in st.schedule) {
+        const wd = st.schedule[t];
+        if (!wd) continue;
+        if (used[wd]) { st.errors.schedule = 'Two sessions are on ' + U.WEEKDAY_LABEL[wd] + '. One session per day.'; return false; }
+        used[wd] = true;
+      }
+      return true;
+    };
+
+    /* Step 3: gear + picks */
+    function stepGear(scr) {
+      scr.appendChild(h('h1', { text: 'Your gym' }));
+      scr.appendChild(h('p.lead', { text: 'Pick the option you\'ll use for each "or" in the plan. Skip if you\'d rather decide on the day.' }));
+      const stack = h('div.stack');
+      const eq = h('div.chips');
+      P.EQUIPMENT.forEach((e) => eq.appendChild(h('button.chip', { type: 'button', 'aria-pressed': st.equipment[e.id] ? 'true' : 'false', onClick: () => { st.equipment[e.id] = !st.equipment[e.id]; draw(); }, text: e.label })));
+      stack.appendChild(field('Equipment available', eq));
+      P.OR_SLOTS.forEach((s) => {
+        stack.appendChild(field(s.label, chips(s.options.map((id) => [id, P.EXERCISE_MAP[id].name]), st.picks[s.slotId], (v) => { st.picks[s.slotId] = v; draw(); })));
+      });
+      scr.appendChild(stack);
+      actions(scr, { skippable: true });
+    }
+
+    /* Step 4: nutrition mode + experience */
+    function stepNutrition(scr) {
+      scr.appendChild(h('h1', { text: 'Nutrition mode' }));
+      scr.appendChild(h('p.lead', { text: 'A preference for how the app frames your targets, not a prescription. Nothing here calculates a deficit for you.' }));
+      const stack = h('div.stack');
+      stack.appendChild(field('Mode', chips([['maintenance', 'Maintenance / recomp'], ['gain', 'Gradual gain'], ['loss', 'Gradual fat loss'], ['undecided', 'Undecided']], st.nutritionMode, (v) => { st.nutritionMode = v; draw(); })));
+      stack.appendChild(field('Calorie target (optional)', h('div.row', X.numInput({ value: st.calorieTarget, integer: true, max: 10000, placeholder: 'Leave blank to skip', label: 'Daily calorie target', onValue: (v) => { st.calorieTarget = v; } }), h('span.muted', { text: 'kcal' })), null, 'Only if you already have one. The app never sets or changes this on its own.'));
+      stack.appendChild(field('Experience (optional)', chips([['', 'Skip'], ['beginner', 'Under 1 year'], ['intermediate', '1–3 years'], ['advanced', '3+ years']], st.experience, (v) => { st.experience = v; draw(); })));
+      stack.appendChild(field('Limitations or injuries (optional)', h('textarea.input', { placeholder: 'e.g. left shoulder — avoid deep dips', 'aria-label': 'Limitations', onInput: (e) => { st.limitations = e.target.value; } }, st.limitations)));
+      scr.appendChild(stack);
+      actions(scr, { skippable: true });
+    }
+
+    /* Step 5: goal framing, stated once */
+    function stepGoal(scr) {
+      scr.appendChild(h('h1', { text: 'What moves the needle' }));
+      scr.appendChild(h('p.lead', { text: 'You\'re training toward a lean, athletic build: broad-reading shoulders, upper chest and upper back, defined arms, visible abs, no bulk. This is a direction, not a promise. In order of leverage, it comes from:' }));
+      scr.appendChild(h('ol.leverage',
+        h('li', h('b', { text: 'Body fat low enough for abs to show' }), ' — driven by nutrition and time, not by exercise selection.'),
+        h('li', h('b', { text: 'Shoulder-to-waist ratio' }), ' — built mainly by side and rear delts.'),
+        h('li', h('b', { text: 'Upper chest and upper back thickness.' })),
+        h('li', h('b', { text: 'Arm development.' }))));
+      scr.appendChild(h('p', { style: { marginTop: '14px' }, text: 'One thing to say once: skeletal frame and proportions are not trainable. Everything above is.' }));
+      scr.appendChild(h('div.card', { style: { marginTop: '18px' } },
+        h('h3', { text: 'Effort' }),
+        h('p.small', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.short }),
+        h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.rir }),
+        h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.warmup })));
+      scr.appendChild(h('p.small.muted', { style: { marginTop: '14px' }, text: 'Your plan is seeded exactly as written: Push, Pull, Legs & Abs, optional Zone 2, Upper, Conditioning & Abs, Rest. Leg day stays — it\'s for proportion and joint durability.' }));
+      actions(scr, { label: 'Go to Today' });
+    }
+
+    /* helpers */
+    function field(label, control, error, help) {
+      const f = h('div.field', h('label', { text: label }), control);
+      if (help) f.appendChild(h('p.help', { text: help }));
+      if (error) f.appendChild(h('p.error', { role: 'alert', text: error }));
+      return f;
+    }
+    function chips(options, current, onPick) {
+      const wrap = h('div.chips');
+      options.forEach(([v, label]) => wrap.appendChild(h('button.chip', { type: 'button', 'aria-pressed': current === v ? 'true' : 'false', onClick: () => onPick(v), text: label })));
+      return wrap;
+    }
+
+    draw();
+  };
+
+  CS.onboarding = O;
+})();
+
+
+/* ===== ui/today.js ===== */
+/* Coastal Strength — ui/today.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom, U = CS.util, D = CS.db, S = CS.stats, B = CS.brand;
+  const h = X.h;
+  const T = {};
+
+  T.render = function (root, app) {
+    const db = app.store.db;
+    const today = app.today();
+    const plan = S.todayPlan(db, today);
+    const active = D.findActiveSession(db);
+    const stack = h('div.stack');
+
+    /* Card 1 — today's session (the one primary action) */
+    const t = plan.template;
+    const session = plan.session;
+    const card = h('div.card.session-card');
+    card.appendChild(h('p.small.muted', { text: U.fmtLocalDate(today, { weekday: 'long', month: 'short', day: 'numeric' }) }));
+    if (active) {
+      const at = active.templateName;
+      const c = D.counts(active);
+      card.appendChild(h('p.name', { text: at + (active.localDate === today ? '' : ' is still open') }));
+      card.appendChild(h('p.small.muted', { text: (active.localDate === today ? '' : 'Started ' + U.fmtLocalDate(active.localDate) + '. ') + c.workingDone + ' of ' + c.workingPrescribed + ' working sets logged' + (active.status === 'paused' ? ' · paused' : '') + '.' + (active.templateId !== t.id && t.kind === 'lift' ? ' Today\'s scheduled session is ' + t.name + '; finish this one first.' : '') }));
+      card.appendChild(h('button.btn.primary.block', { style: { marginTop: '14px' }, onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume workout' }));
+    } else if (t.kind === 'rest') {
+      card.appendChild(h('p.name', { text: 'Rest day' }));
+      card.appendChild(h('p.small.muted', { text: 'Rest is a valid completion. Optional: a walk, mobility work, or a note.' }));
+      card.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: () => app.navigate('train'), text: 'See the week' }));
+    } else if (t.kind === 'cardio_optional') {
+      card.appendChild(h('p.name', { text: t.name }));
+      card.appendChild(h('p.small.muted', { text: 'Optional ' + t.cardio.minutesMin + '–' + t.cardio.minutesMax + ' min at conversational intensity. "Rest" is a valid completion, not a failure.' }));
+      card.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'Cardio logging is not built yet — it arrives with the recovery & cardio slice.' }));
+    } else {
+      const n = t.slots ? t.slots.length : 0;
+      card.appendChild(h('p.name', { text: t.name }));
+      const lines = (t.slots || []).map((sl) => {
+        const exId = db.profile.picks[sl.slotId] && sl.options.indexOf(db.profile.picks[sl.slotId]) >= 0 ? db.profile.picks[sl.slotId] : sl.options[0];
+        return D.exercise(db, exId).name + ' ' + sl.sets + '×' + (sl.timed ? sl.timed.secMin + '–' + sl.timed.secMax + ' s' : sl.repMin + '–' + sl.repMax);
+      });
+      card.appendChild(h('p.small.muted', { text: n + ' exercises · ' + lines.join(' · ') }));
+      if (session && session.status === 'completed') {
+        const c = D.counts(session);
+        card.appendChild(h('p.small', { style: { marginTop: '10px' }, text: 'Done: ' + c.workingDone + ' working sets in ' + U.fmtDuration(D.activeMs(session, Date.now())) + '.' }));
+        card.appendChild(h('button.btn.block', { style: { marginTop: '12px' }, onClick: () => app.navigate('train', { view: 'summary', sessionId: session.id }), text: 'View summary' }));
+      } else if (session && (session.status === 'in_progress' || session.status === 'paused')) {
+        const c = D.counts(session);
+        card.appendChild(h('p.small', { style: { marginTop: '10px' }, text: c.workingDone + ' of ' + c.workingPrescribed + ' working sets logged' + (session.status === 'paused' ? ' · paused' : '') + '.' }));
+        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => app.navigate('train'), text: 'Resume workout' }));
+      } else if (t.kind === 'conditioning') {
+        card.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'The abs circuit logs now; the interval timer and Zone 2 logging arrive with the cardio slice.' }));
+        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => app.startSession(t.id), text: 'Start workout' }));
+      } else {
+        card.appendChild(h('button.btn.primary.block', { style: { marginTop: '14px' }, onClick: () => app.startSession(t.id), text: 'Start workout' }));
+      }
+    }
+    stack.appendChild(card);
+
+    /* Card 2 — week ring */
+    const ring = S.weekRing(db, today);
+    const rc = h('div.card');
+    const rr = h('div.ring', B.ring(ring.completed, ring.scheduled),
+      h('div', h('div.big', { text: ring.completed + ' of ' + ring.scheduled + ' sessions this week' }), h('div.small.muted', { text: 'Scheduled lifting sessions only. Cardio and rest days are not counted.' })));
+    rc.appendChild(rr);
+    const dots = h('div.daydots');
+    ring.days.forEach((d) => {
+      const cls = ['daydot', d.kind === 'lift' ? 'lift' : '', d.status === 'completed' ? 'done' : '', d.isToday ? 'today' : '', d.status === 'other' ? 'other' : ''].filter(Boolean).join(' ');
+      dots.appendChild(h('div', { class: cls, title: d.templateName }, h('i'), h('span', { text: U.WEEKDAY_SHORT[d.key][0] })));
+    });
+    rc.appendChild(dots);
+    stack.appendChild(rc);
+
+    /* Card 3 — weight */
+    const w = S.weightSummary(db, today);
+    const wc = h('div.card');
+    if (w) {
+      wc.appendChild(h('div.row.between', h('div', h('div.weightline', { text: U.fmtNum(w.latest.value, 1) + ' ' + w.latest.unit }), h('div.small.muted', { text: 'Weighed ' + U.fmtLocalDate(w.latest.localDate) + (w.avg7 != null ? ' · 7-day average ' + U.fmtNum(w.avg7, 1) + ' ' + w.latest.unit : ' · 7-day average needs 3 weigh-ins in a week (' + w.avg7Count + ' so far)') })),
+        h('button.btn.sm', { onClick: () => logWeight(app), text: 'Log weight' })));
+    } else {
+      wc.appendChild(h('div.row.between', h('div.muted', { text: 'No weight logged yet.' }), h('button.btn.sm', { onClick: () => logWeight(app), text: 'Log weight' })));
+    }
+    stack.appendChild(wc);
+
+    /* Protein and check-in cards are not built yet — nothing is shown rather than a placeholder with fake numbers. */
+
+    /* Observations (max 2), each from a specific log */
+    const obs = S.observations(db, today);
+    if (obs.length) {
+      const oc = h('div.card.flat');
+      obs.forEach((o, i) => {
+        const line = h('p.small', { style: i ? { marginTop: '8px' } : null, text: o.text });
+        if (o.source) line.appendChild(h('button.link.small', { style: { marginLeft: '6px' }, onClick: () => app.navigate('train', { view: 'summary', sessionId: o.source.sessionId }), text: 'See session' }));
+        oc.appendChild(line);
+      });
+      stack.appendChild(oc);
+    }
+
+    root.appendChild(stack);
+  };
+
+  function logWeight(app) {
+    const db = app.store.db;
+    X.sheet('Log weight', (sh, api) => {
+      let value = null, date = app.today(), err = null;
+      const inp = X.numInput({ placeholder: 'e.g. 172', max: 1000, label: 'Weight in ' + db.profile.units, onValue: (v) => { value = v; }, onError: (e) => { err = e; } });
+      inp.classList.add('setinput');
+      const dateInp = h('input.input', { type: 'date', value: date, max: app.today(), 'aria-label': 'Date', onInput: (e) => { date = e.target.value; } });
+      sh.appendChild(h('div.stack', h('div.field', h('label', { text: 'Weight (' + db.profile.units + ')' }), inp), h('div.field', h('label', { text: 'Date' }), dateInp)));
+      sh.appendChild(h('button.btn.block.primary', { style: { marginTop: '14px' }, onClick: () => {
+        if (err || value == null || value <= 0) { X.toast('Enter a weight above 0.'); return; }
+        if (!U.isLocalDate(date)) { X.toast('Pick a date.'); return; }
+        app.store.commit((d) => D.addMeasurement(d, { type: 'weight', value, unit: d.profile.units, localDate: date }, new Date().toISOString()));
+        api.close(); X.toast('Weight logged');
+      }, text: 'Save' }));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '8px' }, onClick: api.close, text: 'Cancel' }));
+    });
+  }
+
+  CS.today = T;
+})();
+
+
+/* ===== ui/train.js ===== */
+/* Coastal Strength — ui/train.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom, U = CS.util, D = CS.db, P = CS.plan, B = CS.brand, PR = CS.progression;
+  const h = X.h;
+  const TR = {};
+
+  function nowIso() { return new Date().toISOString(); }
+
+  TR.render = function (root, app, params) {
+    params = params || {};
+    const db = app.store.db;
+    const active = D.findActiveSession(db);
+    if (params.view === 'summary' && params.sessionId && db.sessions[params.sessionId]) return renderSummary(root, app, db.sessions[params.sessionId]);
+    if (params.view === 'week') return renderWeek(root, app);
+    if (active) return renderLogger(root, app, active);
+    return renderWeek(root, app);
+  };
+
+  /* ---------- week list ---------- */
+  function renderWeek(root, app) {
+    const db = app.store.db;
+    const today = app.today();
+    const ring = CS.stats.weekRing(db, today);
+    const active = D.findActiveSession(db);
+    const stack = h('div.stack');
+    stack.appendChild(h('h1', { text: 'This week' }));
+    if (active) {
+      stack.appendChild(h('div.card', h('div.row.between', h('div', h('b', { text: active.templateName + ' in progress' }), h('div.small.muted', { text: U.fmtLocalDate(active.localDate) })), h('button.btn.sm.primary', { onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume' }))));
+    }
+    const list = h('div.card');
+    ring.days.forEach((d) => {
+      const row = h('div.weekrow', { class: d.isToday ? 'today' : '' });
+      row.appendChild(h('div', h('div.day', { text: U.WEEKDAY_SHORT[d.key] }), h('div.tiny.muted', { text: U.fmtLocalDate(d.date) })));
+      const mid = h('div.grow', h('div', { text: d.templateName }));
+      const s = d.sessions.find((x) => x.templateId === d.templateId) || d.sessions[0];
+      if (s && s.templateId !== d.templateId) mid.appendChild(h('div.tiny.muted', { text: 'Also: ' + s.templateName + ' (' + s.status.replace('_', ' ') + ')' }));
+      row.appendChild(mid);
+      const right = h('div.row');
+      if (d.kind === 'rest') right.appendChild(h('span.pill.muted', { text: 'Rest' }));
+      else if (d.kind === 'cardio_optional') right.appendChild(h('span.pill.muted', { text: 'Optional' }));
+      else if (s && s.status === 'completed') {
+        right.appendChild(h('span.pill.done', { text: 'Done' }));
+        right.appendChild(h('button.btn.xs', { onClick: () => app.navigate('train', { view: 'summary', sessionId: s.id }), text: 'View' }));
+      } else if (s && (s.status === 'in_progress' || s.status === 'paused')) {
+        right.appendChild(h('button.btn.xs.primary', { onClick: () => app.navigate('train', { view: 'logger' }), text: 'Resume' }));
+      } else if (s && s.status === 'skipped') {
+        right.appendChild(h('span.pill.muted', { text: 'Skipped' }));
+        if (!active) right.appendChild(h('button.btn.xs', { onClick: () => app.startSession(d.templateId), text: 'Start today' }));
+      } else if (!active && d.kind === 'lift' || (!active && d.kind === 'conditioning')) {
+        const done = ring.days.some((o) => o.sessions.some((x) => x.templateId === d.templateId && x.status === 'completed'));
+        if (done) right.appendChild(h('span.pill.done', { text: 'Done' }));
+        else right.appendChild(h('button.btn.xs', { class: d.isToday ? 'primary' : '', onClick: () => app.startSession(d.templateId), text: d.isToday ? 'Start' : 'Start today' }));
+      }
+      row.appendChild(right);
+      list.appendChild(row);
+    });
+    stack.appendChild(list);
+    stack.appendChild(h('p.small.muted', { text: '"Start today" logs that session on today\'s date. Moving sessions to other dates, skipping with a reason, and editing the plan going forward arrive with the scheduling slice.' }));
+    root.appendChild(stack);
+  }
+
+  /* ---------- logger ---------- */
+  function renderLogger(root, app, session) {
+    const db = app.store.db;
+    const sid = session.id;
+    const wrap = h('div');
+
+    const head = h('div.logger-head');
+    const c = D.counts(session);
+    head.appendChild(h('div.row.between',
+      h('div', h('h1', { text: session.templateName }), h('div.small.muted', { text: U.fmtLocalDate(session.localDate, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + c.workingDone + ' of ' + c.workingPrescribed + ' working sets' })),
+      h('div.row',
+        h('span.elapsed', { id: 'elapsed', text: U.fmtDuration(D.activeMs(session, Date.now())) }),
+        h('button.btn.icon', { 'aria-label': session.status === 'paused' ? 'Resume workout' : 'Pause workout', onClick: () => {
+          app.store.commit((d) => session.status === 'paused' ? D.resumeSession(d, sid, nowIso()) : D.pauseSession(d, sid, nowIso()));
+          app.render();
+        } }, X.svg(session.status === 'paused' ? X.ICON.play : X.ICON.pause)))));
+    if (session.status === 'paused') head.appendChild(h('p.small', { style: { marginTop: '4px', color: 'var(--sand)' }, text: 'Paused — the clock is stopped.' }));
+    wrap.appendChild(head);
+
+    const list = h('div.stack');
+    session.exercises.forEach((inst) => list.appendChild(exerciseCard(app, session, inst)));
+    wrap.appendChild(list);
+
+    wrap.appendChild(h('div.row', { style: { marginTop: '18px' } },
+      h('button.btn.quiet', { onClick: () => showEffort(), text: 'Effort & RIR' }),
+      h('button.btn.quiet', { onClick: () => app.navigate('train', { view: 'week' }), text: 'See the week' })));
+    wrap.appendChild(h('button.btn.primary.block', { style: { marginTop: '12px' }, onClick: () => finishFlow(app, session), text: 'Finish workout' }));
+    root.appendChild(wrap);
+  }
+
+  function showEffort() {
+    X.sheet('Effort', (sh, api) => {
+      sh.appendChild(h('p', { text: P.EFFORT_GUIDANCE.short }));
+      sh.appendChild(h('p.muted', { style: { marginTop: '10px' }, text: P.EFFORT_GUIDANCE.rir }));
+      sh.appendChild(h('p.muted', { style: { marginTop: '10px' }, text: P.EFFORT_GUIDANCE.warmup }));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
+    });
+  }
+
+  function loadHint(ex) {
+    return { per_dumbbell: 'per dumbbell', total_bar: 'bar total', machine_stack: 'stack', assistance: 'assist', added: 'added', none: '' }[ex.loadConvention] || '';
+  }
+
+  function fmtSets(sets, unit, ex) {
+    if (!sets || !sets.length) return null;
+    if (ex.type === 'timed') return sets.map((s) => (s.durationSec == null ? '—' : s.durationSec + ' s')).join(', ');
+    const loads = sets.map((s) => s.load);
+    const same = loads.every((l) => l === loads[0]);
+    const reps = sets.map((s) => (s.reps == null ? '—' : s.reps)).join(', ');
+    if (ex.loadConvention === 'none') return reps + ' reps';
+    if (same) return (loads[0] == null ? '—' : U.fmtLoad(loads[0])) + ' ' + unit + ' × ' + reps;
+    return sets.map((s) => (s.load == null ? '—' : U.fmtLoad(s.load)) + '×' + (s.reps == null ? '—' : s.reps)).join(', ') + ' ' + unit;
+  }
+
+  function exerciseCard(app, session, inst) {
+    const db = app.store.db;
+    const sid = session.id;
+    const ex = D.exercise(db, inst.exerciseId);
+    const p = inst.prescription;
+    const card = h('div.card.excard', { class: inst.skipped ? 'skipped' : '', 'data-inst': inst.instanceId });
+
+    const rangeText = ex.type === 'timed' && p.timed ? p.timed.secMin + '–' + p.timed.secMax + ' s' : p.repMin + '–' + p.repMax;
+    const headL = h('div.grow',
+      h('div.exname', { text: ex.name }),
+      h('div.exmeta', { text: p.sets + ' × ' + rangeText + (p.perSide ? ' per side' : '') + ' · rest ' + U.fmtClock(inst.restSec) + (inst.substitutedFrom ? ' · in place of ' + D.exercise(db, inst.substitutedFrom).name : '') }));
+    if (ex.cues) headL.appendChild(h('div.tiny.muted', { style: { marginTop: '3px' }, text: ex.cues }));
+    card.appendChild(h('div.exhead', headL, h('button.btn.icon.xs', { 'aria-label': 'More options for ' + ex.name, onClick: () => exerciseMenu(app, session, inst) }, X.svg(X.ICON.more))));
+
+    if (inst.skipped) {
+      card.appendChild(h('div.row.between', { style: { marginTop: '8px' } }, h('span.small.muted', { text: 'Skipped' + (inst.skipReason ? ' — ' + inst.skipReason : '') }), h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.unskipExercise(d, sid, inst.instanceId)); app.render(); }, text: 'Undo skip' })));
+      return card;
+    }
+
+    // Last time
+    const lp = inst.lastPerformance;
+    const unit = (inst.sets[0] && inst.sets[0].unit) || db.profile.units;
+    if (lp && lp.sets.length) card.appendChild(h('div.lastline', { text: 'Last (' + U.fmtLocalDate(lp.localDate) + '): ' + fmtSets(lp.sets, lp.sets[0].unit || unit, ex) }));
+    else card.appendChild(h('div.lastline', { text: 'No history yet. Start light and find the range.' }));
+
+    // Suggestion
+    const sg = inst.suggestionKey ? db.suggestions[inst.suggestionKey] : null;
+    const anyDone = inst.sets.some((s) => s.completed);
+    if (sg && sg.result && (sg.result.status === 'increase' || sg.result.status === 'assist_decrease') && sg.result.suggestedLoad != null) {
+      const label = (sg.result.status === 'assist_decrease' ? 'Suggested assistance: ' : 'Suggested: ') + U.fmtLoad(sg.result.suggestedLoad) + ' ' + sg.result.unit + ' ' + loadHint(ex);
+      const box = h('div.sugg');
+      if (!sg.decision) {
+        box.appendChild(h('div', { text: label }));
+        box.appendChild(h('div.row', { style: { marginTop: '6px' } },
+          h('button.btn.xs.primary', { onClick: () => {
+            app.store.commit((d) => {
+              D.decideSuggestion(d, sg.key, 'accepted');
+              const i2 = D.instance(d, sid, inst.instanceId);
+              i2.sets.forEach((s) => { if (!s.completed && s.kind === 'working') { s.load = sg.result.suggestedLoad; s.prefilled = true; } });
+            });
+            app.render();
+          }, text: 'Use it' }),
+          h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: 'Not now' }),
+          h('button.btn.xs', { onClick: () => showReasons(ex, sg.result), text: 'Why?' })));
+      } else if (sg.decision === 'accepted' || sg.decision === 'overridden') {
+        box.appendChild(h('div.row.between', h('span', { text: (sg.decision === 'accepted' ? 'Using suggested ' : 'Using your ') + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' ' + loadHint(ex) }), h('button.btn.xs', { onClick: () => showReasons(ex, sg.result), text: 'Why?' })));
+      }
+      if (box.childNodes.length) card.appendChild(box);
+    }
+
+    // Sets
+    const usesLoad = ex.loadConvention !== 'none';
+    const timed = ex.type === 'timed';
+    const setsEl = h('div.sets');
+    setsEl.appendChild(h('div.sethead', h('span', { text: 'Set' }), h('span', { text: usesLoad ? 'Load · ' + loadHint(ex) : '' }), h('span', { text: timed ? 'Seconds' : 'Reps ' + (p.repMin != null ? p.repMin + '–' + p.repMax : '') }), h('span', { text: 'RIR' }), h('span', { text: 'Done' })));
+    let workingIdx = 0, warmIdx = 0;
+    const pairIdx = {};
+    inst.sets.forEach((s) => {
+      let label;
+      if (s.kind === 'warmup') { if (s.side !== 'R') warmIdx++; label = 'W' + warmIdx; }
+      else {
+        if (s.pairId) { if (!(s.pairId in pairIdx)) pairIdx[s.pairId] = ++workingIdx; label = String(pairIdx[s.pairId]); }
+        else label = String(++workingIdx);
+      }
+      setsEl.appendChild(setRow(app, session, inst, ex, s, label));
+    });
+    card.appendChild(setsEl);
+
+    const acts = h('div.setactions');
+    acts.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'working')); rerenderCard(app, session, inst); }, text: '+ Set' }));
+    acts.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.addSet(d, sid, inst.instanceId, 'warmup')); rerenderCard(app, session, inst); }, text: '+ Warm-up' }));
+    acts.appendChild(h('button.btn.xs', { onClick: () => notesSheet(app, session, inst), text: inst.notes ? 'Notes ✓' : 'Notes' }));
+    if (ex.type === 'barbell') acts.appendChild(h('button.btn.xs', { onClick: () => plateSheet(app, inst, unit), text: 'Plates' }));
+    card.appendChild(acts);
+    return card;
+  }
+
+  function rerenderCard(app, session, inst) {
+    const db = app.store.db;
+    const s2 = db.sessions[session.id];
+    const i2 = s2.exercises.find((e) => e.instanceId === inst.instanceId);
+    const old = document.querySelector('[data-inst="' + inst.instanceId + '"]');
+    if (!old || !i2) { app.render(); return; }
+    old.replaceWith(exerciseCard(app, s2, i2));
+    const c = D.counts(s2);
+    const meta = document.querySelector('.logger-head .small.muted');
+    if (meta) meta.textContent = U.fmtLocalDate(s2.localDate, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + c.workingDone + ' of ' + c.workingPrescribed + ' working sets';
+  }
+
+  function setRow(app, session, inst, ex, s, label) {
+    const db = app.store.db;
+    const sid = session.id, iid = inst.instanceId;
+    const p = inst.prescription;
+    const usesLoad = ex.loadConvention !== 'none';
+    const timed = ex.type === 'timed';
+    const row = h('div.setrow', { class: (s.completed ? 'done ' : '') + (s.kind === 'warmup' ? 'warm' : '') });
+
+    const lbl = h('button.setlabel', { type: 'button', style: { background: 'none', border: 0, padding: 0 }, 'aria-label': (s.kind === 'warmup' ? 'Warm-up set ' : 'Working set ') + label + (s.side !== 'both' ? ' ' + s.side : '') + '. Tap to switch between warm-up and working.', onClick: () => {
+      app.store.commit((d) => D.setKind(d, sid, iid, s.id, s.kind === 'warmup' ? 'working' : 'warmup'));
+      rerenderCard(app, session, inst);
+    } }, h('b', { text: label + (s.side !== 'both' ? ' ' + s.side : '') }), h('span', { text: s.kind === 'warmup' ? 'warm' : '' }));
+    row.appendChild(lbl);
+
+    const silent = (fn) => app.store.commit(fn, { silent: true });
+    if (usesLoad) {
+      const inp = X.numInput({ value: s.load, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: '—', max: 5000, label: 'Load for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'load', v)) });
+      row.appendChild(inp);
+    } else row.appendChild(h('div.convention', { text: ex.type === 'timed' ? '' : 'bodyweight' }));
+
+    if (timed) row.appendChild(X.numInput({ value: s.durationSec, integer: true, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: p.timed ? p.timed.secMin + '–' + p.timed.secMax : 's', max: 3600, label: 'Seconds for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'durationSec', v)) }));
+    else row.appendChild(X.numInput({ value: s.reps, integer: true, cls: 'setinput' + (s.prefilled ? ' prefilled' : ''), placeholder: p.repMin != null ? p.repMin + '–' + p.repMax : 'reps', max: 999, label: 'Reps for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'reps', v)) }));
+
+    row.appendChild(X.numInput({ value: s.rir, integer: true, cls: 'setinput rir', placeholder: '–', max: 10, label: 'Reps in reserve for set ' + label, onValue: (v) => silent((d) => D.setField(d, sid, iid, s.id, 'rir', v)) }));
+
+    const chk = h('button.setcheck', { class: s.completed ? 'on' : '', type: 'button', 'aria-pressed': s.completed ? 'true' : 'false', 'aria-label': (s.completed ? 'Undo set ' : 'Complete set ') + label, onClick: () => {
+      let nowDone = false;
+      app.store.commit((d) => {
+        nowDone = D.toggleComplete(d, sid, iid, s.id, nowIso());
+        if (nowDone && d.settings.autoStartRest && s.kind === 'working') D.startRest(d, inst.restSec, Date.now(), sid);
+      });
+      rerenderCard(app, session, inst);
+      app.renderTimer();
+    } }, X.svg(X.ICON.check));
+    row.appendChild(chk);
+    return row;
+  }
+
+  function showReasons(ex, result) {
+    X.sheet(ex.name, (sh, api) => {
+      sh.appendChild(h('p', { text: headline(result) }));
+      const ul = h('ul.reasons');
+      (result.reasons || []).forEach((r) => ul.appendChild(h('li', { text: r })));
+      sh.appendChild(ul);
+      if (result.decline) sh.appendChild(h('p.small', { style: { marginTop: '10px' }, text: result.decline }));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
+    });
+  }
+
+  function headline(r) {
+    switch (r.status) {
+      case 'increase': return 'Increase suggested: ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit + ' (from ' + U.fmtLoad(r.currentLoad) + ').';
+      case 'assist_decrease': return r.suggestedLoad == null ? 'Assistance is already 0.' : 'Less assistance suggested: ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit + ' (from ' + U.fmtLoad(r.currentLoad) + ').';
+      case 'bodyweight_top': return 'Top of the range on every set.';
+      case 'timed_top': return 'Upper bound reached on every hold.';
+      case 'not_evaluated': return 'Not evaluated.';
+      default: return 'Hold the load.';
+    }
+  }
+
+  function exerciseMenu(app, session, inst) {
+    const db = app.store.db;
+    const sid = session.id, iid = inst.instanceId;
+    const ex = D.exercise(db, inst.exerciseId);
+    const anyDone = inst.sets.some((s) => s.completed);
+    const idx = session.exercises.findIndex((e) => e.instanceId === iid);
+    X.actionSheet(ex.name, [
+      !inst.skipped && { label: 'Skip this exercise', onSelect: async () => {
+        const reason = await X.prompt({ title: 'Skip ' + ex.name, placeholder: 'Reason (optional)', confirmLabel: 'Skip' });
+        if (reason === null) return;
+        app.store.commit((d) => D.skipExercise(d, sid, iid, reason.trim()));
+        app.render();
+      } },
+      { label: 'Substitute', hint: anyDone ? 'Not after logging sets' : (inst.substitutedFrom ? 'Currently a substitute' : ''), onSelect: () => {
+        if (anyDone) { X.toast('Sets are already logged for this exercise. Add a new exercise instead — coming with plan editing.'); return; }
+        substituteSheet(app, session, inst);
+      } },
+      ex.unilateral && { label: inst.sidesSeparate ? 'Log both sides as one row' : 'Log left and right separately', onSelect: () => { app.store.commit((d) => D.setSidesSeparate(d, sid, iid, !inst.sidesSeparate)); app.render(); } },
+      { label: 'Remove a set', onSelect: () => removeSetSheet(app, session, inst) },
+      idx > 0 && { label: 'Move up (this session only)', onSelect: () => { app.store.commit((d) => D.moveExercise(d, sid, iid, -1)); app.render(); } },
+      idx < session.exercises.length - 1 && { label: 'Move down (this session only)', onSelect: () => { app.store.commit((d) => D.moveExercise(d, sid, iid, 1)); app.render(); } },
+      { label: 'Rest timer for this exercise', hint: U.fmtClock(inst.restSec), onSelect: async () => {
+        const v = await X.prompt({ title: 'Rest after each set (seconds)', value: String(inst.restSec), inputmode: 'numeric', help: 'A default, not a rule. Starts automatically when you complete a working set.' });
+        if (v === null) return;
+        const r = U.parseNum(v, { integer: true, max: 3600 });
+        if (r.error || r.value == null) { X.toast(r.error || 'Enter seconds.'); return; }
+        app.store.commit((d) => D.setInstanceField(d, sid, iid, 'restSec', r.value));
+        app.render();
+      } },
+      { label: 'Edit cues', onSelect: async () => {
+        const v = await X.prompt({ title: 'Cues for ' + ex.name, value: ex.cues || '', multiline: true });
+        if (v === null) return;
+        app.store.commit((d) => { if (d.exercises[ex.id]) d.exercises[ex.id].cues = v.trim(); });
+        app.render();
+      } }
+    ]);
+  }
+
+  function substituteSheet(app, session, inst) {
+    const db = app.store.db;
+    const ex = D.exercise(db, inst.exerciseId);
+    const all = Object.values(db.exercises).filter((e) => e.id !== ex.id);
+    const family = all.filter((e) => e.family && e.family === ex.family);
+    const rest = all.filter((e) => family.indexOf(e) < 0).sort((a, b) => a.name.localeCompare(b.name));
+    X.sheet('Substitute ' + ex.name, (sh, api) => {
+      sh.appendChild(h('p.help', { style: { marginBottom: '8px' }, text: 'The substitute keeps its own history and progression. This session only.' }));
+      const list = h('div.list');
+      const add = (e, hint) => list.appendChild(h('button', { onClick: () => { api.close(); app.store.commit((d) => D.substituteExercise(d, session.id, inst.instanceId, e.id)); app.render(); } }, h('span', { text: e.name }), h('span.small.muted', { text: hint || '' })));
+      family.forEach((e) => add(e, 'same movement'));
+      rest.forEach((e) => add(e, ''));
+      sh.appendChild(list);
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '10px' }, onClick: api.close, text: 'Cancel' }));
+    });
+  }
+
+  function removeSetSheet(app, session, inst) {
+    const db = app.store.db;
+    const ex = D.exercise(db, inst.exerciseId);
+    X.sheet('Remove a set', (sh, api) => {
+      const list = h('div.list');
+      const seen = {};
+      inst.sets.forEach((s, i) => {
+        if (s.pairId && seen[s.pairId]) return;
+        if (s.pairId) seen[s.pairId] = true;
+        const desc = (s.kind === 'warmup' ? 'Warm-up' : 'Set') + ' ' + (i + 1) + ': ' + (s.load != null ? U.fmtLoad(s.load) + ' ' + s.unit + ' × ' : '') + (s.reps != null ? s.reps : s.durationSec != null ? s.durationSec + ' s' : '—') + (s.completed ? ' · done' : '');
+        list.appendChild(h('button', { class: s.completed ? 'danger' : '', onClick: async () => {
+          if (s.completed) { const ok = await X.confirm({ title: 'Remove a completed set?', body: 'This deletes the logged set from ' + ex.name + '.', confirmLabel: 'Remove', danger: true }); if (!ok) return; }
+          api.close();
+          app.store.commit((d) => D.deleteSet(d, session.id, inst.instanceId, s.id));
+          rerenderCard(app, session, inst);
+        } }, h('span', { text: desc })));
+      });
+      sh.appendChild(list);
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '10px' }, onClick: api.close, text: 'Cancel' }));
+    });
+  }
+
+  function notesSheet(app, session, inst) {
+    X.prompt({ title: 'Notes', value: inst.notes || '', multiline: true, placeholder: 'Seat position, grip, how it felt…' }).then((v) => {
+      if (v === null) return;
+      app.store.commit((d) => D.setInstanceField(d, session.id, inst.instanceId, 'notes', v.trim()));
+      rerenderCard(app, session, inst);
+    });
+  }
+
+  function plateSheet(app, inst, unit) {
+    const bars = X.BARS[unit], plates = X.PLATES[unit];
+    let target = (inst.sets.find((s) => s.kind === 'working' && s.load != null) || {}).load || null;
+    let bar = bars[0];
+    X.sheet('Plate math', (sh, api) => {
+      const out = h('div', { style: { marginTop: '12px' } });
+      function calc() {
+        X.clear(out);
+        const r = X.plateMath(target, bar, plates);
+        if (target == null) { out.appendChild(h('p.muted', { text: 'Enter a target total.' })); return; }
+        if (target < bar) { out.appendChild(h('p.muted', { text: 'Target is below the bar weight.' })); return; }
+        out.appendChild(h('p', h('b', { text: 'Per side: ' }), r.perSide.length ? r.perSide.map(U.fmtLoad).join(' + ') + ' ' + unit : 'empty bar'));
+        if (!r.exact) out.appendChild(h('p.small.muted', { text: U.fmtLoad(r.remainder) + ' ' + unit + ' per side can\'t be made with these plates. Loaded total: ' + U.fmtLoad(bar + 2 * r.perSide.reduce((a, b) => a + b, 0)) + ' ' + unit + '.' }));
+      }
+      sh.appendChild(h('div.field', h('label', { text: 'Target total (' + unit + ')' }), X.numInput({ value: target, cls: 'setinput', max: 5000, label: 'Target total', onValue: (v) => { target = v; calc(); } })));
+      const bc = h('div.chips', { style: { marginTop: '10px' } });
+      bars.forEach((b) => bc.appendChild(h('button.chip.sm', { type: 'button', 'aria-pressed': b === bar ? 'true' : 'false', onClick: () => { bar = b; bc.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.textContent.startsWith(String(b)) ? 'true' : 'false')); calc(); }, text: b + ' ' + unit + ' bar' })));
+      sh.appendChild(bc);
+      sh.appendChild(out);
+      sh.appendChild(h('p.tiny.muted', { style: { marginTop: '8px' }, text: 'Plates: ' + plates.join(', ') + ' ' + unit + '.' }));
+      sh.appendChild(h('button.btn.block', { style: { marginTop: '14px' }, onClick: api.close, text: 'Close' }));
+      calc();
+    });
+  }
+
+  /* ---------- finish ---------- */
+  function finishFlow(app, session) {
+    const c = D.counts(session);
+    const body = c.workingDone === 0
+      ? 'No working sets are logged. Finishing records the session with nothing completed — it will not count toward the week or progression.'
+      : c.workingDone + ' of ' + c.workingPrescribed + ' working sets across ' + c.exercisesDone + ' of ' + c.exercisesTotal + ' exercises. Sets you didn\'t complete stay incomplete.';
+    X.confirm({ title: 'Finish ' + session.templateName + '?', body, confirmLabel: 'Finish' }).then((ok) => {
+      if (!ok) return;
+      app.store.commit((d) => D.finishSession(d, session.id, nowIso()));
+      app.navigate('train', { view: 'summary', sessionId: session.id });
+    });
+  }
+
+  /* ---------- completion summary ---------- */
+  function topSet(sets) {
+    let best = null;
+    sets.forEach((s) => {
+      if (!best) { best = s; return; }
+      const a = s.load == null ? -1 : s.load, b = best.load == null ? -1 : best.load;
+      if (a > b || (a === b && (s.reps || 0) > (best.reps || 0))) best = s;
+    });
+    return best;
+  }
+
+  function renderSummary(root, app, session) {
+    const db = app.store.db;
+    const c = D.counts(session);
+    const wrap = h('div.stack.summ');
+    wrap.appendChild(h('div', h('h1', { text: session.templateName }), h('div.small.muted', { text: U.fmtLocalDate(session.localDate, { weekday: 'long', month: 'short', day: 'numeric' }) })));
+
+    const stats = h('div.card', h('div.row', { style: { justifyContent: 'space-between' } },
+      h('div', h('div.stat', { text: String(c.workingDone) }), h('div.tiny.muted', { text: 'working sets of ' + c.workingPrescribed })),
+      h('div', h('div.stat', { text: c.exercisesDone + '/' + c.exercisesTotal }), h('div.tiny.muted', { text: 'exercises complete' })),
+      h('div', h('div.stat', { text: U.fmtDuration(D.activeMs(session, Date.now())) }), h('div.tiny.muted', { text: 'active time' }))));
+    if (c.warmupsDone) stats.appendChild(h('p.tiny.muted', { style: { marginTop: '8px' }, text: c.warmupsDone + ' warm-up set(s) logged, excluded from the counts above.' }));
+    wrap.appendChild(stats);
+
+    // Comparison with the previous completed session of the same template
+    const prev = D.sessionList(db).filter((s) => s.id !== session.id && s.templateId === session.templateId && s.status === 'completed' && s.finishedAt < (session.finishedAt || '9')).slice(-1)[0];
+    const cmp = h('div.card');
+    cmp.appendChild(h('h3', { text: prev ? 'Compared with ' + U.fmtLocalDate(prev.localDate) : 'First ' + session.templateName + ' session' }));
+    if (prev) {
+      const grid = h('div.cmp', { style: { marginTop: '10px' } }, h('span.h', { text: 'Top working set' }), h('span.h', { text: U.fmtLocalDate(prev.localDate) }), h('span.h', { text: 'Today' }));
+      session.exercises.forEach((inst) => {
+        if (inst.skipped) return;
+        const ex = D.exercise(db, inst.exerciseId);
+        const now = topSet(D.logicalSets(inst, { completedOnly: true, kind: 'working' }));
+        const pi = prev.exercises.find((e) => e.exerciseId === inst.exerciseId && !e.skipped);
+        const then = pi ? topSet(D.logicalSets(pi, { completedOnly: true, kind: 'working' })) : null;
+        const f = (s) => !s ? '—' : ex.type === 'timed' ? (s.durationSec == null ? '—' : s.durationSec + ' s') : (s.load != null ? U.fmtLoad(s.load) + ' × ' : '') + (s.reps == null ? '—' : s.reps);
+        grid.appendChild(h('span', { text: ex.name })); grid.appendChild(h('span.muted', { text: f(then) })); grid.appendChild(h('span', { text: f(now) }));
+      });
+      cmp.appendChild(grid);
+      const pc = D.counts(prev);
+      cmp.appendChild(h('p.small.muted', { style: { marginTop: '10px' }, text: 'Working sets ' + pc.workingDone + ' → ' + c.workingDone + '. Active time ' + U.fmtDuration(D.activeMs(prev, Date.now())) + ' → ' + U.fmtDuration(D.activeMs(session, Date.now())) + '.' }));
+    } else cmp.appendChild(h('p.small.muted', { style: { marginTop: '6px' }, text: 'Nothing to compare against yet.' }));
+    wrap.appendChild(cmp);
+
+    // Progression decisions
+    const sugg = session.exercises.map((inst) => ({ inst, sg: db.suggestions[session.id + ':' + inst.instanceId] })).filter((x) => x.sg);
+    if (sugg.length) {
+      const sc = h('div.card');
+      sc.appendChild(h('h3', { text: 'Next time' }));
+      sugg.forEach(({ inst, sg }) => {
+        const ex = D.exercise(db, inst.exerciseId);
+        const r = sg.result;
+        if (r.status === 'not_evaluated') return;
+        const item = h('div', { style: { marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--line)' } });
+        item.appendChild(h('div.row.between', h('b', { text: ex.name }), h('button.btn.xs', { onClick: () => showReasons(ex, r), text: 'Why?' })));
+        item.appendChild(h('p.small', { style: { marginTop: '4px' }, text: headline(r) }));
+        if (r.rirFlag) item.appendChild(h('p.small', { style: { marginTop: '4px', color: 'var(--sand)' }, text: 'Logged at 0 RIR — holding the load may be appropriate.' }));
+        if (r.decline) item.appendChild(h('p.small.muted', { style: { marginTop: '4px' }, text: r.decline }));
+        if ((r.status === 'increase' || r.status === 'assist_decrease') && r.suggestedLoad != null) {
+          const controls = h('div.row.wrap', { style: { marginTop: '8px' } });
+          if (!sg.decision) {
+            controls.appendChild(h('button.btn.xs.primary', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'accepted')); app.render(); }, text: 'Accept ' + U.fmtLoad(r.suggestedLoad) + ' ' + r.unit }));
+            controls.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => D.decideSuggestion(d, sg.key, 'dismissed')); app.render(); }, text: 'Dismiss' }));
+            controls.appendChild(h('button.btn.xs', { onClick: async () => {
+              const v = await X.prompt({ title: 'Load to use next time (' + r.unit + ')', value: String(r.suggestedLoad), inputmode: 'decimal', confirmLabel: 'Use this' });
+              if (v === null) return;
+              const n = U.parseNum(v, { max: 5000 });
+              if (n.error || n.value == null) { X.toast(n.error || 'Enter a load.'); return; }
+              app.store.commit((d) => D.decideSuggestion(d, sg.key, 'overridden', n.value));
+              app.render();
+            }, text: 'Override…' }));
+          } else {
+            controls.appendChild(h('span.small.muted', { text: sg.decision === 'accepted' ? 'Accepted — ' + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' will be prefilled next time.' : sg.decision === 'overridden' ? 'Using ' + U.fmtLoad(sg.appliedLoad) + ' ' + sg.unit + ' next time.' : 'Dismissed — last load stays.' }));
+            controls.appendChild(h('button.btn.xs', { onClick: () => { app.store.commit((d) => { const g = d.suggestions[sg.key]; g.decision = null; g.appliedLoad = null; }); app.render(); }, text: 'Change' }));
+          }
+          item.appendChild(controls);
+        }
+        sc.appendChild(item);
+      });
+      sc.appendChild(h('p.tiny.muted', { style: { marginTop: '12px' }, text: 'Suggestions never rewrite the next workout. Undecided ones show up again at the start of the next session.' }));
+      wrap.appendChild(sc);
+    }
+
+    // Optional feedback
+    const fb = h('div.card');
+    fb.appendChild(h('h3', { text: 'Optional' }));
+    [['energy', 'Energy'], ['difficulty', 'Difficulty'], ['soreness', 'Soreness']].forEach(([k, label]) => {
+      const sc = h('div.scale');
+      for (let i = 1; i <= 5; i++) sc.appendChild(h('button.chip', { type: 'button', 'aria-pressed': session[k] === i ? 'true' : 'false', onClick: () => { app.store.commit((d) => D.setSessionField(d, session.id, k, session[k] === i ? null : i)); app.render(); }, text: String(i) }));
+      fb.appendChild(h('div.field', { style: { marginTop: '10px' } }, h('label', { text: label + ' (1 low – 5 high)' }), sc));
+    });
+    fb.appendChild(h('div.field', { style: { marginTop: '10px' } }, h('label', { text: 'Notes' }), h('textarea.input', { 'aria-label': 'Session notes', onInput: (e) => app.store.commit((d) => D.setSessionField(d, session.id, 'notes', e.target.value), { silent: true }) }, session.notes || '')));
+    wrap.appendChild(fb);
+
+    wrap.appendChild(h('button.btn.primary.block', { onClick: () => app.navigate('today'), text: 'Done' }));
+    root.appendChild(wrap);
+  }
+
+  /* ---------- rest timer bar ---------- */
+  TR.renderTimer = function (bar, app) {
+    const db = app.store.db;
+    X.clear(bar);
+    if (!db || !db.timer) { bar.hidden = true; return; }
+    const st = D.restState(db, Date.now());
+    bar.hidden = false;
+    bar.className = 'timerbar' + (st.done ? ' done' : '');
+    const inner = h('div.inner');
+    const frac = st.durationSec ? Math.max(0, Math.min(1, 1 - st.remainingSec / st.durationSec)) : 0;
+    bar.appendChild(h('div.bar', { style: { width: (frac * 100).toFixed(1) + '%' } }));
+    inner.appendChild(h('div.clock', { id: 'restclock', 'aria-live': 'off', text: st.done ? 'Rest done' : U.fmtClock(st.remainingSec) }));
+    inner.appendChild(h('div.grow.tiny.muted', { text: st.done ? 'Next set when ready.' : (st.paused ? 'Paused' : 'Rest') }));
+    inner.appendChild(h('button.btn.xs', { 'aria-label': 'Shorten by 30 seconds', onClick: () => { app.store.commit((d) => D.adjustRest(d, -30, Date.now())); app.renderTimer(); }, text: '−30' }));
+    inner.appendChild(h('button.btn.xs', { 'aria-label': 'Extend by 30 seconds', onClick: () => { app.store.commit((d) => D.adjustRest(d, 30, Date.now())); app.renderTimer(); }, text: '+30' }));
+    inner.appendChild(h('button.btn.xs.icon', { 'aria-label': st.paused ? 'Resume rest timer' : 'Pause rest timer', onClick: () => { app.store.commit((d) => st.paused ? D.resumeRest(d, Date.now()) : D.pauseRest(d, Date.now())); app.renderTimer(); } }, X.svg(st.paused ? X.ICON.play : X.ICON.pause)));
+    inner.appendChild(h('button.btn.xs.icon', { 'aria-label': 'Dismiss rest timer', onClick: () => { app.store.commit((d) => D.dismissRest(d)); app.renderTimer(); } }, X.svg(X.ICON.close)));
+    bar.appendChild(inner);
+  };
+
+  CS.train = TR;
+})();
+
+
+/* ===== ui/profile.js ===== */
+/* Coastal Strength — ui/profile.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom, U = CS.util, D = CS.db, P = CS.plan;
+  const h = X.h;
+  const PF = {};
+
+  PF.render = function (root, app) {
+    const db = app.store.db;
+    const pr = db.profile;
+    const stack = h('div.stack');
+    stack.appendChild(h('h1', { text: 'Profile' }));
+
+    /* You */
+    const you = h('div.card.stack');
+    you.appendChild(h('h3', { text: 'You' }));
+    you.appendChild(field('Name', h('input.input', { type: 'text', value: pr.name, 'aria-label': 'Name', onChange: (e) => app.store.commit((d) => { d.profile.name = e.target.value.trim(); }) })));
+    const hIn = pr.heightIn;
+    you.appendChild(field('Height', h('div.row',
+      X.numInput({ value: hIn == null ? null : (pr.units === 'lb' ? Math.round(hIn * 10) / 10 : Math.round(hIn * 2.54)), max: 300, label: 'Height', onValue: (v) => app.store.commit((d) => { d.profile.heightIn = v == null ? null : (d.profile.units === 'lb' ? v : v / 2.54); }, { silent: true }) }),
+      h('span.muted', { text: pr.units === 'lb' ? 'in' : 'cm' }))));
+    you.appendChild(field('Units', chips([['lb', 'lb'], ['kg', 'kg']], pr.units, (v) => { app.store.commit((d) => { d.profile.units = v; }); app.render(); }), 'Logged sets keep the unit they were logged in; prefill converts.'));
+    const tzSel = h('select.input', { 'aria-label': 'Time zone', onChange: (e) => { app.store.commit((d) => { d.profile.timezone = e.target.value; }); app.render(); } });
+    let zones = [];
+    try { zones = Intl.supportedValuesOf('timeZone'); } catch (e) { zones = [pr.timezone]; }
+    if (zones.indexOf(pr.timezone) < 0) zones.unshift(pr.timezone);
+    zones.forEach((z) => tzSel.appendChild(h('option', { value: z, selected: z === pr.timezone, text: z })));
+    you.appendChild(field('Time zone', tzSel));
+    you.appendChild(field('Nutrition mode', chips([['maintenance', 'Maintenance / recomp'], ['gain', 'Gradual gain'], ['loss', 'Gradual fat loss'], ['undecided', 'Undecided']], pr.nutritionMode, (v) => { app.store.commit((d) => { d.profile.nutritionMode = v; }); app.render(); })));
+    you.appendChild(field('Limitations', h('textarea.input', { 'aria-label': 'Limitations', onChange: (e) => app.store.commit((d) => { d.profile.limitations = e.target.value; }) }, pr.limitations || '')));
+    stack.appendChild(you);
+
+    /* Schedule */
+    const sched = h('div.card.stack');
+    sched.appendChild(h('h3', { text: 'Week' }));
+    const plan = D.activePlan(db).templates;
+    ['push', 'pull', 'legs', 'upper', 'zone2', 'conditioning'].forEach((tid) => {
+      const sel = h('select.input', { 'aria-label': plan[tid].name + ' day', onChange: (e) => {
+        const wd = e.target.value || null;
+        const clash = wd && Object.keys(pr.schedule).find((t) => t !== tid && pr.schedule[t] === wd);
+        if (clash) { X.toast(plan[clash].name + ' is already on ' + U.WEEKDAY_LABEL[wd] + '.'); app.render(); return; }
+        app.store.commit((d) => { d.profile.schedule[tid] = wd; }); app.render();
+      } });
+      sel.appendChild(h('option', { value: '', selected: !pr.schedule[tid], text: 'Not scheduled' }));
+      U.WEEKDAYS.forEach((wd) => sel.appendChild(h('option', { value: wd, selected: pr.schedule[tid] === wd, text: U.WEEKDAY_LABEL[wd] })));
+      sched.appendChild(field(plan[tid].name, sel));
+    });
+    sched.appendChild(h('p.help', { text: 'Changes the plan going forward. Completed sessions are never rewritten.' }));
+    stack.appendChild(sched);
+
+    /* Picks */
+    const picks = h('div.card.stack');
+    picks.appendChild(h('h3', { text: 'Plan choices' }));
+    P.OR_SLOTS.forEach((s) => {
+      picks.appendChild(field(s.label, chips(s.options.map((id) => [id, P.EXERCISE_MAP[id].name]), pr.picks[s.slotId], (v) => { app.store.commit((d) => { d.profile.picks[s.slotId] = v; }); app.render(); })));
+    });
+    picks.appendChild(h('p.help', { text: 'Applies to sessions started from now on. Each option keeps its own history.' }));
+    stack.appendChild(picks);
+
+    /* Rest timer */
+    const rest = h('div.card.stack');
+    rest.appendChild(h('h3', { text: 'Rest timer' }));
+    rest.appendChild(field('Auto-start when a working set is completed', chips([['on', 'On'], ['off', 'Off']], db.settings.autoStartRest ? 'on' : 'off', (v) => { app.store.commit((d) => { d.settings.autoStartRest = v === 'on'; }); app.render(); })));
+    rest.appendChild(field('Default after compounds (seconds)', X.numInput({ value: db.settings.restDefaults.compound, integer: true, max: 3600, label: 'Compound rest seconds', onValue: (v) => { if (v != null) app.store.commit((d) => { d.settings.restDefaults.compound = v; }, { silent: true }); } })));
+    rest.appendChild(field('Default after isolation (seconds)', X.numInput({ value: db.settings.restDefaults.isolation, integer: true, max: 3600, label: 'Isolation rest seconds', onValue: (v) => { if (v != null) app.store.commit((d) => { d.settings.restDefaults.isolation = v; }, { silent: true }); } })));
+    rest.appendChild(field('When the timer ends', h('div.chips',
+      h('button.chip', { type: 'button', 'aria-pressed': db.settings.restSound ? 'true' : 'false', onClick: () => { app.store.commit((d) => { d.settings.restSound = !d.settings.restSound; }); app.render(); }, text: 'Sound' }),
+      h('button.chip', { type: 'button', 'aria-pressed': db.settings.restVibrate ? 'true' : 'false', onClick: () => { app.store.commit((d) => { d.settings.restVibrate = !d.settings.restVibrate; }); app.render(); }, text: 'Vibrate' })),
+      'Sound and vibration only work where the browser allows them. When the app is in the background or the phone is locked, browser alerts may not fire — the timer itself stays accurate because it runs on timestamps.'));
+    stack.appendChild(rest);
+
+    /* Effort */
+    stack.appendChild(h('div.card', h('h3', { text: 'Effort' }), h('p.small', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.short }), h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.rir }), h('p.small.muted', { style: { marginTop: '6px' }, text: P.EFFORT_GUIDANCE.warmup })));
+
+    /* Appearance */
+    const app2 = h('div.card.stack');
+    app2.appendChild(h('h3', { text: 'Appearance' }));
+    app2.appendChild(field('Theme', chips([['auto', 'System'], ['light', 'Light'], ['dark', 'Dark']], db.settings.theme, (v) => { app.store.commit((d) => { d.settings.theme = v; }); app.applyTheme(); app.render(); })));
+    stack.appendChild(app2);
+
+    /* Storage */
+    const stor = h('div.card.stack');
+    stor.appendChild(h('h3', { text: 'Where your data lives' }));
+    stor.appendChild(h('p.small', { text: app.store.backend.label + '.' }));
+    stor.appendChild(h('p.small.muted', { text: app.storageNote() }));
+    stor.appendChild(h('p.small.muted', { text: 'Export and import (JSON and CSV) arrive with the export slice. Until then there is no backup — treat this as a working copy.' }));
+    stack.appendChild(stor);
+
+    /* Data */
+    const data = h('div.card.stack');
+    data.appendChild(h('h3', { text: 'Data' }));
+    const n = db.sessionOrder.length, m = db.measurements.length;
+    data.appendChild(h('p.small.muted', { text: n + ' session' + (n === 1 ? '' : 's') + ', ' + m + ' measurement' + (m === 1 ? '' : 's') + ' on this device.' }));
+    data.appendChild(h('button.btn.danger', { onClick: async () => {
+      const ok = await X.confirm({ title: 'Delete all data?', body: 'Every session, set, measurement and setting on this device is removed. There is no undo and no backup yet.', confirmLabel: 'Delete everything', danger: true, typed: 'DELETE' });
+      if (!ok) return;
+      await app.resetAll();
+    }, text: 'Delete all data on this device' }));
+    stack.appendChild(data);
+
+    root.appendChild(stack);
+  };
+
+  function field(label, control, help) {
+    const f = h('div.field', h('label', { text: label }), control);
+    if (help) f.appendChild(h('p.help', { text: help }));
+    return f;
+  }
+  function chips(options, current, onPick) {
+    const wrap = h('div.chips');
+    options.forEach(([v, label]) => wrap.appendChild(h('button.chip', { type: 'button', 'aria-pressed': current === v ? 'true' : 'false', onClick: () => onPick(v), text: label })));
+    return wrap;
+  }
+
+  CS.profile = PF;
+})();
+
+
+/* ===== ui/app.js ===== */
+/* Coastal Strength — ui/app.js */
+(function () {
+  const CS = (window.CS = window.CS || {});
+  const X = CS.dom, U = CS.util, D = CS.db, B = CS.brand;
+  const h = X.h;
+
+  const app = {
+    store: null, tab: 'today', params: {}, root: null, tabsEl: null, timerEl: null, statusEl: null,
+    tickHandle: null, renderQueued: false, audio: null
+  };
+
+  app.today = function () { return U.localDate(Date.now(), app.store.db ? app.store.db.profile.timezone : U.defaultTz()); };
+
+  app.navigate = function (tab, params) {
+    app.tab = tab; app.params = params || {};
+    app.render();
+    window.scrollTo(0, 0);
+  };
+
+  app.startSession = function (templateId) {
+    const active = D.findActiveSession(app.store.db);
+    if (active && active.templateId !== templateId) {
+      X.toast(active.templateName + ' is still open. Finish it first.');
+      app.navigate('train', { view: 'logger' });
+      return;
+    }
+    app.store.commit((d) => D.startSession(d, templateId, app.today(), new Date().toISOString()));
+    app.navigate('train', { view: 'logger' });
+  };
+
+  app.storageNote = function () {
+    const m = app.store.backend.mode;
+    if (m === 'preview') return 'Saved to your claude.ai account for this artifact — not to any server of ours, and not synced to a phone. If this preview is deleted, the data goes with it.';
+    if (m === 'indexeddb' || m === 'localstorage') return 'Device- and browser-specific. Clearing site data, using a different browser, or a private window means a different (or empty) copy. This is not cloud sync.';
+    return 'Storage is unavailable in this browser, so nothing you log will survive a reload. Check the site-data settings or open the app somewhere else.';
+  };
+
+  app.applyTheme = function () {
+    const t = app.store && app.store.db ? app.store.db.settings.theme : 'auto';
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() || '#0A1922');
+  };
+
+  /* ---------- rendering ---------- */
+  app.render = function () {
+    if (app.renderQueued) return;
+    app.renderQueued = true;
+    (window.requestAnimationFrame || setTimeout)(() => { app.renderQueued = false; app.renderNow(); });
+  };
+
+  app.renderNow = function () {
+    const root = app.root;
+    X.clear(root);
+    const db = app.store.db;
+    if (!db || !db.profile || !db.profile.onboarded) {
+      app.tabsEl.hidden = true; app.timerEl.hidden = true;
+      CS.onboarding.render(root, (input) => {
+        app.store.set(D.createInitial(input, new Date().toISOString()));
+        app.applyTheme();
+        app.navigate('today');
+      });
+      return;
+    }
+    app.tabsEl.hidden = false;
+    const scr = h('div.screen', { class: db.timer ? 'has-timer' : '' });
+    scr.appendChild(h('div.topbar', h('div.brand', B.mark(26), h('span', { text: 'Coastal Strength' })), app.statusEl));
+    try {
+      if (app.tab === 'today') CS.today.render(scr, app);
+      else if (app.tab === 'train') CS.train.render(scr, app, app.params);
+      else if (app.tab === 'profile') CS.profile.render(scr, app);
+      else if (app.tab === 'progress') later(scr, 'Progress', 'Per-exercise history, the rep-range climb, PRs, measurements and consistency arrive with the history slice. Every set you log now is already kept for it.');
+      else if (app.tab === 'nutrition') later(scr, 'Nutrition', 'Protein and food logging arrive with the nutrition slice. Nothing here is estimated in the meantime.');
+    } catch (e) {
+      scr.appendChild(h('div.card', h('b', { text: 'Something broke while drawing this screen.' }), h('p.small.muted', { text: String(e && e.message || e) })));
+      console.error(e);
+    }
+    root.appendChild(scr);
+    app.renderTabs();
+    app.renderTimer();
+    app.renderStatus(app.store.status);
+  };
+
+  function later(scr, title, text) {
+    scr.appendChild(h('div.later', h('h1', { text: title }), h('p.muted', { style: { marginTop: '8px' }, text: 'Not built yet.' }), h('p.small.muted', { style: { marginTop: '8px' }, text })));
+  }
+
+  app.renderTabs = function () {
+    const tabs = [['today', 'Today', X.ICON.today], ['train', 'Train', X.ICON.train], ['progress', 'Progress', X.ICON.progress], ['nutrition', 'Nutrition', X.ICON.nutrition], ['profile', 'Profile', X.ICON.profile]];
+    X.clear(app.tabsEl);
+    const inner = h('div.inner', { role: 'tablist' });
+    tabs.forEach(([id, label, icon]) => {
+      inner.appendChild(h('button.tab', { role: 'tab', 'aria-current': app.tab === id ? 'page' : null, 'aria-label': label, onClick: () => app.navigate(id) }, X.svg(icon), h('span', { text: label })));
+    });
+    app.tabsEl.appendChild(inner);
+  };
+
+  app.renderTimer = function () { CS.train.renderTimer(app.timerEl, app); };
+
+  app.renderStatus = function (st) {
+    const el = app.statusEl;
+    el.className = 'status ' + (app.store.backend.mode === 'memory' ? 'unavailable' : st.state);
+    el.textContent = app.store.backend.mode === 'memory' ? 'Not saving' : (st.state === 'saved' ? 'Saved' : st.state === 'saving' ? 'Saving…' : st.state === 'dirty' ? 'Unsaved' : st.state === 'error' ? 'Save failed — retrying' : '');
+  };
+
+  /* ---------- per-second tick: elapsed clock + rest timer, no full re-render ---------- */
+  app.tick = function () {
+    const db = app.store.db;
+    if (!db) return;
+    const active = D.findActiveSession(db);
+    const el = document.getElementById('elapsed');
+    if (el && active) el.textContent = U.fmtDuration(D.activeMs(active, Date.now()));
+    if (db.timer) {
+      const st = D.restState(db, Date.now());
+      const clock = document.getElementById('restclock');
+      if (clock) clock.textContent = st.done ? 'Rest done' : U.fmtClock(st.remainingSec);
+      if (st.done && !db.timer.alerted) {
+        app.store.commit((d) => { if (d.timer) d.timer.alerted = true; }, { silent: true });
+        app.alert();
+        app.renderTimer();
+      } else if (app.timerEl.hidden) app.renderTimer();
+    } else if (!app.timerEl.hidden) app.renderTimer();
+  };
+
+  app.alert = function () {
+    const s = app.store.db.settings;
+    if (s.restVibrate && navigator.vibrate) { try { navigator.vibrate([180, 90, 180]); } catch (e) { /* ignore */ } }
+    if (s.restSound) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        if (!app.audio) app.audio = new AC();
+        const ctx = app.audio;
+        const t0 = ctx.currentTime;
+        [0, 0.22].forEach((off) => {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = 880;
+          g.gain.setValueAtTime(0.0001, t0 + off); g.gain.exponentialRampToValueAtTime(0.25, t0 + off + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.16);
+          o.connect(g); g.connect(ctx.destination); o.start(t0 + off); o.stop(t0 + off + 0.18);
+        });
+      } catch (e) { /* ignore */ }
+    }
+  };
+
+  app.resetAll = async function () {
+    await app.store.clear();
+    app.tab = 'today'; app.params = {};
+    app.applyTheme();
+    app.renderNow();
+    X.toast('All data deleted');
+  };
+
+  /* ---------- boot ---------- */
+  app.boot = async function () {
+    app.root = document.getElementById('app');
+    app.tabsEl = document.getElementById('tabs');
+    app.timerEl = document.getElementById('timerbar');
+    app.statusEl = h('span.status', { role: 'status', 'aria-live': 'polite' });
+    const backend = await CS.storage.detect();
+    app.store = CS.storage.createStore(backend);
+    app.store.onChange(() => app.render());
+    app.store.onStatus((st) => app.renderStatus(st));
+    try { await app.store.load(); } catch (e) { console.error(e); }
+    app.applyTheme();
+    app.renderNow();
+    if (backend.mode === 'memory') X.toast('Storage unavailable — nothing will be saved.', 5000);
+    app.tickHandle = setInterval(app.tick, 1000);
+    // Offline shell when hosted (not in the single-file preview): fails silently if sw.js isn't served.
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+    // Unlock audio on first interaction so the rest-timer beep can play later
+    document.addEventListener('pointerdown', () => { try { const AC = window.AudioContext || window.webkitAudioContext; if (AC && !app.audio) app.audio = new AC(); if (app.audio && app.audio.state === 'suspended') app.audio.resume(); } catch (e) { /* ignore */ } }, { once: true, passive: true });
+    // Flush on backgrounding / navigation away; re-sync clocks when we come back
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') app.store.flushSync(); else app.tick(); });
+    window.addEventListener('pagehide', () => app.store.flushSync());
+    window.addEventListener('beforeunload', () => app.store.flushSync());
+  };
+
+  CS.app = app;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', app.boot);
+  else app.boot();
+})();
+
+
+</script>
+</body>
+</html>
